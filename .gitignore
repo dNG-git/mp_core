@@ -1,0 +1,9 @@
+_extras
+.*
+*.mo
+core.*
+data/mmedia/ext_jvp/*
+make*.py*
+nbproject
+vp_core.*
+vp_py_core.*
