@@ -2,27 +2,15 @@
 ##j## BOF
 
 """
-de.direct_netware.plugins.PSD.pas_vp
-
-@internal   We are using epydoc (JavaDoc style) to automate the
-            documentation process for creating the Developer's Manual.
-            Use the following line to ensure 76 character sizes:
-----------------------------------------------------------------------------
-@author     direct Netware Group
-@copyright  (C) direct Netware Group - All rights reserved
-@package    vp
-@subpackage core
-@since      v0.1.00
-@license    http://www.direct-netware.de/redirect.php?licenses;gpl
-            GNU General Public License 2
+dNG.pas.data.upnp.resources.VideoXMsvideoStream
 """
 """n// NOTE
 ----------------------------------------------------------------------------
-v'place media center
-A device oriented media center solution
+Video's place (media center edition)
+A device centric multimedia solution
 ----------------------------------------------------------------------------
 (C) direct Netware Group - All rights reserved
-http://www.direct-netware.de/redirect.php?vp
+http://www.direct-netware.de/redirect.py?vpmc;core
 
 The following license agreement remains valid unless any additions or
 changes are being made by direct Netware Group in a written form.
@@ -41,38 +29,46 @@ You should have received a copy of the GNU General Public License along with
 this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
 ----------------------------------------------------------------------------
-http://www.direct-netware.de/redirect.php?licenses;gpl
+http://www.direct-netware.de/redirect.py?licenses;gpl
 ----------------------------------------------------------------------------
-#echo(pasVpCoreVersion)#
-pas/#echo(__FILEPATH__)#
+#echo(vpmcCoreVersion)#
+#echo(__FILEPATH__)#
 ----------------------------------------------------------------------------
 NOTE_END //n"""
 
-from de.direct_netware.classes.pas_globals import direct_globals
-from de.direct_netware.classes.pas_pluginmanager import direct_pluginmanager
+from .abstract_stream import AbstractStream
 
-def plugin_deregistration ():
+class VideoXMsvideoStream(AbstractStream):
 #
 	"""
-Deregister plugin hooks.
+"direct_resource" represents an UPnP directory, file or virtual object.
 
-@since v0.1.00
+:author:     direct Netware Group
+:copyright:  direct Netware Group - All rights reserved
+:package:    vpmc
+:subpackage: core
+:since:      v0.1.00
+:license:    http://www.direct-netware.de/redirect.py?licenses;gpl
+             GNU General Public License 2
 	"""
 
-	pass
-#
-
-def plugin_registration ():
-#
-	"""
-Register plugin hooks.
-
-@since v0.1.00
-	"""
-
-	if ((direct_globals['basic_functions'].settings_get ("{0}/settings/pas_vp.xml".format (direct_globals['settings']['path_data']),use_cache = False)) and (direct_globals['settings']['pas_vp_mc_services'] != None)):
+	def init_cds_id(self, _id, client_user_agent = None, update_id = None):
 	#
-		direct_pluginmanager ("de.vplace.plugins")
+		"""
+Initialize a UPnP resource by CDS ID.
+
+:param _id: UPnP CDS ID
+:param client_user_agent: Client user agent
+:param update_id: Initial UPnP resource update ID
+
+:return: (bool) Returns true if initialization was successful.
+:since:  v0.1.00
+		"""
+
+		_return = AbstractStream.init_cds_id(self, _id, client_user_agent, update_id)
+
+		if (_return): self.didl_res_protocol = "http-get:*:video/x-msvideo;*"
+		return _return
 	#
 #
 

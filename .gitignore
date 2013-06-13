@@ -1,8 +1,8 @@
 _extras
+__py*
 .*
-*.mo
+.pyc
 core.*
-data/mmedia/ext_jvp/*
 make*.py*
 nbproject
 vp_core.*
