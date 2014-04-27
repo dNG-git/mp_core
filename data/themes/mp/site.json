@@ -1,0 +1,18 @@
+{
+ "pas_http_theme_mp": {
+  "site": {
+   "css_files": [
+    { "name": "jqueryui/smoothness/jquery-ui-1.10.3.min.css" },
+    { "name": "themes/mp/site.min.css" }
+   ],
+   "js_files": [
+    { "name": "requirejs/pas.config.tsc.js" },
+    { "name": "requirejs/jqueryui-1.10.3.config.js" },
+    { "name": "requirejs/require-2.1.6.min.js" }
+   ],
+   "l10n_inits": [
+    "theme_mp"
+   ]
+  }
+ }
+}

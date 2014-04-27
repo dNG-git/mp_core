@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="[rewrite:l10n]lang_charset[/rewrite]" ?><!DOCTYPE html SYSTEM "about:legacy-compat">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="[rewrite:l10n]lang_iso_domain[/rewrite]">
+
+<head>
+<title>[rewrite:settings]pas_http_site_title[/rewrite] • [rewrite:content]page_title[/rewrite]</title>
+[if:content:head_canonical_url != ]<link rel="canonical" href="[rewrite:content]head_canonical_url[/rewrite]" />[/if]
+[if:content:head_canonical_url != ]<meta name="description" content="[rewrite:content]head_page_description[/rewrite]" />[/if]
+[if:content:head_p3purl != ]<link rel="P3Pv1" href="[rewrite:content]head_p3purl[/rewrite]" />[/if]
+<meta name="author" content="direct Netware Group" />
+<meta name="creator" content="direct PAS" />
+<meta name="viewport" content="initial-scale=1" />
+<style type="text/css"><![CDATA[
+div, p, td, th { cursor: default }
+
+a { cursor: pointer }
+a:link { color: #202020 }
+a:visited { color: #2f2f2f }
+a:link, a:visited, a:focus { text-decoration: underline }
+a:active, a:hover, a:focus { color: #000000; text-decoration: none }
+
+body { margin: 0; padding: 0; background-color: #404040 }
+body { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 0.9em; font-style: normal; line-height: normal; font-weight: normal; color: #2f2f2f }
+h1, h2, h3, h4, h5, h6, summary { font-weight: bold }
+h1 { font-size: 1.75em }
+h2 { font-size: 1.70em }
+h3 { font-size: 1.65em }
+h4 { font-size: 1.60em }
+h5 { font-size: 1.55em }
+h6, summary { font-size: 1.50em }
+
+header {
+	background-color: #606060; background: linear-gradient(to bottom, rgb(64, 64, 64) 0%, rgb(96, 96, 96) 100%); border-bottom: 1px solid #eaeaea;
+	text-align: right; color: #dadada
+}
+
+form { margin: 0; padding: 0 }
+img { border: none }
+
+table { margin: 0; table-layout: fixed; border: none; border-collapse: collapse; border-spacing: 0 }
+td, th { padding: 0 }
+td:first-child, th:first-child { border-left: none }
+td:last-child, th:last-child { border-right: none }
+
+.designcopyright {
+	clear: both; margin: 0 5%; padding: 1%;
+	text-align: center; font-size: 0.75em; color: #1de1bd
+}
+
+.designcopyright a, .designcopyright a:link, .designcopyright a:active, .designcopyright a:visited, .designcopyright a:hover, .designcopyright a:focus { color: #1de1bd }
+
+.designheadercontent { margin: 1em 0 }
+.designheadercontent aside { display: inline }
+
+.designheaderlogo { width: 156px; height: 150px; float: right; background-image: url([rewrite:settings]http_path_mmedia_versioned[/rewrite]/themes/mp/design_01.png) }
+.designheadermovie { height: 18px; background-color: #0a0a0a; background-image: url([rewrite:settings]http_path_mmedia_versioned[/rewrite]/themes/mp/design_02.png); background-repeat: repeat-x }
+.designheadertitle { font-size: 1.3em }
+
+.designpage { margin: 0 5%; padding: 1%; background-color: #c0c0c0; border-left: 1px solid #1de1bd; border-right: 1px solid #1de1bd; border-bottom: 1px solid #1de1bd; border-bottom-left-radius: 0.2em; border-bottom-right-radius: 0.2em; box-shadow: 0 1.2em 1em -1em rgba(17, 225, 189, 0.8) }
+.designpage > *:first-child { margin-top: 0.5% }
+.designpage > *:last-child { margin-bottom: 0.5% }
+]]></style>
+[each:content:css_files:file]
+<link href="[rewrite:settings]http_path_mmedia_versioned[/rewrite]/[rewrite:content]css_files.file.name[/rewrite]" rel="stylesheet" type="text/css" />
+[/each][each:content:js_files:file]
+<script src="[rewrite:settings]http_path_mmedia_versioned[/rewrite]/[rewrite:content]js_files.file.name[/rewrite]" type="text/javascript"></script>
+[/each]
+</head>
+
+<body>
+<header>
+<div class="designheadermovie"><img src="[rewrite:settings]http_path_mmedia_versioned[/rewrite]/spacer.png" title="[rewrite:settings]pas_http_site_title[/rewrite]" class="designheaderlogo" /></div>
+<div class='designheadercontent'><span class='designheadertitle'>[rewrite:settings]pas_http_site_title_xhtml[/rewrite]</span><aside> • [rewrite:l10n]theme_mp_donation_1[/rewrite][rewrite:l10n]theme_mp_donation_2[/rewrite][rewrite:l10n]theme_mp_donation_3[/rewrite]</aside></div>
+</header>
+[block:settings:pas_http_site_menu_main]output.menu.File.render[/block]
+<div class='designpage'>
+[block]output.menu.Service.render_primary[/block]
+[block]output.NotificationBox.render[/block]
+<main>
+[rewrite:content]page_content[/rewrite]
+</main>
+[block]output.menu.Service.render_secondary[/block]
+</div>
+<footer class='designcopyright'>&#169; <i>direct</i> Netware Group et al. - All rights reserved - We are proudly using images based on the &quot;<a href="http://tango.freedesktop.org" target="_blank">Tango Desktop Project</a>&quot;.</footer>
+</body>
+
+</html>

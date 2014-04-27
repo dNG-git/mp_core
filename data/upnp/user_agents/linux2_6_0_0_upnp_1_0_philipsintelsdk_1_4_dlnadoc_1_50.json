@@ -1,3 +1,3 @@
 {
- "upnp_xml_cdata_encoded": false
+ "upnp_didl_title_default_item_format": "[if:dc:creator !=][rewrite]dc:creator[/rewrite] - [/if][rewrite]dc:title[/rewrite]"
 }
