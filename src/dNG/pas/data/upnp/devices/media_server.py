@@ -126,27 +126,11 @@ Returns the UPnP device description for encoding.
 
 		xml_resource = AbstractDevice._get_xml(self, xml_resource)
 
-		attributes = xml_resource.node_get_attributes("root")
-		attributes['xmlns:df'] = "http://schemas.microsoft.com/windows/2008/09/devicefoundation"
-		attributes['xmlns:pnpx'] = "http://schemas.microsoft.com/windows/pnpx/2005/11"
-		xml_resource.node_change_attributes("root", attributes)
-
-		xml_resource.node_add("root device df:X_deviceCategory", "Multimedia.DMS")
-
 		xml_resource.node_add("root device dlna:X_DLNADOC", "DMS-1.50", { "xmlns:dlna": "urn:schemas-dlna-org:device-1-0" })
 		# TODO: if (client.get("upnp_xml_dlnacap_supported", True)): xml_resource.node_add("root device dlna:X_DLNACAP", "audio-upload,av-upload,image-upload", { "xmlns:dlna": "urn:schemas-dlna-org:device-1-0" }) # TODO: upload
 
-		xml_resource.node_add("root device pnpx:X_compatibleId", "MS_DigitalMediaDeviceClass_DMS_V001")
-		xml_resource.node_add("root device pnpx:X_deviceCategory", "MediaDevices")
-
 		value = client.get("mp_media_server_device_model")
-
-		if (value == None): xml_resource.node_add("root device df:X_modelId", self.device_model)
-		else:
-		#
-			xml_resource.node_add("root device df:X_modelId", value)
-			xml_resource.node_change_value("root device modelName", value)
-		#
+		if (value != None):  xml_resource.node_change_value("root device modelName", value)
 
 		value = client.get("mp_media_server_device_model_desc")
 		if (value != None): xml_resource.node_change_value("root device modelDescription", value)

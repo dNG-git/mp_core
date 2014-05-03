@@ -2,7 +2,7 @@
 ##j## BOF
 
 """
-dNG.pas.data.upnp.resources.AbstractDlnaStream
+dNG.pas.data.upnp.resources.ImageStream
 """
 """n// NOTE
 ----------------------------------------------------------------------------
@@ -36,13 +36,12 @@ http://www.direct-netware.de/redirect.py?licenses;gpl
 ----------------------------------------------------------------------------
 NOTE_END //n"""
 
-from .http_block_stream import HttpBlockStream
+from .abstract_dlna_http_stream import AbstractDlnaHttpStream
 
-class AbstractDlnaHttpStream(HttpBlockStream):
+class ImageStream(AbstractDlnaHttpStream):
 #
 	"""
-This abstract class provides all constants required for DLNA 1.50 compliant
-HTTP streams.
+"ImageStream" represents an UPnP object with the mime class "image".
 
 :author:     direct Netware Group
 :copyright:  direct Netware Group - All rights reserved
@@ -52,94 +51,6 @@ HTTP streams.
 :license:    http://www.direct-netware.de/redirect.py?licenses;gpl
              GNU General Public License 2
 	"""
-
-	DLNA_0150 = 1048576
-	"""
-Flag for DLNA 1.50 compatibility.
-	"""
-	DLNA_BACKGROUND_TRANSFER = 4194304
-	"""
-Flag for background transfer mode.
-	"""
-	DLNA_INTERACTIVE_TRANSFER = 8388608
-	"""
-Flag for interactive transfer mode.
-	"""
-	DLNA_HTTP_STALLING = 2097152
-	"""
-Flag for the method of stalling the HTTP data flow on pause.
-	"""
-	DLNA_IS_CONTAINER = 268435456
-	"""
-Flag for container or playlist elements.
-	"""
-	DLNA_LOP_BYTES = 536870912
-	"""
-Flag for limited seek ability by byte range.
-	"""
-	DLNA_LOP_TIME = 1073741824
-	"""
-Flag for limited seek ability by time.
-	"""
-	DLNA_RSTP_PAUSE_SUPPORT = 33554432
-	"""
-Flag for streams.
-	"""
-	DLNA_S0_INCREASING = 134217728
-	"""
-Flag for stream with changing start time.
-	"""
-	DLNA_SEEK_BYTES = 1
-	"""
-Flag for seek ability by byte range.
-	"""
-	DLNA_SEEK_TIME = 2
-	"""
-Flag for seek ability by time.
-	"""
-	DLNA_SERVERSIDE_FLOW_CONTROL = 2147483648
-	"""
-Flag for server-side data flow control corresponding to the current
-playback speed.
-	"""
-	DLNA_SN_INCREASING = 67108864
-	"""
-Flag for stream with changing end time.
-	"""
-	DLNA_STREAMING_TRANSFER = 16777216
-	"""
-Flag for streams.
-	"""
-
-	def __init__(self):
-	#
-		"""
-Constructor __init__(AbstractStream)
-
-:since: v0.1.00
-		"""
-
-		HttpBlockStream.__init__(self)
-
-		self.dlna_content_features = "*"
-		"""
-UPnP DLNA content features
-		"""
-
-		self.supported_features['dlna_content_features'] = True
-	#
-
-	def dlna_get_content_features(self):
-	#
-		"""
-Return the UPnP DLNA content features known used for the 4th-field.
-
-:return: (str) UPnP DLNA compliant content features
-:since:  v0.1.01
-		"""
-
-		return self.dlna_content_features
-	#
 
 	def init_cds_id(self, _id, client_user_agent = None, update_id = None, deleted = False):
 	#
@@ -155,18 +66,18 @@ Initialize a UPnP resource by CDS ID.
 :since:  v0.1.00
 		"""
 
-		_return = HttpBlockStream.init_cds_id(self, _id, client_user_agent, update_id, deleted)
+		_return = AbstractDlnaHttpStream.init_cds_id(self, _id, client_user_agent, update_id, deleted)
 
 		if (_return):
 		#
 			self.dlna_content_features = "DLNA.ORG_OP={0:0>2x};DLNA.ORG_CI=0;DLNA.ORG_FLAGS={1:0>8x}000000000000000000000000".format(
 				AbstractDlnaHttpStream.DLNA_SEEK_BYTES,
-				(AbstractDlnaHttpStream.DLNA_0150 | AbstractDlnaHttpStream.DLNA_HTTP_STALLING)
-			)
-
-			self.didl_res_protocol = "http-get:*:{0}:{1}".format(
-				self.get_mimetype(),
-				self.dlna_content_features
+				(
+					AbstractDlnaHttpStream.DLNA_0150 |
+					AbstractDlnaHttpStream.DLNA_HTTP_STALLING |
+					AbstractDlnaHttpStream.DLNA_BACKGROUND_TRANSFER |
+					AbstractDlnaHttpStream.DLNA_INTERACTIVE_TRANSFER
+				)
 			)
 		#
 

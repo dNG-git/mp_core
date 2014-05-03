@@ -87,7 +87,7 @@ Action for "source"
 			is_allowed = (False if (len(ip_address_paths) < 1) else upnp_control_point.is_ip_allowed(ip_address_paths[0][4][0]))
 		#
 
-		resource = (Resource.load_cds_id(url, self.request.get_header("User-Agent")) if (is_allowed) else None)
+		resource = (Resource.load_cds_id(url, self.client_user_agent) if (is_allowed) else None)
 		stream_resource = None
 
 		if (resource != None):
@@ -121,13 +121,15 @@ Action for "source"
 					upnp_transfer_mode == "Interactive" or
 					upnp_transfer_mode == "Streaming"
 				): self.response.set_header("transferMode.dlna.org", upnp_transfer_mode)
+
+				self.response.set_header("Content-Type", stream_resource.get_mimetype())
 			#
 
 			stream_url = InputFilter.filter_control_chars(stream_resource.get_id())
 			stream_url_elements = urlsplit(stream_url)
 
 			streamer = (None if (stream_url_elements.scheme == "") else NamedLoader.get_instance("dNG.pas.data.streamer.{0}".format("".join([word.capitalize() for word in stream_url_elements.scheme.split("-")])), False))
-			Streaming.run(self.request, streamer, stream_url, self.response, True)
+			Streaming.run(self.request, streamer, stream_url, self.response)
 		#
 		else: self.response.handle_critical_error("core_access_denied")
 	#

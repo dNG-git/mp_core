@@ -288,7 +288,7 @@ Returns the UPnP content resources between offset and limit.
 					if (isinstance(resource_stream, AbstractStream) and resource_stream.is_supported("metadata")): resource_stream.set_metadata(size = self.get_size())
 					_return = [ resource_stream ]
 				#
-				elif (self.log_handler != None): self.log_handler.warning("Failed to load resource stream for ID '{0}'".format(self.id))
+				elif (self.log_handler != None): self.log_handler.warning("mp.MpEntry failed to load resource stream for ID '{0}'".format(self.id))
 			#
 		#
 		else: _return = self.encapsulated_resource.content_get_list()
@@ -421,27 +421,6 @@ Sets values given as keyword arguments to this method.
 				if (not is_empty): self.local.db_instance.rel_resource_metadata.value = kwargs['metadata']
 			#
 		#
-	#
-
-	def _db_apply_resource_sort_order(self, query):
-	#
-		_return = query.order_by(asc(_DbMpUpnpResource.cds_type))
-		criteria_list = ([ "+dc:title" ] if (len(self.sort_criteria) < 1) else self.sort_criteria)
-
-		for criteria in criteria_list:
-		#
-			criteria_first_char = criteria[:1]
-			if (criteria_first_char == "+" or criteria_first_char == "-"): criteria = criteria[1:]
-
-			if (criteria == "dc:date" or criteria == "upnp:recordedStartDateTime"): _return = _return.order_by(desc(_DbDataLinkerMeta.time_sortable) if (criteria_first_char == "-") else asc(_DbDataLinkerMeta.time_sortable))
-			elif (criteria == "dc:title"):
-			#
-				if (criteria_first_char == "-"): _return = _return.order_by(desc(_DbMpUpnpResource.resource_title)).order_by(desc(_DbDataLinkerMeta.title))
-				else: _return = _return.order_by(asc(_DbMpUpnpResource.resource_title)).order_by(asc(_DbDataLinkerMeta.title))
-			#
-		#
-
-		return _return
 	#
 
 	def delete(self):
@@ -772,11 +751,17 @@ Insert the instance into the database.
 
 		DataLinker._insert(self)
 
-		with self:
+		with self, self._database.no_autoflush:
 		#
-			if (self.local.db_instance.mimeclass == "directory" and isinstance(self.local.db_instance.rel_parent, _DbMpUpnpResource)):
+			if (self.local.db_instance.mimeclass == "directory"):
 			#
-				if (self.local.db_instance.rel_parent.mimetype != None): self.local.db_instance.mimetype = self.local.db_instance.rel_parent.mimetype
+				parent_object = self.load_parent()
+
+				if (
+					parent_object != None and
+					isinstance(parent_object, _DbMpUpnpResource) and
+					parent_object.mimetype != None
+				): self.local.db_instance.mimetype = parent_object.mimetype
 			#
 		#
 	#
@@ -947,7 +932,7 @@ Sets the DIDL fields to be returned.
 
 		Resource.set_sort_criteria(self, sort_criteria)
 
-		sort_definition = SortDefinition([ ( "type", SortDefinition.ASCENDING ) ])
+		sort_definition = SortDefinition([ ( "cds_type", SortDefinition.ASCENDING ) ])
 
 		criteria_list = ([ "+dc:title" ] if (len(self.sort_criteria) < 1) else self.sort_criteria)
 
