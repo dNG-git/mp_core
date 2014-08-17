@@ -2,10 +2,6 @@
 ##j## BOF
 
 """
-dNG.pas.data.upnp.resources.VideoStream
-"""
-"""n// NOTE
-----------------------------------------------------------------------------
 MediaProvider
 A device centric multimedia solution
 ----------------------------------------------------------------------------
@@ -33,8 +29,7 @@ http://www.direct-netware.de/redirect.py?licenses;gpl
 ----------------------------------------------------------------------------
 #echo(mpCoreVersion)#
 #echo(__FILEPATH__)#
-----------------------------------------------------------------------------
-NOTE_END //n"""
+"""
 
 from .abstract_dlna_http_stream import AbstractDlnaHttpStream
 
@@ -52,36 +47,23 @@ class VideoStream(AbstractDlnaHttpStream):
              GNU General Public License 2
 	"""
 
-	def init_cds_id(self, _id, client_user_agent = None, update_id = None, deleted = False):
+	def _init_dlna_content_features(self):
 	#
 		"""
-Initialize a UPnP resource by CDS ID.
+Initializes the UPnP DLNA content features variable.
 
-:param _id: UPnP CDS ID
-:param client_user_agent: Client user agent
-:param update_id: Initial UPnP resource update ID
-:param deleted: True to include deleted resources
-
-:return: (bool) Returns true if initialization was successful.
-:since:  v0.1.00
+:since: v0.1.00
 		"""
 
-		_return = AbstractDlnaHttpStream.init_cds_id(self, _id, client_user_agent, update_id, deleted)
+		dlna_content_features = "DLNA.ORG_OP={0:0>2x};DLNA.ORG_CI=0;DLNA.ORG_FLAGS={1:0>8x}000000000000000000000000"
 
-		if (_return):
-		#
-			self.dlna_content_features = "DLNA.ORG_OP={0:0>2x};DLNA.ORG_CI=0;DLNA.ORG_FLAGS={1:0>8x}000000000000000000000000".format(
-				AbstractDlnaHttpStream.DLNA_SEEK_BYTES,
-				(
-					AbstractDlnaHttpStream.DLNA_0150 |
-					AbstractDlnaHttpStream.DLNA_HTTP_STALLING |
-					AbstractDlnaHttpStream.DLNA_BACKGROUND_TRANSFER |
-					AbstractDlnaHttpStream.DLNA_STREAMING_TRANSFER
-				)
-			)
-		#
-
-		return _return
+		self.dlna_content_features = dlna_content_features.format(AbstractDlnaHttpStream.DLNA_SEEK_BYTES,
+		                                                          (AbstractDlnaHttpStream.DLNA_0150
+		                                                           | AbstractDlnaHttpStream.DLNA_HTTP_STALLING
+		                                                           | AbstractDlnaHttpStream.DLNA_BACKGROUND_TRANSFER
+		                                                           | AbstractDlnaHttpStream.DLNA_STREAMING_TRANSFER
+		                                                          )
+		                                                         )
 	#
 #
 

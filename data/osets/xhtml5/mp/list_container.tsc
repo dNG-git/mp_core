@@ -1,0 +1,4 @@
+<section class="pagecontent_box pagecontent_list_entry ppagecontent_mp pagecontent_mp_container_list">
+	<h1>[rewrite:safe_content]title[/rewrite]</h1>
+	<p><div class="pageoptionsbar_right">[block:content:options]output.OptionsButton.render[/block]</div>[rewrite:safe_content]resource[/rewrite]</p>
+</section>

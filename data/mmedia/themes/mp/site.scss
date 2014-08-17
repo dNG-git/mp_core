@@ -1,0 +1,412 @@
+@import 'data/mmedia/themes/mp/colors';
+
+hr {
+	height: 1px; border: 0;
+	background-image: -webkit-gradient(linear, left top, right top, color-stop(0, rgba(#{$darker_grey_rgba}, 0)), color-stop(0.3, $darker_grey), color-stop(0.7, $darker_grey), color-stop(1, rgba(#{$darker_grey_rgba}, 0)));
+	background-image: -o-linear-gradient(right, rgba(#{$darker_grey_rgba}, 0) 0%, $darker_grey 30%, $darker_grey 70%, rgba(#{$darker_grey_rgba}, 0) 100%);
+	background-image: -moz-linear-gradient(right, rgba(#{$darker_grey_rgba}, 0) 0%, $darker_grey 30%, $darker_grey 70%, rgba(#{$darker_grey_rgba}, 0) 100%);
+	background-image: -webkit-linear-gradient(left, rgba(#{$darker_grey_rgba}, 0) 0%, $darker_grey 30%, $darker_grey 70%, rgba(#{$darker_grey_rgba}, 0) 100%);
+	background-image: -ms-linear-gradient(left, rgba(#{$darker_grey_rgba}, 0) 0%, $darker_grey 30%, $darker_grey 70%, rgba(#{$darker_grey_rgba}, 0) 100%);
+	background-image: linear-gradient(to right, rgba(#{$darker_grey_rgba}, 0) 0%, $darker_grey 30%, $darker_grey 70%, rgba(#{$darker_grey_rgba}, 0) 100%);
+}
+
+small { font-size: 0.75em }
+
+.pagecontent_box { border-radius: 0.2em }
+
+.pagecontent_box_infoblock {
+	display: inline-block; clear: right; float: right; margin: 0 0 0.2em 0.2em;
+	white-space: nowrap
+}
+
+.pagecontent_box_infoblock div {
+	display: inline-block; padding: 0.4em; background-color: $lighter_grey; border: 1px solid $darker_grey;
+	background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, rgba(#{$neon_rgba}, 0.1)), color-stop(1, rgba(#{$lighter_grey_rgba}, 0.5)));
+	background-image: -o-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
+	background-image: -moz-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
+	background-image: -webkit-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
+	background-image: -ms-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
+	background-image: linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
+	font-size: 1.1em; text-align: center
+}
+
+.pagecontent_box_infoblock div em {
+	display: block;
+	font-weight: bold
+}
+
+.pagecontent_datalinker_parent_box {
+	clear: both; padding: 0.4em; background-color: $light_grey; border: 1px solid $dark_grey;
+	font-weight: bold
+}
+
+.pagecontent_datalinker_sub_entries_box {
+	clear: right; float: right; width: 35%; padding: 0.4em; background-color: $lighter_grey; border: 1px solid $darker_grey;
+	background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, rgba(#{$neon_rgba}, 0.1)), color-stop(1, rgba(#{$lighter_grey_rgba}, 0.5)));
+	background-image: -o-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
+	background-image: -moz-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
+	background-image: -webkit-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
+	background-image: -ms-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
+	background-image: linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%)
+}
+
+.pagecontent_datalinker_sub_entries_box h1 {
+	margin: 1em inherit; border-bottom: 1px $darker_grey solid;
+	font-size: 1em
+}
+
+.pagecontent_datalinker_sub_entries_box li { margin: 0; padding: 0 }
+.pagecontent_datalinker_sub_entries_box li:nth-child(n+2) { border-top: 1px $darker_grey dotted }
+.pagecontent_datalinker_sub_entries_box ul { margin: 0; padding: 0; list-style: none inside none }
+
+.pagecontent_highlight_box {
+	padding: 0.4em; background-color: $light_neon; border: 1px solid $darker_grey;
+	background-image: -webkit-gradient(linear, left top, right bottom,
+		color-stop(0.25, rgba(#{$white_rgba}, 0.2)), color-stop(0.25, transparent),
+		color-stop(0.5, transparent), color-stop(0.5, rgba(#{$white_rgba}, 0.2)),
+		color-stop(0.75, rgba(#{$white_rgba}, 0.2)), color-stop(0.75, transparent),
+		to(transparent));
+	background-image: -o-linear-gradient(-45deg, rgba(#{$white_rgba}, 0.2) 25%, transparent 25%,
+		transparent 50%, rgba(#{$white_rgba}, 0.2) 50%,
+		rgba(#{$white_rgba}, 0.2) 75%, transparent 75%, transparent);
+	background-image: -moz-linear-gradient(-45deg, rgba(#{$white_rgba}, 0.2) 25%, transparent 25%,
+		transparent 50%, rgba(#{$white_rgba}, 0.2) 50%,
+		rgba(#{$white_rgba}, 0.2) 75%, transparent 75%, transparent);
+	background-image: -webkit-linear-gradient(-45deg, rgba(#{$white_rgba}, 0.2) 25%, transparent 25%,
+		transparent 50%, rgba(#{$white_rgba}, 0.2) 50%,
+		rgba(#{$white_rgba}, 0.2) 75%, transparent 75%, transparent);
+	background-image: -ms-linear-gradient(-45deg, rgba(#{$white_rgba}, 0.2) 25%, transparent 25%,
+		transparent 50%, rgba(#{$white_rgba}, 0.2) 50%,
+		rgba(#{$white_rgba}, 0.2) 75%, transparent 75%, transparent);
+	background-image: linear-gradient(-45deg, rgba(#{$white_rgba}, 0.2) 25%, transparent 25%,
+		transparent 50%, rgba(#{$white_rgba}, 0.2) 50%,
+		rgba(#{$white_rgba}, 0.2) 75%, transparent 75%, transparent);
+	-moz-background-size: 40pt 40pt;
+	-webkit-background-size: 40pt 40pt;
+	background-size: 40pt 40pt
+}
+
+.pagecontent_list_entry { margin: 0.75em 0; padding: 0.4em; border: 1px solid $darker_grey }
+
+.pagecontent_list_entry h1, .pagecontent_list_entry h2, .pagecontent_list_entry h3, .pagecontent_list_entry h4, .pagecontent_list_entry h5, .pagecontent_list_entry h6 {
+	margin: 1em inherit;
+	font-size: 1em
+}
+
+.pagecontent_monospace_box { overflow: auto; font-family: "Nimbus Mono L", Monaco, "Lucida Sans Typewriter", "Lucida Console", "Bitstream Vera Sans Mono", "Courier New", Courier, monospace }
+
+.pagecontent_page_navigation { clear: both; padding: 0.4em; background-color: $light_grey; border: 1px solid $dark_grey }
+section .pagecontent_page_navigation { font-size: 0.75em }
+
+.pagecontent_page_navigation ul { display: inline-block; margin: 0; padding: 0; list-style: none }
+
+.pagecontent_page_navigation li {
+	display: inline-block;
+	white-space: nowrap
+}
+
+.pagecontent_page_navigation li:not(:last-child):after { margin: 0 0.3em; content: "•" }
+
+.pagecontent_quote_box { padding: 0.4em; background-color: $light_grey; border: 1px solid $dark_grey }
+
+.pagecontent_quote_box:first-child:before {
+	display: block; float: left; padding-bottom: 0.4em; padding-right: 0.4em;
+	font-size: 200%; content: open-quote
+}
+
+.pagecontent_user_above_wrote { padding: 0.4em; background-color: $grey; border: 1px solid $dark_grey }
+
+.pagecontent_user_above_wrote:before, .pagecontent_user_above_wrote:after {
+	position: absolute; top: 0;
+	content: " "
+}
+
+.pagecontent_user_above_wrote:before { margin-top: -18px; margin-left: 9px; border: 9px solid transparent; border-bottom-color: $dark_grey }
+.pagecontent_user_above_wrote:after { margin-top: -17px; margin-left: 9px; border: 9px solid transparent; border-bottom-color: $grey }
+
+.pagecontent_user_above_wrote > :first-child { margin-top: 0 }
+.pagecontent_user_above_wrote > :last-child { margin-bottom: 0 }
+
+.pagecontent_user_bar { clear: left; margin: 1em 0 }
+
+.pagecontent_user_bar > div {
+	display: inline-block; min-width: 25%; padding: 0.4em; background-color: $lighter_grey; border: 1px solid $dark_grey;
+	background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, rgba(#{$neon_rgba}, 0.1)), color-stop(1, rgba(#{$lighter_grey_rgba}, 0.5)));
+	background-image: -o-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
+	background-image: -moz-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
+	background-image: -webkit-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
+	background-image: -ms-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
+	background-image: linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%)
+}
+
+.pagecontent_user_quote { margin: 1em 0; position: relative }
+
+.pagecontent_user_quote h1, .pagecontent_user_quote h2, .pagecontent_user_quote h3, .pagecontent_user_quote h4, .pagecontent_user_quote h5, .pagecontent_user_quote h6 {
+	margin: 1em inherit;
+	font-size: 1em
+}
+
+.pageform_button, .pageoptionsbar_button { padding: 0.4em; background-color: $lighter_grey; border: 1px solid $darker_grey; border-radius: 0.2em }
+
+.pageform_button {
+	margin: 0.75em;
+	font-size: 1.2em
+}
+
+.pageform_element { overflow: auto; border-bottom: 1px solid $grey; box-shadow: 0 2px 5px -5px rgba(0, 0, 0, 0.2) }
+.pageform_element .pageform_error { display: inline-block; margin-top: 10px }
+
+.pageform_element_radio .pageform_label { padding: 0.6% 0.4% }
+
+.pageform_error { clear: both; padding: 0.25%; background-color: $light_red; border: 1px solid $red; border-radius: 0.2em }
+
+.pageform_field {
+	display: inline-block; width: 73%; margin: 0; padding: 0.75em 0.3%;
+	text-align: center
+}
+
+.pageform_field > :first-child { margin-top: 0 }
+.pageform_field > :last-child { margin-bottom: 0 }
+
+.pageform_field article {
+	border: 1px solid $light_grey; border-radius: 0.2em;
+	text-align: left
+}
+
+.pageform_input_focused { background-color: $lighter_grey; border-color: $neon !important; box-shadow: 0 0 0.2em 0.2em $light_neon }
+
+.pageform_label {
+	display: inline-block; width: 25%; margin: 0; padding: 0.75em 0.4%; font-weight: bold;
+	vertical-align: top; text-align: right
+}
+
+.pageform_radio {
+	margin: 0; padding: 0; display: inline-block; list-style-type: none;
+	text-align: left
+}
+
+.pageform_radio_label { vertical-align: middle }
+
+.pageform_textnpassword {
+	padding: 0.4%; background-color: $lighter_grey; border: 1px solid $dark_grey; border-bottom-color: $darkest_grey; border-radius: 0.2em;
+	font-size: 1em
+}
+
+.pageform_select {
+	margin: 0.2%; padding: 0.2%; background-color: $lighter_grey; border: 1px solid $dark_grey; border-radius: 0.2em;
+	font-size: 1em
+}
+
+.pagemainmenu {
+	margin: 0 5%; padding: 0.75em; background-color: $mainmenu_dark_grey; border-left: 1px solid $neon; border-right: 1px solid $neon; border-bottom: 1px solid $neon; box-shadow: 0 1.2em 1em -1em rgba(#{$neon_rgba}, 0.8);
+	font-size: 1.1em; font-weight: bold; color: $light_grey
+}
+
+.pagemainmenu a { display: inline-block }
+.pagemainmenu a:link { color: $grey }
+.pagemainmenu a:visited { color: $light_grey }
+.pagemainmenu a:link, .pagemainmenu a:visited { text-decoration: none }
+.pagemainmenu a:active, .pagemainmenu a:hover, .pagemainmenu a:focus { color: $lighter_grey; text-decoration: underline }
+
+.pagemainmenu li {
+	display: inline-block;
+	white-space: nowrap
+}
+
+.pagemainmenu li:not(:last-child):after { margin: 0 0.3em; content: "•" }
+.pagemainmenu ul { margin: 0; padding: 0; list-style: none }
+
+.pagenavbox { padding: 0.4%; border: 1px solid $light_steel }
+
+.pagenavtask { text-align: center; font-weight: bold }
+
+.pagenotification_completed_info { padding: 0.4%; background-color: $light_green; border: 1px solid $green; border-radius: 0.2em }
+.pagenotification_error { padding: 0.4%; background-color: $light_red; border: 1px solid $red; border-radius: 0.2em }
+
+.pageoptionsbar a {
+	padding: 0.25em; background-color: $lighter_grey; border: 1px solid $grey; border-radius: 0.2em;
+	font-size: 1em
+}
+
+.pageoptionsbar a:link, .pageoptionsbar a:active, .pageoptionsbar a:visited, .pageoptionsbar a:hover, .pageoptionsbar a:focus { text-decoration: none }
+
+.pageoptionsbar li { display: inline-block; margin: 0; padding: 0 }
+.pageoptionsbar li > a, .pageoptionsbar li > span { display: block; margin: 0.25em }
+
+.pageoptionsbar ul {
+	z-index: 124; margin: 0; padding: 0.25em; background-color: $grey; border: 1px solid $darker_grey; border-radius: 0.2em;
+	list-style: none inside none
+}
+
+.pageoptionsbar_button:link, .pageoptionsbar_button:active, .pageoptionsbar_button:visited, .pageoptionsbar_button:hover, .pageoptionsbar_button:focus { text-decoration: none }
+
+.pageoptionsbar_left { display: inline-block; float: left; margin-right: 0.25em }
+.pageoptionsbar_right { display: inline-block; float: right; margin-left: 0.25em }
+.pageoptionsbar_widget li { display: block }
+
+.pageoptionsblock li > a, .pageoptionsblock li > span {
+	display: block; margin: 0.3em; padding: 0.4em; border: 1px solid $lighter_grey; border-radius: 0.5em;
+	overflow: auto; text-decoration: none
+}
+
+.pageoptionsblock a:first-line { font-weight: bold; text-decoration: underline }
+
+.pageoptionsblock img {
+	margin: 0 1em 1em 0;
+	float: left
+}
+
+.pageoptionsblock li { display: inline-block; width: 25%; margin: 0; padding: 0 }
+.pageoptionsblock ul { position: relative; margin: 0; padding: 0; list-style: none inside none }
+
+.pageservicemenu { clear: both; margin: 1% 0; border: 1px solid $dark_grey; border-radius: 0.2em }
+
+.pageservicemenu a { display: inline-block }
+.pageservicemenu a:link, .pageservicemenu a:visited { color: $darkest_grey; text-decoration: none }
+.pageservicemenu a:active, .pageservicemenu a:hover, .pageservicemenu a:focus { color: $black; text-decoration: none }
+
+.pageservicemenu img {
+	margin: 0 0.2em 0.2em 0;
+	vertical-align: middle
+}
+
+.pageservicemenu li { display: inline-block }
+.pageservicemenu li:not(:last-child):after { margin-right: 0.3em; content: ", " }
+.pageservicemenu ul { position: relative; margin: 0; padding: 0; list-style: none inside none }
+
+.pageservicemenu_p {
+	padding: 0.2em 0.2em 0 0.2em;
+	text-align: left
+}
+
+.pageservicemenu_s {
+	clear: both; padding: 0.2em;
+	text-align: right; font-size: 0.8em
+}
+
+.pagetable { clear: both; border-radius: 0.2em }
+
+.pagetable td, .pagetable th { padding: 0.4em; text-align: left; vertical-align: top }
+.pagetable td > :first-child, .pagetable th > :first-child { margin-top: 0 }
+.pagetable td > :last-child, .pagetable th > :last-child { margin-bottom: 0 }
+
+.pagetable td > h1, .pagetable td > h2, .pagetable td > h3, .pagetable td > h4, .pagetable td > h5, .pagetable td > h6 {
+	margin: 1em inherit;
+	font-size: 1.1em
+}
+
+.pagetable th {
+	background-color: $lighter_grey;
+	background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, rgba(#{$neon_rgba}, 0.1)), color-stop(1, rgba(#{$lighter_grey_rgba}, 0.5)));
+	background-image: -o-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
+	background-image: -moz-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
+	background-image: -webkit-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
+	background-image: -ms-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
+	background-image: linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
+	font-weight: bold; font-size: 1.1em
+}
+
+.pagetable thead, .pagetable tr, .pagetable tfoot { border: 1px solid $darker_grey }
+.pagetable thead { border-bottom-width: 0.4em }
+.pagetable tfoot { border-top-width: 0.4em }
+
+.pageurl_requirements_unsupported { color: $darker_grey }
+
+@media only screen and (max-width: 46em) {
+	.pagecontent_box_infoblock {
+		display: block; clear: both; float: none; margin: 0.2em 0; padding: 0.2em; background-color: $lighter_grey; border: 1px solid $darker_grey; border-radius: 0.2em;
+		background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, rgba(#{$neon_rgba}, 0.1)), color-stop(1, rgba(#{$lighter_grey_rgba}, 0.5)));
+		background-image: -o-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
+		background-image: -moz-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
+		background-image: -webkit-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
+		background-image: -ms-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
+		background-image: linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
+		text-align: center
+	}
+
+	.pagecontent_box_infoblock div { background-color: $lighter_grey; background-image: none }
+
+	.pageform_element { padding: 2% 0 }
+
+	.pageform_field
+	{
+		display: block; width: inherit;
+		text-align: left
+	}
+
+	.pageform_label {
+		display: block; width: inherit;
+		text-align: left
+	}
+
+	.pageform_textnpassword {
+		width: 100% !important;
+		box-sizing: border-box; -moz-box-sizing: border-box; -ms-box-sizing: border-box; -opera-box-sizing: border-box; -webkit-box-sizing: border-box
+	}
+
+	.pageoptionsblock li { width: 100%; margin: 0; padding: 0 }
+
+	.pageservicemenu img { margin-bottom: 0 }
+
+	.pageservicemenu_p {
+		padding: 0;
+		text-align: center
+	}
+
+	.pageservicemenu_s {
+		padding: 0;
+		text-align: center
+	}
+
+	.pagetable_responsive { margin: 0.4em 0 }
+
+	.pagetable_responsive tr { border-top: 1px solid $darker_grey; border-bottom: 1px solid $darker_grey }
+
+	.pagetable_responsive th { display: none }
+
+	.pagetable_responsive td { display: block }
+
+	.pagetable_responsive td:before {
+		display: block; margin: 0 -0.3em 0.2em -0.3em; padding: 0 0.3em 0.1em 0.3em; border-bottom: 1px solid $neon;
+		background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, rgba(#{$grey_rgba}, 0)), color-stop(1, $light_neon));
+		background-image: -o-linear-gradient(rgba(#{$grey_rgba}, 0) 0%, $light_neon 100%);
+		background-image: -moz-linear-gradient(rgba(#{$grey_rgba}, 0) 0%, $light_neon 100%);
+		background-image: -webkit-linear-gradient(rgba(#{$grey_rgba}, 0) 0%, $light_neon 100%);
+		background-image: -ms-linear-gradient(rgba(#{$grey_rgba}, 0) 0%, $light_neon 100%);
+		background-image: linear-gradient(rgba(#{$grey_rgba}, 0) 0%, $light_neon 100%);
+		font-weight: bold; font-size: 1.1em; content: attr(data-th) ": "
+	}
+
+	.pagetable_responsive td { text-align: left !important }
+}
+
+@media only screen and (min-width: 46em) and (max-width: 62em) {
+	.pageform_element { padding: 1% 0 }
+
+	.pageform_field
+	{
+		display: block; width: inherit;
+		text-align: left
+	}
+
+	.pageform_label {
+		display: block; width: inherit;
+		text-align: left
+	}
+
+	.pageoptionsblock li { width: 50%; margin: 0; padding: 0 }
+
+	.pageservicemenu_p {
+		padding: 0.1em 0.1em 0 0.1em;
+		text-align: center
+	}
+
+	.pageservicemenu_s {
+		padding: 0.1em;
+		text-align: center
+	}
+}
+
+@media only screen and (min-width: 62em) and (max-width: 126em) {
+	.pageoptionsblock li { width: 50% }
+}

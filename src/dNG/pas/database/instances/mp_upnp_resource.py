@@ -2,10 +2,6 @@
 ##j## BOF
 
 """
-dNG.pas.database.instances.MpUpnpResource
-"""
-"""n// NOTE
-----------------------------------------------------------------------------
 MediaProvider
 A device centric multimedia solution
 ----------------------------------------------------------------------------
@@ -33,11 +29,11 @@ http://www.direct-netware.de/redirect.py?licenses;gpl
 ----------------------------------------------------------------------------
 #echo(mpCoreVersion)#
 #echo(__FILEPATH__)#
-----------------------------------------------------------------------------
-NOTE_END //n"""
+"""
 
-from sqlalchemy import BIGINT, BOOLEAN, Column, ForeignKey, INT, TEXT, VARCHAR
 from sqlalchemy.orm import foreign, relationship, remote
+from sqlalchemy.schema import Column, ForeignKey
+from sqlalchemy.types import BIGINT, BOOLEAN, INT, TEXT, VARCHAR
 
 from .data_linker import DataLinker
 from .key_store import KeyStore
@@ -77,6 +73,10 @@ SQLAlchemy table name
 	"""
 Encapsulating SQLAlchemy database instance class name
 	"""
+	db_schema_version = 1
+	"""
+Database schema version
+	"""
 
 	id = Column(VARCHAR(32), ForeignKey(DataLinker.id), primary_key = True)
 	"""
@@ -108,11 +108,11 @@ mp_upnp_resource.resource
 	"""
 	refreshable = Column(BOOLEAN, server_default = "0", nullable = False)
 	"""
-mp_upnp_image_resource.refreshable
+mp_upnp_resource.refreshable
 	"""
 	size = Column(BIGINT)
 	"""
-mp_upnp_image_resource.size
+mp_upnp_resource.size
 	"""
 
 	__mapper_args__ = { "polymorphic_identity": "MpUpnpResource" }

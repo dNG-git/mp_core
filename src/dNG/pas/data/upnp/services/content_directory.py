@@ -2,10 +2,6 @@
 ##j## BOF
 
 """
-dNG.pas.data.upnp.services.ContentDirectory
-"""
-"""n// NOTE
-----------------------------------------------------------------------------
 MediaProvider
 A device centric multimedia solution
 ----------------------------------------------------------------------------
@@ -33,12 +29,16 @@ http://www.direct-netware.de/redirect.py?licenses;gpl
 ----------------------------------------------------------------------------
 #echo(mpCoreVersion)#
 #echo(__FILEPATH__)#
-----------------------------------------------------------------------------
-NOTE_END //n"""
+"""
 
 from dNG.pas.data.upnp.upnp_exception import UpnpException
 from dNG.pas.data.upnp.resource import Resource
 from .abstract_service import AbstractService
+
+_py_filter = filter
+"""
+Remapped filter builtin
+"""
 
 class ContentDirectory(AbstractService):
 #
@@ -56,7 +56,7 @@ Implementation for "urn:schemas-upnp-org:service:ContentDirectory:1".
 
 	# pylint: disable=redefined-builtin,unused-argument
 
-	update_id = 1
+	_update_id = 1
 	"""
 UPnP SystemUpdateID
 	"""
@@ -70,7 +70,7 @@ Returns the current UPnP SystemUpdateID value.
 :since:  v0.1.00
 		"""
 
-		if (self.log_handler != None): self.log_handler.debug("#echo(__FILEPATH__)# -{0!r}.browse({1}, {2}, {3}, {4:d}, {5:d}, {6})- (#echo(__LINE__)#)".format(self, object_id, browse_flag, filter, starting_index, requested_count, sort_criteria))
+		if (self.log_handler != None): self.log_handler.debug("#echo(__FILEPATH__)# -{0!r}.browse({1}, {2}, {3}, {4:d}, {5:d}, {6})- (#echo(__LINE__)#)", self, object_id, browse_flag, filter, starting_index, requested_count, sort_criteria, context = "mp_server")
 		_return = UpnpException("pas_http_core_404", 701)
 
 		if (browse_flag == "BrowseDirectChildren"):
@@ -113,11 +113,11 @@ Returns the current UPnP SystemUpdateID value.
 
 			if (requested_count > 0):
 			#
-				resource.content_set_offset(starting_index)
-				resource.content_set_limit(requested_count)
+				resource.set_content_offset(starting_index)
+				resource.set_content_limit(requested_count)
 			#
 
-			_return = resource.content_get_didl_xml()
+			_return = resource.get_content_didl_xml()
 		#
 
 		return _return
@@ -145,7 +145,7 @@ Returns the current UPnP SystemUpdateID value.
 				resource.set_didl_fields(filter_list)
 			#
 
-			_return = resource.metadata_get_didl_xml()
+			_return = resource.get_metadata_didl_xml()
 		#
 
 		return _return
@@ -160,7 +160,7 @@ Returns the system-wide UPnP search capabilities available.
 :since:  v0.1.00
 		"""
 
-		if (self.log_handler != None): self.log_handler.debug("#echo(__FILEPATH__)# -{0!r}.get_search_capabilities()- (#echo(__LINE__)#)".format(self))
+		if (self.log_handler != None): self.log_handler.debug("#echo(__FILEPATH__)# -{0!r}.get_search_capabilities()- (#echo(__LINE__)#)", self, context = "mp_server")
 		_return = UpnpException("pas_http_core_404", 701)
 
 		resource = Resource.load_cds_id("0", self.client_user_agent, self)
@@ -178,7 +178,7 @@ Returns the system-wide UPnP sort capabilities available.
 :since:  v0.1.00
 		"""
 
-		if (self.log_handler != None): self.log_handler.debug("#echo(__FILEPATH__)# -{0!r}.get_sort_capabilities()- (#echo(__LINE__)#)".format(self))
+		if (self.log_handler != None): self.log_handler.debug("#echo(__FILEPATH__)# -{0!r}.get_sort_capabilities()- (#echo(__LINE__)#)", self, context = "mp_server")
 		_return = UpnpException("pas_http_core_404", 701)
 
 		resource = Resource.load_cds_id("0", self.client_user_agent, self)
@@ -196,191 +196,178 @@ Returns the current UPnP SystemUpdateID value.
 :since:  v0.1.00
 		"""
 
-		return ContentDirectory.update_id
+		return ContentDirectory._update_id
 	#
 
-	def init_service(self, device, service_id = None, configid = None):
+	def init_host(self, device, service_id = None, configid = None):
 	#
 		"""
-Initialize a host service.
+Initializes a host service.
+
+:param device: Host device this UPnP service is added to
+:param service_id: Unique UPnP service ID
+:param configid: UPnP configId for the host device
 
 :return: (bool) Returns true if initialization was successful.
 :since:  v0.1.00
 		"""
 
-		if (service_id == None): service_id = "ContentDirectory"
-		AbstractService.init_service(self, device, service_id, configid)
-
-		self.actions = {
-			"GetFeatureList": {
-				"argument_variables": [ ],
-				"return_variable": { "name": "FeatureList", "variable": "FeatureList" },
-				"result_variables": [ ]
-			},
-			"GetSearchCapabilities": {
-				"argument_variables": [ ],
-				"return_variable": { "name": "SearchCaps", "variable": "SearchCapabilities" },
-				"result_variables": [ ]
-			},
-			"GetServiceResetToken": {
-				"argument_variables": [ ],
-				"return_variable": { "name": "ResetToken", "variable": "ServiceResetToken" },
-				"result_variables": [ ]
-			},
-			"GetSortCapabilities": {
-				"argument_variables": [ ],
-				"return_variable": { "name": "SortCaps", "variable": "SortCapabilities" },
-				"result_variables": [ ]
-			},
-			"GetSystemUpdateID": {
-				"argument_variables": [ ],
-				"return_variable": { "name": "Id", "variable": "SystemUpdateID" },
-				"result_variables": [ ]
-			},
-			"Browse": {
-				"argument_variables": [
-					{ "name": "ObjectID", "variable": "A_ARG_TYPE_ObjectID" },
-					{ "name": "BrowseFlag", "variable": "A_ARG_TYPE_BrowseFlag" },
-					{ "name": "Filter", "variable": "A_ARG_TYPE_Filter" },
-					{ "name": "StartingIndex", "variable": "A_ARG_TYPE_Index" },
-					{ "name": "RequestedCount", "variable": "A_ARG_TYPE_Count" },
-					{ "name": "SortCriteria", "variable": "A_ARG_TYPE_SortCriteria" }
-				],
-				"return_variable": { "name": "Result", "variable": "A_ARG_TYPE_Result" },
-				"result_variables": [
-					{ "name": "NumberReturned", "variable": "A_ARG_TYPE_Count" },
-					{ "name": "TotalMatches", "variable": "A_ARG_TYPE_Count" },
-					{ "name": "UpdateID", "variable": "A_ARG_TYPE_UpdateID" }
-				]
-			},
-			"X_BrowseByLetter": {
-				"argument_variables": [
-					{ "name": "ObjectID", "variable": "A_ARG_TYPE_ObjectID" },
-					{ "name": "BrowseFlag", "variable": "A_ARG_TYPE_BrowseFlag" },
-					{ "name": "Filter", "variable": "A_ARG_TYPE_Filter" },
-					{ "name": "StartingLetter", "variable": "A_ARG_TYPE_BrowseLetter" },
-					{ "name": "RequestedCount", "variable": "A_ARG_TYPE_Count" },
-					{ "name": "SortCriteria", "variable": "A_ARG_TYPE_SortCriteria" }
-				],
-				"return_variable": { "name": "Result", "variable": "A_ARG_TYPE_Result" },
-				"result_variables": [
-					{ "name": "NumberReturned", "variable": "A_ARG_TYPE_Count" },
-					{ "name": "TotalMatches", "variable": "A_ARG_TYPE_Count" },
-					{ "name": "UpdateID", "variable": "A_ARG_TYPE_UpdateID" },
-					{ "name": "StartingIndex", "variable": "A_ARG_TYPE_Index" }
-				]
-			},
-			"Search": {
-				"argument_variables": [
-					{ "name": "ContainerID", "variable": "A_ARG_TYPE_ObjectID" },
-					{ "name": "SearchCriteria", "variable": "A_ARG_TYPE_SearchCriteria" },
-					{ "name": "Filter", "variable": "A_ARG_TYPE_Filter" },
-					{ "name": "StartingIndex", "variable": "A_ARG_TYPE_Index" },
-					{ "name": "RequestedCount", "variable": "A_ARG_TYPE_Count" },
-					{ "name": "SortCriteria", "variable": "A_ARG_TYPE_SortCriteria" }
-				],
-				"return_variable": { "name": "Result", "variable": "A_ARG_TYPE_Result" },
-				"result_variables": [
-					{ "name": "NumberReturned", "variable": "A_ARG_TYPE_Count" },
-					{ "name": "TotalMatches", "variable": "A_ARG_TYPE_Count" },
-					{ "name": "UpdateID", "variable": "A_ARG_TYPE_UpdateID" }
-				]
-			}
-		}
-
-		self.service_id = service_id
 		self.spec_major = 1
 		self.spec_minor = 1
 		self.type = "ContentDirectory"
 		self.upnp_domain = "schemas-upnp-org"
 		self.version = "1"
 
-		self.variables = {
-			"SearchCapabilities": {
-				"is_sending_events": False,
-				"is_multicasting_events": False,
-				"type": "string",
-				"value": ""
-			},
-			"SortCapabilities": {
-				"is_sending_events": False,
-				"is_multicasting_events": False,
-				"type": "string",
-				"value": ""
-			},
-			"SystemUpdateID": {
-				"is_sending_events": True,
-				"is_multicasting_events": False,
-				"type": "ui4",
-				"value": self.update_id
-			},
-			"ServiceResetToken": {
-				"is_sending_events": False,
-				"is_multicasting_events": False,
-				"type": "string",
-				"value": ""
-			},
-			"FeatureList": {
-				"is_sending_events": False,
-				"is_multicasting_events": False,
-				"type": "string",
-				"value": ""
-			},
-			"A_ARG_TYPE_ObjectID": {
-				"is_sending_events": False,
-				"is_multicasting_events": False,
-				"type": "string"
-			},
-			"A_ARG_TYPE_Result": {
-				"is_sending_events": False,
-				"is_multicasting_events": False,
-				"type": "string"
-			},
-			"A_ARG_TYPE_SearchCriteria": {
-				"is_sending_events": False,
-				"is_multicasting_events": False,
-				"type": "string"
-			},
-			"A_ARG_TYPE_BrowseFlag": {
-				"is_sending_events": False,
-				"is_multicasting_events": False,
-				"type": "string",
-				"values_allowed": [ "BrowseMetadata", "BrowseDirectChildren" ]
-			},
-			"A_ARG_TYPE_Filter": {
-				"is_sending_events": False,
-				"is_multicasting_events": False,
-				"type": "string"
-			},
-			"A_ARG_TYPE_SortCriteria": {
-				"is_sending_events": False,
-				"is_multicasting_events": False,
-				"type": "string"
-			},
-			"A_ARG_TYPE_Index": {
-				"is_sending_events": False,
-				"is_multicasting_events": False,
-				"type": "ui4"
-			},
-			"A_ARG_TYPE_Count": {
-				"is_sending_events": False,
-				"is_multicasting_events": False,
-				"type": "ui4"
-			},
-			"A_ARG_TYPE_UpdateID": {
-				"is_sending_events": False,
-				"is_multicasting_events": False,
-				"type": "ui4"
-			},
-			# Added for X_BrowseByLetter
-			"A_ARG_TYPE_BrowseLetter": {
-				"is_sending_events": False,
-				"is_multicasting_events": False,
-				"type": "string"
-			}
-		}
+		if (service_id == None): service_id = "ContentDirectory"
+		return AbstractService.init_host(self, device, service_id, configid)
+	#
 
-		return True
+	def _init_host_actions(self, device):
+	#
+		"""
+Initializes the dict of host service actions.
+
+:param device: Host device this UPnP service is added to
+
+:since: v0.1.00
+		"""
+
+		browse = { "argument_variables": [ { "name": "ObjectID", "variable": "A_ARG_TYPE_ObjectID" },
+		                                   { "name": "BrowseFlag", "variable": "A_ARG_TYPE_BrowseFlag" },
+		                                   { "name": "Filter", "variable": "A_ARG_TYPE_Filter" },
+		                                   { "name": "StartingIndex", "variable": "A_ARG_TYPE_Index" },
+		                                   { "name": "RequestedCount", "variable": "A_ARG_TYPE_Count" },
+		                                   { "name": "SortCriteria", "variable": "A_ARG_TYPE_SortCriteria" }
+		                                 ],
+		           "return_variable": { "name": "Result", "variable": "A_ARG_TYPE_Result" },
+		           "result_variables": [ { "name": "NumberReturned", "variable": "A_ARG_TYPE_Count" },
+		                                 { "name": "TotalMatches", "variable": "A_ARG_TYPE_Count" },
+		                                 { "name": "UpdateID", "variable": "A_ARG_TYPE_UpdateID" }
+		                               ]
+		         }
+
+		get_feature_list = { "argument_variables": [ ],
+		                     "return_variable": { "name": "FeatureList", "variable": "FeatureList" },
+		                     "result_variables": [ ]
+		                   }
+
+		get_search_capabilities = { "argument_variables": [ ],
+		                            "return_variable": { "name": "SearchCaps", "variable": "SearchCapabilities" },
+		                            "result_variables": [ ]
+		                          }
+
+		get_service_reset_token = { "argument_variables": [ ],
+		                            "return_variable": { "name": "ResetToken", "variable": "ServiceResetToken" },
+		                            "result_variables": [ ]
+		                          }
+
+		get_sort_capabilities = { "argument_variables": [ ],
+		                          "return_variable": { "name": "SortCaps", "variable": "SortCapabilities" },
+		                          "result_variables": [ ]
+		                        }
+
+		get_system_update_id = { "argument_variables": [ ],
+		                         "return_variable": { "name": "Id", "variable": "SystemUpdateID" },
+		                         "result_variables": [ ]
+		                       }
+
+		search = { "argument_variables": [ { "name": "ContainerID", "variable": "A_ARG_TYPE_ObjectID" },
+		                                   { "name": "SearchCriteria", "variable": "A_ARG_TYPE_SearchCriteria" },
+		                                   { "name": "Filter", "variable": "A_ARG_TYPE_Filter" },
+		                                   { "name": "StartingIndex", "variable": "A_ARG_TYPE_Index" },
+		                                   { "name": "RequestedCount", "variable": "A_ARG_TYPE_Count" },
+		                                   { "name": "SortCriteria", "variable": "A_ARG_TYPE_SortCriteria" }
+		                                 ],
+		           "return_variable": { "name": "Result", "variable": "A_ARG_TYPE_Result" },
+		           "result_variables": [ { "name": "NumberReturned", "variable": "A_ARG_TYPE_Count" },
+		                                 { "name": "TotalMatches", "variable": "A_ARG_TYPE_Count" },
+		                                 { "name": "UpdateID", "variable": "A_ARG_TYPE_UpdateID" }
+		                               ]
+		         }
+
+		self.actions = { "GetFeatureList": get_feature_list,
+		                 "GetSearchCapabilities": get_search_capabilities,
+		                 "GetServiceResetToken": get_service_reset_token,
+		                 "GetSortCapabilities": get_sort_capabilities,
+		                 "GetSystemUpdateID": get_system_update_id,
+		                 "Browse": browse,
+		                 "Search": search
+		               }
+	#
+
+	def _init_host_variables(self, device):
+	#
+		"""
+Initializes the dict of host service variables.
+
+:param device: Host device this UPnP service is added to
+
+:since: v0.1.00
+		"""
+
+		self.variables = { "SearchCapabilities": { "is_sending_events": False,
+		                                           "is_multicasting_events": False,
+		                                           "type": "string",
+		                                           "value": ""
+		                                         },
+		                   "SortCapabilities": { "is_sending_events": False,
+		                                         "is_multicasting_events": False,
+		                                         "type": "string",
+		                                         "value": ""
+		                                       },
+		                   "SystemUpdateID": { "is_sending_events": True,
+		                                       "is_multicasting_events": False,
+		                                       "type": "ui4",
+		                                       "value": self._update_id
+		                                     },
+		                   "ServiceResetToken": { "is_sending_events": False,
+		                                          "is_multicasting_events": False,
+		                                          "type": "string",
+		                                          "value": ""
+		                                        },
+		                   "FeatureList": { "is_sending_events": False,
+		                                    "is_multicasting_events": False,
+		                                    "type": "string",
+		                                    "value": ""
+		                                  },
+		                   "A_ARG_TYPE_ObjectID": { "is_sending_events": False,
+		                                            "is_multicasting_events": False,
+		                                            "type": "string"
+		                                          },
+		                   "A_ARG_TYPE_Result": { "is_sending_events": False,
+		                                          "is_multicasting_events": False,
+		                                          "type": "string"
+		                                        },
+		                   "A_ARG_TYPE_SearchCriteria": { "is_sending_events": False,
+		                                                  "is_multicasting_events": False,
+		                                                  "type": "string"
+		                                                },
+		                   "A_ARG_TYPE_BrowseFlag": { "is_sending_events": False,
+		                                              "is_multicasting_events": False,
+		                                              "type": "string",
+		                                              "values_allowed": [ "BrowseMetadata", "BrowseDirectChildren" ]
+		                                            },
+		                   "A_ARG_TYPE_Filter": { "is_sending_events": False,
+		                                          "is_multicasting_events": False,
+		                                          "type": "string"
+		                                        },
+		                   "A_ARG_TYPE_SortCriteria": { "is_sending_events": False,
+		                                                "is_multicasting_events": False,
+		                                                "type": "string"
+		                                              },
+		                   "A_ARG_TYPE_Index": { "is_sending_events": False,
+		                                         "is_multicasting_events": False,
+		                                         "type": "ui4"
+		                                       },
+		                   "A_ARG_TYPE_Count": { "is_sending_events": False,
+		                                         "is_multicasting_events": False,
+		                                         "type": "ui4"
+		                                       },
+		                   "A_ARG_TYPE_UpdateID": { "is_sending_events": False,
+		                                            "is_multicasting_events": False,
+		                                            "type": "ui4"
+		                                          }
+		                 }
 	#
 
 	def search(self, container_id, search_criteria = "", filter = "*", starting_index = 0, requested_count = 0, sort_criteria = ""):
@@ -392,12 +379,12 @@ Returns the current UPnP SystemUpdateID value.
 :since:  v0.1.00
 		"""
 
-		if (self.log_handler != None): self.log_handler.debug("#echo(__FILEPATH__)# -{0!r}.search({1}, {2}, {3}, {4:d}, {5:d}, {6})- (#echo(__LINE__)#)".format(self, container_id, search_criteria, filter, starting_index, requested_count, sort_criteria))
+		if (self.log_handler != None): self.log_handler.debug("#echo(__FILEPATH__)# -{0!r}.search({1}, {2}, {3}, {4:d}, {5:d}, {6})- (#echo(__LINE__)#)", self, container_id, search_criteria, filter, starting_index, requested_count, sort_criteria, context = "mp_server")
 
 		resource = Resource.load_cds_id(container_id, self.client_user_agent, self)
 
 		if (resource == None): _return = UpnpException("pas_http_core_404", 701)
-		elif (not resource.is_supported("content_search")): _return = UpnpException("pas_http_core_501", 720)
+		elif (not resource.is_supported("search_content")): _return = UpnpException("pas_http_core_501", 720)
 		else:
 		#
 			if (filter != "" and filter != "*"):
@@ -411,26 +398,14 @@ Returns the current UPnP SystemUpdateID value.
 
 			if (requested_count > 0):
 			#
-				resource.content_set_offset(starting_index)
-				resource.content_set_limit(requested_count)
+				resource.set_content_offset(starting_index)
+				resource.set_content_limit(requested_count)
 			#
 
-			_return = resource.content_search_didl_xml(search_criteria)
+			_return = resource.search_content_didl_xml(search_criteria)
 		#
 
 		return _return
-	#
-
-	def x_browse_by_letter(self, object_id, browse_flag, filter = "*", starting_letter = "", requested_count = 0, sort_criteria = ""):
-	#
-		"""
-Returns the current UPnP SystemUpdateID value.
-
-:return: (int) UPnP SystemUpdateID value
-:since:  v0.1.00
-		"""
-
-		return self.search(object_id, "dc:title startsWith \"{0}\"".format(starting_letter.replace("\"", "\\\"")), filter, requested_count = requested_count, sort_criteria = sort_criteria)
 	#
 #
 

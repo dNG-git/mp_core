@@ -1,9 +1,7 @@
-_extras
 __py*
 .*
-.pyc
-core.*
-make*.py*
+*.pyc
 nbproject
-vp_core.*
-vp_py_core.*
+/_extras
+/mp_core.*
+/make*.py*

@@ -2,10 +2,6 @@
 ##j## BOF
 
 """
-dNG.pas.module.blocks.upnp.Stream
-"""
-"""n// NOTE
-----------------------------------------------------------------------------
 MediaProvider
 A device centric multimedia solution
 ----------------------------------------------------------------------------
@@ -33,8 +29,7 @@ http://www.direct-netware.de/redirect.py?licenses;gpl
 ----------------------------------------------------------------------------
 #echo(mpCoreVersion)#
 #echo(__FILEPATH__)#
-----------------------------------------------------------------------------
-NOTE_END //n"""
+"""
 
 # pylint: disable=import-error,no-name-in-module
 
@@ -44,9 +39,9 @@ try: from urllib.parse import urlsplit
 except ImportError: from urlparse import urlsplit
 
 from dNG.pas.controller.http_upnp_request import HttpUpnpRequest
-from dNG.pas.data.translatable_exception import TranslatableException
 from dNG.pas.data.text.input_filter import InputFilter
 from dNG.pas.data.http.streaming import Streaming
+from dNG.pas.data.http.translatable_exception import TranslatableException
 from dNG.pas.data.upnp.resource import Resource
 from dNG.pas.data.upnp.resources.abstract_stream import AbstractStream
 from dNG.pas.module.named_loader import NamedLoader
@@ -74,7 +69,7 @@ Action for "source"
 :since: v0.1.00
 		"""
 
-		if (not isinstance(self.request, HttpUpnpRequest)): raise TranslatableException("pas_http_core_400")
+		if (not isinstance(self.request, HttpUpnpRequest)): raise TranslatableException("pas_http_core_400", 400)
 
 		client_host = self.request.get_client_host()
 		upnp_control_point = self.request.get_upnp_control_point()
@@ -92,37 +87,33 @@ Action for "source"
 
 		if (resource != None):
 		#
-			stream_resource = (
-				resource
-				if (isinstance(resource, AbstractStream)) else
-				resource.content_get(0)
-			)
+			stream_resource = (resource
+			                   if (isinstance(resource, AbstractStream)) else
+			                   resource.get_content(0)
+			                  )
 		#
 
 		if (stream_resource != None):
 		#
 			if (self.response.is_supported("headers")):
 			#
-				if (
-					self.request.get_header("getcontentFeatures.dlna.org") == "1" and
-					stream_resource.is_supported("dlna_content_features")
-				):
+				if (self.request.get_header("getcontentFeatures.dlna.org") == "1"
+				    and stream_resource.is_supported("dlna_content_features")
+				   ):
 				#
-					self.response.set_header(
-						"contentFeatures.dlna.org",
-						stream_resource.dlna_get_content_features()
-					)
+					self.response.set_header("contentFeatures.dlna.org",
+					                         stream_resource.get_dlna_content_features()
+					                        )
 				#
 
 				upnp_transfer_mode = self.request.get_header("transferMode.dlna.org")
 
-				if (
-					upnp_transfer_mode == "Background" or
-					upnp_transfer_mode == "Interactive" or
-					upnp_transfer_mode == "Streaming"
-				): self.response.set_header("transferMode.dlna.org", upnp_transfer_mode)
+				if (upnp_transfer_mode == "Background"
+				    or upnp_transfer_mode == "Interactive"
+				    or upnp_transfer_mode == "Streaming"
+				   ): self.response.set_header("transferMode.dlna.org", upnp_transfer_mode)
 
-				self.response.set_header("Content-Type", stream_resource.get_mimetype())
+				self.response.set_header("Content-Type", resource.get_mimetype())
 			#
 
 			stream_url = InputFilter.filter_control_chars(stream_resource.get_id())

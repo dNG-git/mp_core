@@ -18,8 +18,13 @@ a:visited { color: #2f2f2f }
 a:link, a:visited, a:focus { text-decoration: underline }
 a:active, a:hover, a:focus { color: #000000; text-decoration: none }
 
-body { margin: 0; padding: 0; background-color: #404040 }
-body { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 0.9em; font-style: normal; line-height: normal; font-weight: normal; color: #2f2f2f }
+body {
+	margin: 0; padding: 0; background-color: #101010;
+	font-family: "Nimbus Sans L", "Lucida Grande", "Lucida Sans Unicode", "Bitstream Vera Sans", "Trebuchet MS", Helvetica, Verdana, Arial, sans-serif; font-size: 90%; font-style: normal; line-height: normal; font-weight: normal; color: #000000
+}
+
+form { margin: 0; padding: 0 }
+
 h1, h2, h3, h4, h5, h6, summary { font-weight: bold }
 h1 { font-size: 1.75em }
 h2 { font-size: 1.70em }
@@ -29,11 +34,18 @@ h5 { font-size: 1.55em }
 h6, summary { font-size: 1.50em }
 
 header {
-	background-color: #606060; background: linear-gradient(to bottom, rgb(64, 64, 64) 0%, rgb(96, 96, 96) 100%); border-bottom: 1px solid #eaeaea;
+	background-color: #606060; border-bottom: 1px solid #eaeaea;
+	background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #404040), color-stop(1, #606060));
+	background-image: -o-linear-gradient(#404040 0%, #606060 100%);
+	background-image: -moz-linear-gradient(#404040 0%, #606060 100%);
+	background-image: -webkit-linear-gradient(#404040 0%, #606060 100%);
+	background-image: -ms-linear-gradient(#404040 0%, #606060 100%);
+	background-image: linear-gradient(#404040 0%, #606060 100%);
 	text-align: right; color: #dadada
 }
 
-form { margin: 0; padding: 0 }
+header a, header a:link, header a:active, header a:visited, header a:hover, header a:focus { color: #e0e0e0 }
+
 img { border: none }
 
 table { margin: 0; table-layout: fixed; border: none; border-collapse: collapse; border-spacing: 0 }
@@ -55,9 +67,18 @@ td:last-child, th:last-child { border-right: none }
 .designheadermovie { height: 18px; background-color: #0a0a0a; background-image: url([rewrite:settings]http_path_mmedia_versioned[/rewrite]/themes/mp/design_02.png); background-repeat: repeat-x }
 .designheadertitle { font-size: 1.3em }
 
-.designpage { margin: 0 5%; padding: 1%; background-color: #c0c0c0; border-left: 1px solid #1de1bd; border-right: 1px solid #1de1bd; border-bottom: 1px solid #1de1bd; border-bottom-left-radius: 0.2em; border-bottom-right-radius: 0.2em; box-shadow: 0 1.2em 1em -1em rgba(17, 225, 189, 0.8) }
-.designpage > *:first-child { margin-top: 0.5% }
-.designpage > *:last-child { margin-bottom: 0.5% }
+.designpage {
+	margin: 0 5%; padding: 1%; background-color: #cacaca; border-left: 1px solid #1de1bd; border-right: 1px solid #1de1bd; border-bottom: 1px solid #1de1bd; border-bottom-left-radius: 0.2em; border-bottom-right-radius: 0.2em; box-shadow: 0 1.2em 1em -1em rgba(17, 225, 189, 0.8);
+	background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #cacaca), color-stop(1, #c0c0c0));
+	background-image: -o-linear-gradient(#cacaca 0%, #c0c0c0 100%);
+	background-image: -moz-linear-gradient(#cacaca 0%, #c0c0c0 100%);
+	background-image: -webkit-linear-gradient(#cacaca 0%, #c0c0c0 100%);
+	background-image: -ms-linear-gradient(#cacaca 0%, #c0c0c0 100%);
+	background-image: linear-gradient(#cacaca 0%, #c0c0c0 100%)
+}
+
+.designpage > :first-child { margin-top: 0.5% }
+.designpage > :last-child { margin-bottom: 0.5% }
 ]]></style>
 [each:content:css_files:file]
 <link href="[rewrite:settings]http_path_mmedia_versioned[/rewrite]/[rewrite:content]css_files.file.name[/rewrite]" rel="stylesheet" type="text/css" />

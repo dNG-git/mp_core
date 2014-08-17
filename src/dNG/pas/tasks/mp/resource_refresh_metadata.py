@@ -2,10 +2,6 @@
 ##j## BOF
 
 """
-dNG.pas.tasks.mp.ResourceRefreshMetadata
-"""
-"""n// NOTE
-----------------------------------------------------------------------------
 MediaProvider
 A device centric multimedia solution
 ----------------------------------------------------------------------------
@@ -33,11 +29,10 @@ http://www.direct-netware.de/redirect.py?licenses;gpl
 ----------------------------------------------------------------------------
 #echo(mpCoreVersion)#
 #echo(__FILEPATH__)#
-----------------------------------------------------------------------------
-NOTE_END //n"""
+"""
 
 from dNG.pas.data.upnp.resources.mp_entry import MpEntry
-from dNG.pas.database.connection import Connection
+from dNG.pas.database.transaction_context import TransactionContext
 from dNG.pas.tasks.abstract_lrt_hook import AbstractLrtHook
 
 class ResourceRefreshMetadata(AbstractLrtHook):
@@ -81,7 +76,7 @@ Hook execution
 :since: v0.1.00
 		"""
 
-		with Connection.get_instance():
+		with TransactionContext():
 		#
 			encapsulating_resource = MpEntry.load_encapsulating_entry(self.encapsulating_id)
 
@@ -90,7 +85,7 @@ Hook execution
 				encapsulating_resource.refresh_metadata()
 				encapsulating_resource.save()
 
-				if (self.log_handler != None): self.log_handler.info("mp.ResourceRefreshMetadata refreshed entry '{0}'".format(self.encapsulating_id))
+				if (self.log_handler != None): self.log_handler.info("mp.ResourceRefreshMetadata refreshed entry '{0}'", self.encapsulating_id, context = "mp_server")
 			#
 		#
 	#

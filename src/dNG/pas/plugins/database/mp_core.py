@@ -2,10 +2,6 @@
 ##j## BOF
 
 """
-dNG.pas.plugins.database.mp_core
-"""
-"""n// NOTE
-----------------------------------------------------------------------------
 MediaProvider
 A device centric multimedia solution
 ----------------------------------------------------------------------------
@@ -33,15 +29,66 @@ http://www.direct-netware.de/redirect.py?licenses;gpl
 ----------------------------------------------------------------------------
 #echo(mpCoreVersion)#
 #echo(__FILEPATH__)#
-----------------------------------------------------------------------------
-NOTE_END //n"""
+"""
 
 # pylint: disable=unused-argument
 
+from dNG.pas.database.schema import Schema
 from dNG.pas.module.named_loader import NamedLoader
-from dNG.pas.plugins.hooks import Hooks
+from dNG.pas.plugins.hook import Hook
 
-def plugin_database_load_all(params, last_return):
+def after_apply_schema(params, last_return = None):
+#
+	"""
+Called for "dNG.pas.Database.applySchema.after"
+
+:param params: Parameter specified
+:param last_return: The return value from the last hook called.
+
+:return: (mixed) Return value
+:since:  v0.1.00
+	"""
+
+	resource_class = NamedLoader.get_class("dNG.pas.database.instances.MpUpnpResource")
+	Schema.apply_version(resource_class)
+
+	audio_class = NamedLoader.get_class("dNG.pas.database.instances.MpUpnpAudioResource")
+	Schema.apply_version(audio_class)
+
+	image_class = NamedLoader.get_class("dNG.pas.database.instances.MpUpnpImageResource")
+	Schema.apply_version(image_class)
+
+	video_class = NamedLoader.get_class("dNG.pas.database.instances.MpUpnpVideoResource")
+	Schema.apply_version(video_class)
+
+	return last_return
+#
+
+def before_apply_schema(params, last_return = None):
+#
+	"""
+Called for "dNG.pas.Database.applySchema.before"
+
+:param params: Parameter specified
+:param last_return: The return value from the last hook called.
+
+:return: (mixed) Return value
+:since:  v0.1.00
+	"""
+
+	audio_class = NamedLoader.get_class("dNG.pas.database.instances.MpUpnpAudioResource")
+	if (audio_class != None): audio_class.before_apply_schema()
+
+	image_class = NamedLoader.get_class("dNG.pas.database.instances.MpUpnpImageResource")
+	if (image_class != None): image_class.before_apply_schema()
+
+	video_class = NamedLoader.get_class("dNG.pas.database.instances.MpUpnpVideoResource")
+	if (video_class != None): video_class.before_apply_schema()
+
+	return last_return
+#
+
+def load_all(params, last_return = None):
 #
 	"""
 Load and register all SQLAlchemy objects to generate database tables.
@@ -52,26 +99,15 @@ Load and register all SQLAlchemy objects to generate database tables.
 :since: v0.1.00
 	"""
 
-	NamedLoader.get_instance("dNG.pas.database.instances.MpUpnpAudioResource")
-	NamedLoader.get_instance("dNG.pas.database.instances.MpUpnpImageResource")
-	NamedLoader.get_instance("dNG.pas.database.instances.MpUpnpResource")
-	NamedLoader.get_instance("dNG.pas.database.instances.MpUpnpVideoResource")
+	NamedLoader.get_class("dNG.pas.database.instances.MpUpnpAudioResource")
+	NamedLoader.get_class("dNG.pas.database.instances.MpUpnpImageResource")
+	NamedLoader.get_class("dNG.pas.database.instances.MpUpnpResource")
+	NamedLoader.get_class("dNG.pas.database.instances.MpUpnpVideoResource")
 
 	return last_return
 #
 
-def plugin_deregistration():
-#
-	"""
-Unregister plugin hooks.
-
-:since: v0.1.00
-	"""
-
-	Hooks.unregister("dNG.pas.Database.loadAll", plugin_database_load_all)
-#
-
-def plugin_registration():
+def register_plugin():
 #
 	"""
 Register plugin hooks.
@@ -79,7 +115,22 @@ Register plugin hooks.
 :since: v0.1.00
 	"""
 
-	Hooks.register("dNG.pas.Database.loadAll", plugin_database_load_all)
+	Hook.register("dNG.pas.Database.applySchema.after", after_apply_schema)
+	Hook.register("dNG.pas.Database.applySchema.before", before_apply_schema)
+	Hook.register("dNG.pas.Database.loadAll", load_all)
+#
+
+def unregister_plugin():
+#
+	"""
+Unregister plugin hooks.
+
+:since: v0.1.00
+	"""
+
+	Hook.unregister("dNG.pas.Database.applySchema.after", after_apply_schema)
+	Hook.unregister("dNG.pas.Database.applySchema.before", before_apply_schema)
+	Hook.unregister("dNG.pas.Database.loadAll", load_all)
 #
 
 ##j## EOF

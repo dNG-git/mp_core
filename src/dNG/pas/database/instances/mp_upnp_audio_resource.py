@@ -2,10 +2,6 @@
 ##j## BOF
 
 """
-dNG.pas.database.instances.MpUpnpAudioResource
-"""
-"""n// NOTE
-----------------------------------------------------------------------------
 MediaProvider
 A device centric multimedia solution
 ----------------------------------------------------------------------------
@@ -33,10 +29,11 @@ http://www.direct-netware.de/redirect.py?licenses;gpl
 ----------------------------------------------------------------------------
 #echo(mpCoreVersion)#
 #echo(__FILEPATH__)#
-----------------------------------------------------------------------------
-NOTE_END //n"""
+"""
 
-from sqlalchemy import Column, ForeignKey, FLOAT, INT, SMALLINT, TEXT, VARCHAR
+from sqlalchemy.event import listen
+from sqlalchemy.schema import Column, DDL, ForeignKey
+from sqlalchemy.types import FLOAT, INT, SMALLINT, TEXT, VARCHAR
 
 from .mp_upnp_resource import MpUpnpResource
 
@@ -62,40 +59,44 @@ SQLAlchemy table name
 	"""
 Encapsulating SQLAlchemy database instance class name
 	"""
+	db_schema_version = 1
+	"""
+Database schema version
+	"""
 
 	id = Column(VARCHAR(32), ForeignKey(MpUpnpResource.id), primary_key = True)
 	"""
 mp_upnp_audio_resource.id
 	"""
-	duration = Column(FLOAT)
+	duration = Column(FLOAT, index = True)
 	"""
 mp_upnp_audio_resource.duration
 	"""
-	artist = Column(VARCHAR(255))
+	artist = Column(VARCHAR(255), index = True)
 	"""
 mp_upnp_audio_resource.artist
 	"""
-	genre = Column(VARCHAR(255))
+	genre = Column(VARCHAR(255), index = True)
 	"""
 mp_upnp_audio_resource.genre
 	"""
-	description = Column(TEXT)
+	description = Column(TEXT, index = True)
 	"""
 mp_upnp_audio_resource.description
 	"""
-	album = Column(VARCHAR(255))
+	album = Column(VARCHAR(255), index = True)
 	"""
 mp_upnp_audio_resource.album
 	"""
-	album_artist = Column(VARCHAR(255))
+	album_artist = Column(VARCHAR(255), index = True)
 	"""
 mp_upnp_audio_resource.album_artist
 	"""
-	track_number = Column(INT)
+	track_number = Column(INT, index = True)
 	"""
 mp_upnp_audio_resource.track_number
 	"""
-	codec = Column(VARCHAR(255), index = True, server_default = "application/octet-stream", nullable = False)
+	codec = Column(VARCHAR(255), index = True)
 	"""
 mp_upnp_audio_resource.codec
 	"""
@@ -115,7 +116,7 @@ mp_upnp_audio_resource.bps
 	"""
 mp_upnp_audio_resource.sample_frequency
 	"""
-	encoder = Column(VARCHAR(255))
+	encoder = Column(VARCHAR(255), index = True)
 	"""
 mp_upnp_audio_resource.encoder
 	"""
@@ -125,6 +126,25 @@ mp_upnp_audio_resource.encoder
 sqlalchemy.org: Other options are passed to mapper() using the
                 __mapper_args__ class variable.
 	"""
+
+	@classmethod
+	def before_apply_schema(cls):
+	#
+		"""
+Called before applying the SQLAlchemy generated schema to register the
+custom DDL for PostgreSQL.
+
+:since: v0.1.00
+	"""
+
+		create_postgresql_tsvector_index = "CREATE INDEX idx_{0}_mp_upnp_audio_resource_description ON {0}_mp_upnp_audio_resource USING gin(to_tsvector('simple', description));"
+		create_postgresql_tsvector_index = create_postgresql_tsvector_index.format(cls.get_table_prefix())
+
+		listen(cls.__table__,
+		       "after_create",
+		       DDL(create_postgresql_tsvector_index).execute_if(dialect = "postgresql")
+		      )
+	#
 #
 
 ##j## EOF

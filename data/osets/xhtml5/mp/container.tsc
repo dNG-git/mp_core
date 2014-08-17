@@ -1,0 +1,9 @@
+<div class="pagecontent_discuss pagecontent_discuss_hybrid_list">
+	<h1>[rewrite:safe_content]title[/rewrite]</h1>
+[if:content:entries != 0]
+[block]mp.RootContainerList.render[/block]
+[/if][if:content:entries == 0]
+	<hr />
+	<p><strong>[rewrite:l10n]mp_core_container_list_empty[/rewrite]</strong></p>
+[/if]
+</div>

@@ -2,10 +2,6 @@
 ##j## BOF
 
 """
-dNG.pas.database.instances.MpUpnpImageResource
-"""
-"""n// NOTE
-----------------------------------------------------------------------------
 MediaProvider
 A device centric multimedia solution
 ----------------------------------------------------------------------------
@@ -33,10 +29,11 @@ http://www.direct-netware.de/redirect.py?licenses;gpl
 ----------------------------------------------------------------------------
 #echo(mpCoreVersion)#
 #echo(__FILEPATH__)#
-----------------------------------------------------------------------------
-NOTE_END //n"""
+"""
 
-from sqlalchemy import Column, ForeignKey, INT, SMALLINT, TEXT, VARCHAR
+from sqlalchemy.event import listen
+from sqlalchemy.schema import Column, DDL, ForeignKey
+from sqlalchemy.types import INT, SMALLINT, TEXT, VARCHAR
 
 from .mp_upnp_resource import MpUpnpResource
 
@@ -62,24 +59,28 @@ SQLAlchemy table name
 	"""
 Encapsulating SQLAlchemy database instance class name
 	"""
+	db_schema_version = 1
+	"""
+Database schema version
+	"""
 
 	id = Column(VARCHAR(32), ForeignKey(MpUpnpResource.id), primary_key = True)
 	"""
 mp_upnp_image_resource.id
 	"""
-	artist = Column(VARCHAR(255))
+	artist = Column(VARCHAR(255), index = True)
 	"""
 mp_upnp_image_resource.artist
 	"""
-	description = Column(TEXT)
+	description = Column(TEXT, index = True)
 	"""
 mp_upnp_image_resource.description
 	"""
-	width = Column(INT)
+	width = Column(INT, index = True)
 	"""
 mp_upnp_image_resource.width
 	"""
-	height = Column(INT)
+	height = Column(INT, index = True)
 	"""
 mp_upnp_image_resource.height
 	"""
@@ -87,7 +88,7 @@ mp_upnp_image_resource.height
 	"""
 mp_upnp_image_resource.bpp
 	"""
-	creator = Column(VARCHAR(255))
+	creator = Column(VARCHAR(255), index = True)
 	"""
 mp_upnp_image_resource.creator
 	"""
@@ -97,6 +98,25 @@ mp_upnp_image_resource.creator
 sqlalchemy.org: Other options are passed to mapper() using the
                 __mapper_args__ class variable.
 	"""
+
+	@classmethod
+	def before_apply_schema(cls):
+	#
+		"""
+Called before applying the SQLAlchemy generated schema to register the
+custom DDL for PostgreSQL.
+
+:since: v0.1.00
+	"""
+
+		create_postgresql_tsvector_index = "CREATE INDEX idx_{0}_mp_upnp_image_resource_description ON {0}_mp_upnp_image_resource USING gin(to_tsvector('simple', description));"
+		create_postgresql_tsvector_index = create_postgresql_tsvector_index.format(cls.get_table_prefix())
+
+		listen(cls.__table__,
+		       "after_create",
+		       DDL(create_postgresql_tsvector_index).execute_if(dialect = "postgresql")
+		      )
+	#
 #
 
 ##j## EOF

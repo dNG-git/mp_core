@@ -1,4 +1,24 @@
 {
- "mp_core_upnp_container_bookmarks": "Favoriten",
- "mp_core_upnp_container_settings": "Einstellungen"
+ "mp_core_container_list_empty": "Derzeit sind keine Container definiert.",
+ "mp_core_container_resource_type": "Typ",
+ "mp_core_container_resource_type_audio": "Audio",
+ "mp_core_container_resource_type_image": "Bilder",
+ "mp_core_container_resource_type_video": "Videos",
+ "mp_core_container_title": "Container-Titel",
+ "mp_core_root_container_list": "Medienfreigaben",
+
+ "mp_core_root_container_delete": "Freigabe löschen",
+ "mp_core_done_root_container_delete": "Die Freigabe wurde erfolgreich gelöscht.",
+
+ "mp_core_root_container_edit": "Freigabe bearbeiten",
+ "mp_core_done_root_container_edit": "Die Freigabe wurde erfolgreich bearbeitet.",
+
+ "mp_core_root_container_new": "Neue Freigabe anlegen",
+ "mp_core_done_root_container_new": "Die neue Freigabe wurde erfolgreich angelegt.",
+
+ "mp_core_container_resource_local_pathname": "Quellenpfad",
+ "mp_core_form_container_resource_local_pathname_does_not_exist": "Auf den angegebenen Quellenpfad konnte nicht zugegriffen werden.",
+ "mp_core_form_container_resource_local_pathname_not_unique": "Der angegebene Quellenpfad existiert bereits.",
+
+ "errors_mp_core_cid_invalid": "Die angegebene Container-ID ist ungültig."
 }

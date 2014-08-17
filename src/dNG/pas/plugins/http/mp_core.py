@@ -2,10 +2,6 @@
 ##j## BOF
 
 """
-dNG.pas.plugins.http.mp_core
-"""
-"""n// NOTE
-----------------------------------------------------------------------------
 MediaProvider
 A device centric multimedia solution
 ----------------------------------------------------------------------------
@@ -33,15 +29,14 @@ http://www.direct-netware.de/redirect.py?licenses;gpl
 ----------------------------------------------------------------------------
 #echo(mpCoreVersion)#
 #echo(__FILEPATH__)#
-----------------------------------------------------------------------------
-NOTE_END //n"""
+"""
 
 # pylint: disable=unused-argument
 
 from dNG.pas.data.text.l10n import L10n
-from dNG.pas.plugins.hooks import Hooks
+from dNG.pas.plugins.hook import Hook
 
-def plugin_control_init_l10n(params, last_return):
+def init_control_l10n(params, last_return = None):
 #
 	"""
 Called for "dNG.pas.http.l10n.upnp.Control.init"
@@ -56,18 +51,7 @@ Called for "dNG.pas.http.l10n.upnp.Control.init"
 	return last_return
 #
 
-def plugin_deregistration():
-#
-	"""
-Unregister plugin hooks.
-
-:since: v0.1.00
-	"""
-
-	Hooks.unregister("dNG.pas.http.l10n.upnp.Control.init", plugin_control_init_l10n)
-#
-
-def plugin_registration():
+def register_plugin():
 #
 	"""
 Register plugin hooks.
@@ -75,7 +59,18 @@ Register plugin hooks.
 :since: v0.1.00
 	"""
 
-	Hooks.register("dNG.pas.http.l10n.upnp.Control.init", plugin_control_init_l10n)
+	Hook.register("dNG.pas.http.l10n.upnp.Control.init", init_control_l10n)
+#
+
+def unregister_plugin():
+#
+	"""
+Unregister plugin hooks.
+
+:since: v0.1.00
+	"""
+
+	Hook.unregister("dNG.pas.http.l10n.upnp.Control.init", init_control_l10n)
 #
 
 ##j## EOF

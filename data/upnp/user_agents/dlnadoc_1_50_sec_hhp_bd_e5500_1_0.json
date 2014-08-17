@@ -1,9 +1,1 @@
-{
- "upnp_cehtml_apps_supported": false,
-
- "upnp_custom_mimetypes": {
-  "video/x-msvideo": "video/avi"
- },
-
- "upnp_stream_url_use_filter": true
-}
+{ "client_file": "samsung_bd_e_series_1.json" }

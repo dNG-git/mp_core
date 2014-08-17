@@ -2,10 +2,6 @@
 ##j## BOF
 
 """
-dNG.pas.plugins.upnp.mp_core
-"""
-"""n// NOTE
-----------------------------------------------------------------------------
 MediaProvider
 A device centric multimedia solution
 ----------------------------------------------------------------------------
@@ -33,31 +29,30 @@ http://www.direct-netware.de/redirect.py?licenses;gpl
 ----------------------------------------------------------------------------
 #echo(mpCoreVersion)#
 #echo(__FILEPATH__)#
-----------------------------------------------------------------------------
-NOTE_END //n"""
+"""
 
 # pylint: disable=unused-argument
 
 from socket import getfqdn
 from uuid import NAMESPACE_URL
-from uuid import uuid3 as uuid
+from uuid import uuid3 as uuid_of_namespace
 
 from dNG.pas.data.settings import Settings
 from dNG.pas.data.tasks.memory import Memory as MemoryTasks
 from dNG.pas.data.upnp.resources.mp_entry import MpEntry
 from dNG.pas.database.connection import Connection
 from dNG.pas.module.named_loader import NamedLoader
-from dNG.pas.plugins.hooks import Hooks
+from dNG.pas.plugins.hook import Hook
 from dNG.pas.runtime.instance_lock import InstanceLock
 from dNG.pas.tasks.mp.resource_scanner import ResourceScanner
 
 _instances = [ ]
 _lock = InstanceLock()
 
-def plugin_control_point_shutdown(params, last_return):
+def get_root_resource_content(params, last_return = None):
 #
 	"""
-Called for "dNG.pas.upnp.ControlPoint.shutdown"
+Called for "dNG.pas.upnp.Resource.getRootResourceContent"
 
 :param params: Parameter specified
 :param last_return: The return value from the last hook called.
@@ -65,88 +60,26 @@ Called for "dNG.pas.upnp.ControlPoint.shutdown"
 :since: v0.1.00
 	"""
 
-	# global: _lock
-	global _instances
-
-	_return = False
-
-	with _lock:
+	if ("container" in params):
 	#
-		if (len(_instances) > 0):
+		client_user_agent = params['container'].get_client_user_agent()
+
+		with Connection.get_instance():
 		#
-			upnp_control_point = NamedLoader.get_singleton("dNG.pas.net.upnp.ControlPoint")
+			for resource in MpEntry.load_root_containers(client_user_agent):
+			#
+				resource.set_client_user_agent(client_user_agent)
+				resource.set_didl_fields(params['container'].get_didl_fields())
 
-			for device in _instances: upnp_control_point.device_remove(device)
-			_instances = [ ]
-
-			_return = True
+				params['container'].add_content(resource)
+			#
 		#
 	#
 
-	return _return
+	return last_return
 #
 
-def plugin_control_point_startup(params, last_return):
-#
-	"""
-Called for "dNG.pas.upnp.ControlPoint.startup"
-
-:param params: Parameter specified
-:param last_return: The return value from the last hook called.
-
-:since: v0.1.00
-	"""
-
-	# global: _lock
-	global _instances
-
-	_return = False
-
-	with _lock:
-	#
-		if (len(_instances) < 1):
-		#
-			upnp_control_point = NamedLoader.get_singleton("dNG.pas.net.upnp.ControlPoint")
-
-			device = NamedLoader.get_instance("dNG.pas.data.upnp.devices.MediaServer")
-			udn = Settings.get("mp_media_server_udn")
-			if (udn == None): udn = str(uuid(NAMESPACE_URL, "upnp://{0}/mp/MediaServer".format(getfqdn())))
-
-			if (device.init_device(upnp_control_point, udn)):
-			#
-				device_name = Settings.get("mp_media_server_name")
-				if (device_name != None): device.set_name(device_name)
-
-				_instances.append(device)
-				upnp_control_point.device_add(device)
-			#
-
-			device = NamedLoader.get_instance("dNG.pas.data.upnp.devices.RemoteUiServerDevice")
-			udn = Settings.get("mp_remote_ui_server_udn")
-			if (udn == None): udn = str(uuid(NAMESPACE_URL, "upnp://{0}/mp/RemoteUIServer".format(getfqdn())))
-
-			if (device.init_device(upnp_control_point, udn)):
-			#
-				device_name = Settings.get("mp_remote_ui_server_udn")
-				if (device_name != None): device.set_name(device_name)
-
-				_instances.append(device)
-				upnp_control_point.device_add(device)
-			#
-
-			with Connection.get_instance():
-			#
-				for entry in MpEntry.load_root_containers(): MemoryTasks.get_instance().task_add("dNG.pas.tasks.mp.ResourceScanner.{0}".format(entry.get_id()), ResourceScanner(entry), 0)
-			#
-		#
-
-		_return = True
-	#
-
-	return _return
-#
-
-def plugin_resource_get_searchable_didl_fields(params, last_return):
+def get_searchable_didl_fields(params, last_return = None):
 #
 	"""
 Called for "dNG.pas.upnp.Resource.getSearchableDidlFields"
@@ -172,7 +105,7 @@ Called for "dNG.pas.upnp.Resource.getSearchableDidlFields"
 	return _return
 #
 
-def plugin_resource_get_sortable_didl_fields(params, last_return):
+def get_sortable_didl_fields(params, last_return = None):
 #
 	"""
 Called for "dNG.pas.upnp.Resource.getSortableDidlFields"
@@ -194,10 +127,10 @@ Called for "dNG.pas.upnp.Resource.getSortableDidlFields"
 	return _return
 #
 
-def plugin_resource_get_root_content(params, last_return):
+def on_control_point_shutdown(params, last_return = None):
 #
 	"""
-Called for "dNG.pas.upnp.Resource.getRootResourceContent"
+Called for "dNG.pas.upnp.ControlPoint.onShutdown"
 
 :param params: Parameter specified
 :param last_return: The return value from the last hook called.
@@ -205,41 +138,95 @@ Called for "dNG.pas.upnp.Resource.getRootResourceContent"
 :since: v0.1.00
 	"""
 
-	if ("container" in params):
+	# global: _lock
+	global _instances
+
+	_return = False
+
+	with _lock:
 	#
-		client_user_agent = params['container'].client_get_user_agent()
-
-		with Connection.get_instance():
+		if (len(_instances) > 0):
 		#
-			for resource in MpEntry.load_root_containers(client_user_agent):
-			#
-				resource.client_set_user_agent(client_user_agent)
-				resource.set_didl_fields(params['container'].get_didl_fields())
+			upnp_control_point = NamedLoader.get_singleton("dNG.pas.net.upnp.ControlPoint")
 
-				params['container'].content_add(resource)
-			#
+			for device in _instances: upnp_control_point.remove_device(device)
+			_instances = [ ]
+
+			_return = True
 		#
 	#
 
-	return last_return
+	return _return
 #
 
-def plugin_deregistration():
+def on_control_point_startup(params, last_return = None):
 #
 	"""
-Unregister plugin hooks.
+Called for "dNG.pas.upnp.ControlPoint.onStartup"
+
+:param params: Parameter specified
+:param last_return: The return value from the last hook called.
 
 :since: v0.1.00
 	"""
 
-	Hooks.unregister("dNG.pas.upnp.ControlPoint.shutdown", plugin_control_point_shutdown)
-	Hooks.unregister("dNG.pas.upnp.ControlPoint.startup", plugin_control_point_startup)
-	Hooks.unregister("dNG.pas.upnp.Resource.getRootResourceContent", plugin_resource_get_root_content)
-	Hooks.unregister("dNG.pas.upnp.Resource.getSearchableDidlFields", plugin_resource_get_searchable_didl_fields)
-	Hooks.unregister("dNG.pas.upnp.Resource.getSortableDidlFields", plugin_resource_get_sortable_didl_fields)
+	# global: _instances, _lock
+
+	_return = False
+
+	with _lock:
+	#
+		if (len(_instances) < 1):
+		#
+			upnp_control_point = NamedLoader.get_singleton("dNG.pas.net.upnp.ControlPoint")
+
+			device = NamedLoader.get_instance("dNG.pas.data.upnp.devices.MediaServer")
+			udn = Settings.get("mp_media_server_udn")
+			if (udn == None): udn = str(uuid_of_namespace(NAMESPACE_URL, "upnp://{0}/mp/MediaServer".format(getfqdn())))
+
+			if (device.init_device(upnp_control_point, udn)):
+			#
+				device_name = Settings.get("mp_media_server_name")
+				if (device_name != None): device.set_name(device_name)
+
+				_instances.append(device)
+				upnp_control_point.add_device(device)
+			#
+
+			device = NamedLoader.get_instance("dNG.pas.data.upnp.devices.RemoteUiServerDevice")
+			udn = Settings.get("mp_remote_ui_server_udn")
+			if (udn == None): udn = str(uuid_of_namespace(NAMESPACE_URL, "upnp://{0}/mp/RemoteUIServer".format(getfqdn())))
+
+			if (device.init_device(upnp_control_point, udn)):
+			#
+				device_name = Settings.get("mp_remote_ui_server_udn")
+				if (device_name != None): device.set_name(device_name)
+
+				_instances.append(device)
+				upnp_control_point.add_device(device)
+			#
+
+			with Connection.get_instance():
+			#
+				for entry in MpEntry.load_root_containers():
+				#
+					entry_id = entry.get_id()
+
+					MemoryTasks.get_instance().add("dNG.pas.tasks.mp.ResourceScanner.{0}".format(entry_id),
+					                               ResourceScanner(entry_id),
+					                               0
+					                              )
+				#
+			#
+		#
+
+		_return = True
+	#
+
+	return _return
 #
 
-def plugin_registration():
+def register_plugin():
 #
 	"""
 Register plugin hooks.
@@ -247,11 +234,26 @@ Register plugin hooks.
 :since: v0.1.00
 	"""
 
-	Hooks.register("dNG.pas.upnp.ControlPoint.shutdown", plugin_control_point_shutdown)
-	Hooks.register("dNG.pas.upnp.ControlPoint.startup", plugin_control_point_startup)
-	Hooks.register("dNG.pas.upnp.Resource.getRootResourceContent", plugin_resource_get_root_content)
-	Hooks.register("dNG.pas.upnp.Resource.getSearchableDidlFields", plugin_resource_get_searchable_didl_fields)
-	Hooks.register("dNG.pas.upnp.Resource.getSortableDidlFields", plugin_resource_get_sortable_didl_fields)
+	Hook.register("dNG.pas.upnp.ControlPoint.onShutdown", on_control_point_shutdown)
+	Hook.register("dNG.pas.upnp.ControlPoint.onStartup", on_control_point_startup)
+	Hook.register("dNG.pas.upnp.Resource.getRootResourceContent", get_root_resource_content)
+	Hook.register("dNG.pas.upnp.Resource.getSearchableDidlFields", get_searchable_didl_fields)
+	Hook.register("dNG.pas.upnp.Resource.getSortableDidlFields", get_sortable_didl_fields)
+#
+
+def unregister_plugin():
+#
+	"""
+Unregister plugin hooks.
+
+:since: v0.1.00
+	"""
+
+	Hook.unregister("dNG.pas.upnp.ControlPoint.onShutdown", on_control_point_shutdown)
+	Hook.unregister("dNG.pas.upnp.ControlPoint.onStartup", on_control_point_startup)
+	Hook.unregister("dNG.pas.upnp.Resource.getRootResourceContent", get_root_resource_content)
+	Hook.unregister("dNG.pas.upnp.Resource.getSearchableDidlFields", get_searchable_didl_fields)
+	Hook.unregister("dNG.pas.upnp.Resource.getSortableDidlFields", get_sortable_didl_fields)
 #
 
 ##j## EOF

@@ -2,10 +2,6 @@
 ##j## BOF
 
 """
-dNG.pas.data.upnp.resources.MpEntryVideo
-"""
-"""n// NOTE
-----------------------------------------------------------------------------
 MediaProvider
 A device centric multimedia solution
 ----------------------------------------------------------------------------
@@ -33,16 +29,16 @@ http://www.direct-netware.de/redirect.py?licenses;gpl
 ----------------------------------------------------------------------------
 #echo(mpCoreVersion)#
 #echo(__FILEPATH__)#
-----------------------------------------------------------------------------
-NOTE_END //n"""
+"""
 
 from dNG.pas.data.binary import Binary
 from dNG.pas.data.media.container_metadata import ContainerMetadata
 from dNG.pas.data.media.video import Video
+from dNG.pas.data.upnp.variable import Variable
 from dNG.pas.data.upnp.resources.abstract_stream import AbstractStream
 from dNG.pas.database.instances.mp_upnp_video_resource import MpUpnpVideoResource as _DbMpUpnpVideoResource
+from dNG.pas.runtime.not_implemented_class import NotImplementedClass
 from .mp_entry import MpEntry
-from dNG.pas.data.upnp.variable import Variable
 
 class MpEntryVideo(MpEntry):
 #
@@ -58,7 +54,41 @@ class MpEntryVideo(MpEntry):
              GNU General Public License 2
 	"""
 
-	def _content_stream_append_metadata(self, resource):
+	def _add_metadata_to_didl_xml_node(self, xml_resource, xml_node_path, parent_id = None):
+	#
+		"""
+Uses the given XML resource to add the DIDL metadata of this UPnP resource.
+
+:param xml_resource: XML resource
+:param xml_base_path: UPnP resource XML base path (e.g. "DIDL-Lite
+                      item")
+
+:since:  v0.1.01
+		"""
+
+		MpEntry._add_metadata_to_didl_xml_node(self, xml_resource, xml_node_path, parent_id)
+
+		if (self.get_type() & MpEntryVideo.TYPE_CDS_ITEM == MpEntryVideo.TYPE_CDS_ITEM and xml_resource.get_node(xml_node_path) != None):
+		#
+			entry_data = self.get_data_attributes("description", "genre", "actor", "author", "director", "producer", "publisher")
+
+			if (entry_data['actor'] != None): xml_resource.add_node("{0} upnp:actor".format(xml_node_path), entry_data['actor'])
+			if (entry_data['author'] != None): xml_resource.add_node("{0} upnp:author".format(xml_node_path), entry_data['author'])
+			if (entry_data['description'] != None): xml_resource.add_node("{0} dc:description".format(xml_node_path), entry_data['description'])
+
+			if (entry_data['director'] != None):
+			#
+				xml_resource.add_node("{0} dc:creator".format(xml_node_path), entry_data['director'])
+				xml_resource.add_node("{0} upnp:director".format(xml_node_path), entry_data['director'])
+			#
+
+			if (entry_data['genre'] != None): xml_resource.add_node("{0} upnp:genre".format(xml_node_path), entry_data['genre'])
+			if (entry_data['producer'] != None): xml_resource.add_node("{0} upnp:producer".format(xml_node_path), entry_data['producer'])
+			if (entry_data['publisher'] != None): xml_resource.add_node("{0} dc:publisher".format(xml_node_path), entry_data['publisher'])
+		#
+	#
+
+	def _append_stream_content_metadata(self, resource):
 	#
 		"""
 Appends audio metadata to the given stream resource.
@@ -72,11 +102,14 @@ Appends audio metadata to the given stream resource.
 
 		if (isinstance(resource, AbstractStream) and resource.is_supported("metadata")):
 		#
-			entry_data = self.data_get("size", "duration", "width", "height", "bitrate", "bpp")
+			entry_data = self.get_data_attributes("size", "duration", "width", "height", "bitrate", "bpp")
 			data = { }
 
 			if (entry_data['duration'] != None): data['duration'] = Variable.get_upnp_duration(entry_data['duration'])
-			if (entry_data['width'] != None and entry_data['height'] != None): data['resolution'] = "{0:d}x{1:d}".format(entry_data['width'], entry_data['height'])
+
+			if (entry_data['width'] != None
+			    and entry_data['height'] != None
+			   ): data['resolution'] = "{0:d}x{1:d}".format(entry_data['width'], entry_data['height'])
 
 			if (entry_data['bitrate'] != None): data['bitrate'] = int(entry_data['bitrate'] / 8)
 			elif (entry_data['duration'] != None and entry_data['size'] != None): data['bitrate'] = int(entry_data['size'] / entry_data['duration'])
@@ -87,7 +120,7 @@ Appends audio metadata to the given stream resource.
 		#
 	#
 
-	def content_get(self, position):
+	def get_content(self, position):
 	#
 		"""
 Returns the UPnP content resource at the given position.
@@ -98,13 +131,13 @@ Returns the UPnP content resource at the given position.
 :since:  v0.1.01
 		"""
 
-		_return = MpEntry.content_get(self, position)
-		if (self.type & MpEntry.TYPE_CDS_ITEM == MpEntry.TYPE_CDS_ITEM): self._content_stream_append_metadata(_return)
+		_return = MpEntry.get_content(self, position)
+		if (self.type & MpEntry.TYPE_CDS_ITEM == MpEntry.TYPE_CDS_ITEM): self._append_stream_content_metadata(_return)
 
 		return _return
 	#
 
-	def content_get_list(self):
+	def get_content_list(self):
 	#
 		"""
 Returns the UPnP content resources between offset and limit.
@@ -113,17 +146,17 @@ Returns the UPnP content resources between offset and limit.
 :since:  v0.1.01
 		"""
 
-		_return = MpEntry.content_get_list(self)
+		_return = MpEntry.get_content_list(self)
 
 		if (self.type & MpEntry.TYPE_CDS_ITEM == MpEntry.TYPE_CDS_ITEM):
 		#
-			for resource in _return: self._content_stream_append_metadata(resource)
+			for resource in _return: self._append_stream_content_metadata(resource)
 		#
 
 		return _return
 	#
 
-	def content_get_list_of_type(self, _type = None):
+	def get_content_list_of_type(self, _type = None):
 	#
 		"""
 Returns the UPnP content resources of the given type or all ones between
@@ -135,17 +168,103 @@ offset and limit.
 :since:  v0.1.01
 		"""
 
-		_return = MpEntry.content_get_list_of_type(self, _type)
+		_return = MpEntry.get_content_list_of_type(self, _type)
 
 		if (self.type & MpEntry.TYPE_CDS_ITEM == MpEntry.TYPE_CDS_ITEM):
 		#
-			for resource in _return: self._content_stream_append_metadata(resource)
+			for resource in _return: self._append_stream_content_metadata(resource)
 		#
 
 		return _return
 	#
 
-	def data_set(self, **kwargs):
+	def _filter_metadata_of_didl_xml_node(self, xml_resource, xml_node_path):
+	#
+		"""
+Uses the given XML resource to remove DIDL metadata not requested by the
+client.
+
+:param xml_resource: XML resource
+:param xml_base_path: UPnP resource XML base path (e.g. "DIDL-Lite
+                      item")
+
+:since:  v0.1.01
+		"""
+
+		MpEntry._filter_metadata_of_didl_xml_node(self, xml_resource, xml_node_path)
+
+		if (self.get_type() & MpEntryVideo.TYPE_CDS_ITEM == MpEntryVideo.TYPE_CDS_ITEM and xml_resource.get_node(xml_node_path) != None):
+		#
+			didl_fields = self.get_didl_fields()
+
+			if (len(didl_fields) > 0):
+			#
+				if ("upnp:actor" not in didl_fields): xml_resource.remove_node("{0} upnp:actor".format(xml_node_path))
+				if ("upnp:author" not in didl_fields): xml_resource.remove_node("{0} upnp:author".format(xml_node_path))
+				if ("dc:description" not in didl_fields): xml_resource.remove_node("{0} dc:description".format(xml_node_path))
+				if ("dc:creator" not in didl_fields): xml_resource.remove_node("{0} dc:creator".format(xml_node_path))
+				if ("upnp:director" not in didl_fields): xml_resource.remove_node("{0} upnp:director".format(xml_node_path))
+				if ("upnp:genre" not in didl_fields): xml_resource.remove_node("{0} upnp:genre".format(xml_node_path))
+				if ("upnp:producer" not in didl_fields): xml_resource.remove_node("{0} upnp:producer".format(xml_node_path))
+				if ("dc:publisher" not in didl_fields): xml_resource.remove_node("{0} dc:publisher".format(xml_node_path))
+			#
+		#
+	#
+
+	def _init_encapsulated_resource(self):
+	#
+		"""
+Initialize an new encapsulated UPnP resource.
+
+:since: v0.1.00
+		"""
+
+		self._ensure_thread_local_instance(_DbMpUpnpVideoResource)
+		MpEntry._init_encapsulated_resource(self)
+	#
+
+	def refresh_metadata(self):
+	#
+		"""
+Refresh metadata associated with this MpEntryVideo.
+
+:since: v0.1.00
+		"""
+
+		MpEntry.refresh_metadata(self)
+
+		encapsulated_resource = self.load_encapsulated_resource()
+
+		if ((not issubclass(Video, NotImplementedClass))
+		    and encapsulated_resource != None
+		    and encapsulated_resource.is_filesystem_resource()
+		    and encapsulated_resource.get_path() != None
+		   ):
+		#
+			video = Video()
+			metadata = (video.get_metadata() if (video.open_url(encapsulated_resource.get_id())) else None)
+
+			if (isinstance(metadata, ContainerMetadata) and metadata.get_video_streams_count() == 1):
+			#
+				video_metadata = metadata.get_video_streams(0)
+
+				self.set_data_attributes(title = metadata.get_title(),
+				                         mimetype = metadata.get_mimetype(),
+				                         metadata = metadata.get_json(),
+				                         duration = metadata.get_length(),
+				                         width = video_metadata.get_width(),
+				                         height = video_metadata.get_height(),
+				                         codec = video_metadata.get_codec(),
+				                         bitrate = video_metadata.get_bitrate(),
+				                         bpp = video_metadata.get_bpp()
+				                        )
+
+				self.save()
+			#
+		#
+	#
+
+	def set_data_attributes(self, **kwargs):
 	#
 		"""
 Sets values given as keyword arguments to this method.
@@ -153,11 +272,11 @@ Sets values given as keyword arguments to this method.
 :since: v0.1.00
 		"""
 
-		if (self.local.db_instance == None): self.local.db_instance = _DbMpUpnpVideoResource()
+		self._ensure_thread_local_instance(_DbMpUpnpVideoResource)
 
 		with self:
 		#
-			MpEntry.data_set(self, **kwargs)
+			MpEntry.set_data_attributes(self, **kwargs)
 
 			if ("duration" in kwargs): self.local.db_instance.duration = kwargs['duration']
 			if ("description" in kwargs): self.local.db_instance.description = Binary.utf8(kwargs['description'])
@@ -175,121 +294,6 @@ Sets values given as keyword arguments to this method.
 			if ("bitrate" in kwargs): self.local.db_instance.bitrate = kwargs['bitrate']
 			if ("bpp" in kwargs): self.local.db_instance.bpp = kwargs['bpp']
 			if ("encoder" in kwargs): self.local.db_instance.encoder = Binary.utf8(kwargs['encoder'])
-		#
-	#
-
-	def _init_encapsulated_resource(self):
-	#
-		"""
-Initialize an new encapsulated UPnP resource.
-
-:since: v0.1.00
-		"""
-
-		if (self.local.db_instance == None): self.local.db_instance = _DbMpUpnpVideoResource()
-		MpEntry._init_encapsulated_resource(self)
-	#
-
-	def metadata_add_didl_xml_node(self, xml_resource, xml_node_path, parent_id = None):
-	#
-		"""
-Uses the given XML resource to add the DIDL metadata of this UPnP resource.
-
-:param xml_resource: XML resource
-:param xml_base_path: UPnP resource XML base path (e.g. "DIDL-Lite
-                      item")
-
-:since:  v0.1.01
-		"""
-
-		MpEntry.metadata_add_didl_xml_node(self, xml_resource, xml_node_path, parent_id)
-
-		if (self.get_type() & MpEntryVideo.TYPE_CDS_ITEM == MpEntryVideo.TYPE_CDS_ITEM and xml_resource.node_get(xml_node_path) != None):
-		#
-			entry_data = self.data_get("description", "genre", "actor", "author", "director", "producer", "publisher")
-
-			if (entry_data['actor'] != None): xml_resource.node_add("{0} upnp:actor".format(xml_node_path), entry_data['actor'])
-			if (entry_data['author'] != None): xml_resource.node_add("{0} upnp:author".format(xml_node_path), entry_data['author'])
-			if (entry_data['description'] != None): xml_resource.node_add("{0} dc:description".format(xml_node_path), entry_data['description'])
-
-			if (entry_data['director'] != None):
-			#
-				xml_resource.node_add("{0} dc:creator".format(xml_node_path), entry_data['director'])
-				xml_resource.node_add("{0} upnp:director".format(xml_node_path), entry_data['director'])
-			#
-
-			if (entry_data['genre'] != None): xml_resource.node_add("{0} upnp:genre".format(xml_node_path), entry_data['genre'])
-			if (entry_data['producer'] != None): xml_resource.node_add("{0} upnp:producer".format(xml_node_path), entry_data['producer'])
-			if (entry_data['publisher'] != None): xml_resource.node_add("{0} dc:publisher".format(xml_node_path), entry_data['publisher'])
-		#
-	#
-
-	def metadata_filter_didl_xml_node(self, xml_resource, xml_node_path):
-	#
-		"""
-Uses the given XML resource to remove DIDL metadata not requested by the
-client.
-
-:param xml_resource: XML resource
-:param xml_base_path: UPnP resource XML base path (e.g. "DIDL-Lite
-                      item")
-
-:since:  v0.1.01
-		"""
-
-		MpEntry.metadata_filter_didl_xml_node(self, xml_resource, xml_node_path)
-
-		if (self.get_type() & MpEntryVideo.TYPE_CDS_ITEM == MpEntryVideo.TYPE_CDS_ITEM and xml_resource.node_get(xml_node_path) != None):
-		#
-			didl_fields = self.get_didl_fields()
-
-			if (len(didl_fields) > 0):
-			#
-				if ("upnp:actor" not in didl_fields): xml_resource.node_remove("{0} upnp:actor".format(xml_node_path))
-				if ("upnp:author" not in didl_fields): xml_resource.node_remove("{0} upnp:author".format(xml_node_path))
-				if ("dc:description" not in didl_fields): xml_resource.node_remove("{0} dc:description".format(xml_node_path))
-				if ("dc:creator" not in didl_fields): xml_resource.node_remove("{0} dc:creator".format(xml_node_path))
-				if ("upnp:director" not in didl_fields): xml_resource.node_remove("{0} upnp:director".format(xml_node_path))
-				if ("upnp:genre" not in didl_fields): xml_resource.node_remove("{0} upnp:genre".format(xml_node_path))
-				if ("upnp:producer" not in didl_fields): xml_resource.node_remove("{0} upnp:producer".format(xml_node_path))
-				if ("dc:publisher" not in didl_fields): xml_resource.node_remove("{0} dc:publisher".format(xml_node_path))
-			#
-		#
-	#
-
-	def refresh_metadata(self):
-	#
-		"""
-Refresh metadata associated with this MpEntryVideo.
-
-:since: v0.1.00
-		"""
-
-		MpEntry.refresh_metadata(self)
-
-		encapsulated_resource = self.load_encapsulated_resource()
-
-		if (encapsulated_resource != None and encapsulated_resource.is_filesystem_resource() and encapsulated_resource.get_path() != None):
-		#
-			video = Video()
-			metadata = (video.get_metadata() if (video.open_url(encapsulated_resource.get_id())) else None)
-
-			if (isinstance(metadata, ContainerMetadata) and metadata.video_streams_get_count() == 1):
-			#
-				video_metadata = metadata.video_streams_get(0)
-
-				self.data_set(
-					title = metadata.get_title(),
-					mimetype = metadata.get_mimetype(),
-					metadata = metadata.get_json(),
-					duration = metadata.get_length(),
-					width = video_metadata.get_width(),
-					height = video_metadata.get_height(),
-					codec = video_metadata.get_codec(),
-					bitrate = video_metadata.get_bitrate(),
-					bpp = video_metadata.get_bpp()
-				)
-			#
 		#
 	#
 #

@@ -2,10 +2,6 @@
 ##j## BOF
 
 """
-dNG.pas.data.upnp.resources.File
-"""
-"""n// NOTE
-----------------------------------------------------------------------------
 MediaProvider
 A device centric multimedia solution
 ----------------------------------------------------------------------------
@@ -33,8 +29,7 @@ http://www.direct-netware.de/redirect.py?licenses;gpl
 ----------------------------------------------------------------------------
 #echo(mpCoreVersion)#
 #echo(__FILEPATH__)#
-----------------------------------------------------------------------------
-NOTE_END //n"""
+"""
 
 # pylint: disable=import-error,no-name-in-module
 
@@ -106,10 +101,37 @@ Filesystem entries
 Filesystem path
 		"""
 
-		self.supported_features['content_search'] = False
+		self.supported_features['search_content'] = False
 	#
 
-	def content_flush_cache(self):
+	def _add_metadata_to_didl_xml_node(self, xml_resource, xml_node_path, parent_id = None):
+	#
+		"""
+Uses the given XML resource to add the DIDL metadata of this UPnP resource.
+
+:param xml_resource: XML resource
+:param xml_base_path: UPnP resource XML base path (e.g. "DIDL-Lite
+                      item")
+
+:since:  v0.1.01
+		"""
+
+		Resource._add_metadata_to_didl_xml_node(self, xml_resource, xml_node_path, parent_id)
+		resource_type = self.get_type()
+
+		if (resource_type & File.TYPE_CDS_CONTAINER == File.TYPE_CDS_CONTAINER):
+		#
+			xml_node_attributes = xml_resource.get_node_attributes(xml_node_path)
+
+			if (xml_node_attributes != None):
+			#
+				xml_node_attributes.update({ "upnp:storageUsed": "-1" })
+				xml_resource.change_node_attributes(xml_node_path, xml_node_attributes)
+			#
+		#
+	#
+
+	def flush_content_cache(self):
 	#
 		"""
 Flushes the content cache.
@@ -117,174 +139,8 @@ Flushes the content cache.
 :since: v0.1.01
 		"""
 
-		Resource.content_flush_cache(self)
+		Resource.flush_content_cache(self)
 		self.content_ids = [ ]
-	#
-
-	def _content_init(self):
-	#
-		"""
-Initializes the content of a container.
-
-:return: (bool) True if successful
-:since:  v0.1.00
-		"""
-
-		with self.lock:
-		#
-			if (self.content == None):
-			#
-				self.content = [ ]
-
-				if (self.type & File.TYPE_CDS_CONTAINER == File.TYPE_CDS_CONTAINER): self.content = self._content_init_directory_scan()
-				elif (self.type & File.TYPE_CDS_ITEM == File.TYPE_CDS_ITEM): self.content = self._content_init_file_scan()
-			#
-		#
-
-		return True
-	#
-
-	def _content_init_directory_scan(self):
-	#
-		"""
-Initializes the content of a directory container.
-
-:return: (list) Directory resources
-:since:  v0.1.00
-		"""
-
-		_return = [ ]
-
-		entries = { }
-		mimetypes = MimeType.get_instance()
-
-		if ((not self.deleted) and len(self.content_ids) < 1):
-		#
-			dir_names = [ ]
-			file_names = [ ]
-
-			for entry_name in os.listdir(self.path):
-			#
-				entry_pathname = path.normpath("{0}/{1}".format(self.path, Binary.str(entry_name)))
-				resource = File()
-
-				if (resource.init_cds_id("file:///{0}".format(entry_pathname), self.client_user_agent)):
-				#
-					entry_name = entry_name.lower()
-					entries[entry_name] = resource
-
-					if (path.isdir(entry_pathname)): dir_names.append(entry_name)
-					elif (path.isfile(entry_pathname)): file_names.append(entry_name)
-				#
-			#
-
-			file_names_ignored = [ ]
-
-			for file_name in file_names:
-			#
-				if (re.search("\\.thumbnail\\.\\w+$", file_name) == None):
-				#
-					file_ext = path.splitext(file_name)[1]
-					mimetype_definition = mimetypes.get(file_ext[1:])
-
-					if (mimetype_definition != None and "class" in mimetype_definition and mimetype_definition['class'] != "image"):
-					#
-						thumbnail_name = "{0}.png".format(file_name[0:-1 * len(file_ext)])
-						if (thumbnail_name in file_names): file_names_ignored.append(thumbnail_name)
-
-						thumbnail_name = "{0}.jpg".format(file_name[0:-1 * len(file_ext)])
-						if (thumbnail_name in file_names): file_names_ignored.append(thumbnail_name)
-					#
-				#
-				else: file_names_ignored.append(file_name)
-			#
-
-			for file_name in file_names_ignored: file_names.remove(file_name)
-
-			dir_names.sort()
-			file_names.sort()
-			entry_names_normalized = (dir_names + file_names)
-
-			for file_name in entry_names_normalized: self.content_ids.append(entries[file_name].get_id())
-		#
-		else:
-		#
-			entry_names_normalized = [ ]
-
-			for content_id in self.content_ids:
-			#
-				resource = File()
-
-				if (resource.init_cds_id(content_id, self.client_user_agent)):
-				#
-					content_path = resource.get_path()
-
-					entry_name = path.basename(content_path).lower()
-					entries[entry_name] = resource
-					entry_names_normalized.append(entry_name)
-				#
-			#
-		#
-
-		for file_name in entry_names_normalized: _return.append(entries[file_name])
-
-		return _return
-	#
-
-	def _content_init_file_scan(self):
-	#
-		"""
-Initializes the content of a file item.
-
-:return: (list) File resources
-:since:  v0.1.00
-		"""
-
-		_return = [ ]
-
-		resource_stream = self._get_stream_resource()
-
-		if (resource_stream != None):
-		#
-			resource_stream.init_cds_id("file:///{0}".format(self.path), self.client_user_agent)
-			if (isinstance(resource_stream, AbstractStream) and resource_stream.is_supported("metadata")): resource_stream.set_metadata(size = self.get_size())
-			_return.append(resource_stream)
-
-			resource_thumbnail_pathname = re.sub("(\\.\\w+)$", ".thumbnail.\\1", self.path)
-
-			if (not os.access(resource_thumbnail_pathname, os.R_OK)):
-			#
-				if (resource_stream.get_mimeclass() != "image"):
-				#
-					path_ext = path.splitext(self.path)[1]
-					resource_thumbnail_pathname = "{0}.png".format(self.path[0:-1 * len(path_ext)])
-
-					if (not os.access(resource_thumbnail_pathname, os.R_OK)): resource_thumbnail_pathname = None
-
-					if (resource_thumbnail_pathname == None):
-					#
-						resource_thumbnail_pathname = "{0}.jpg".format(self.path[0:-1 * len(path_ext)])
-						if (not os.access(resource_thumbnail_pathname, os.R_OK)): resource_thumbnail_pathname = None
-					#
-				#
-				else: resource_thumbnail_pathname = None
-			#
-
-			if (resource_thumbnail_pathname != None):
-			#
-				path_ext = path.splitext(resource_thumbnail_pathname)[1]
-				mimetype_definition = MimeType.get_instance().get(path_ext[1:])
-				resource_thumbnail = (None if (mimetype_definition == None) else NamedLoader.get_instance("dNG.pas.data.upnp.resources.{0}Thumbnail".format("".join([word.capitalize() for word in re.split("[\\W_]+", mimetype_definition['type'])])), False))
-
-				if (resource_thumbnail != None):
-				#
-					resource_thumbnail.init_cds_id("file:///{0}".format(resource_thumbnail_pathname), self.client_user_agent)
-					_return.append(resource_thumbnail)
-				#
-			#
-		#
-
-		return _return
 	#
 
 	def get_path(self):
@@ -321,7 +177,7 @@ Returns the content resources total.
 :since:  v0.1.00
 		"""
 
-		if (self.content == None): self._content_init()
+		if (self.content == None): self._init_content()
 		return len(self.content_ids)
 	#
 
@@ -347,10 +203,9 @@ Returns the UPnP resource type class.
 			is_cds1_object_supported = client.get("upnp_didl_cds1_object_classes_supported", True)
 		#
 
-		if (
-			is_cds1_container_supported and
-			_type & File.TYPE_CDS_STORAGE_FOLDER == File.TYPE_CDS_STORAGE_FOLDER
-		): _return = "object.container.storageFolder"
+		if (is_cds1_container_supported
+		    and _type & File.TYPE_CDS_STORAGE_FOLDER == File.TYPE_CDS_STORAGE_FOLDER
+		   ): _return = "object.container.storageFolder"
 
 		if (is_cds1_object_supported):
 		#
@@ -457,6 +312,181 @@ Warning: We can only guess if a given path was a directory or file.
 		return _return
 	#
 
+	def _init_content(self):
+	#
+		"""
+Initializes the content of a container.
+
+:return: (bool) True if successful
+:since:  v0.1.00
+		"""
+
+		with self._lock:
+		#
+			if (self.content == None):
+			#
+				self.content = [ ]
+
+				if (self.type & File.TYPE_CDS_CONTAINER == File.TYPE_CDS_CONTAINER): self.content = self._init_content_directory_scan()
+				elif (self.type & File.TYPE_CDS_ITEM == File.TYPE_CDS_ITEM): self.content = self._init_content_file_scan()
+			#
+		#
+
+		return True
+	#
+
+	def _init_content_directory_scan(self):
+	#
+		"""
+Initializes the content of a directory container.
+
+:return: (list) Directory resources
+:since:  v0.1.00
+		"""
+
+		_return = [ ]
+
+		entries = { }
+		mimetypes = MimeType.get_instance()
+
+		if ((not self.deleted) and len(self.content_ids) < 1):
+		#
+			dir_names = [ ]
+			file_names = [ ]
+
+			for entry_name in os.listdir(self.path):
+			#
+				entry_pathname = path.join(self.path, Binary.str(entry_name))
+				resource = File()
+
+				if (resource.init_cds_id("file:///{0}".format(entry_pathname), self.client_user_agent)):
+				#
+					entry_name = entry_name.lower()
+					entries[entry_name] = resource
+
+					if (path.isdir(entry_pathname)): dir_names.append(entry_name)
+					elif (path.isfile(entry_pathname)): file_names.append(entry_name)
+				#
+			#
+
+			file_names_ignored = [ ]
+
+			for file_name in file_names:
+			#
+				if (re.search("\\.thumbnail\\.\\w+$", file_name) == None):
+				#
+					file_ext = path.splitext(file_name)[1]
+					mimetype_definition = mimetypes.get(file_ext[1:])
+
+					if (mimetype_definition != None and "class" in mimetype_definition and mimetype_definition['class'] != "image"):
+					#
+						thumbnail_name = "{0}.png".format(file_name[0:-1 * len(file_ext)])
+						if (thumbnail_name in file_names): file_names_ignored.append(thumbnail_name)
+
+						thumbnail_name = "{0}.jpg".format(file_name[0:-1 * len(file_ext)])
+						if (thumbnail_name in file_names): file_names_ignored.append(thumbnail_name)
+					#
+				#
+				else: file_names_ignored.append(file_name)
+			#
+
+			for file_name in file_names_ignored: file_names.remove(file_name)
+
+			dir_names.sort()
+			file_names.sort()
+			entry_names_normalized = (dir_names + file_names)
+
+			for file_name in entry_names_normalized: self.content_ids.append(entries[file_name].get_id())
+		#
+		else:
+		#
+			entry_names_normalized = [ ]
+
+			for content_id in self.content_ids:
+			#
+				resource = File()
+
+				if (resource.init_cds_id(content_id, self.client_user_agent)):
+				#
+					content_path = resource.get_path()
+
+					entry_name = path.basename(content_path).lower()
+					entries[entry_name] = resource
+					entry_names_normalized.append(entry_name)
+				#
+			#
+		#
+
+		for file_name in entry_names_normalized: _return.append(entries[file_name])
+
+		return _return
+	#
+
+	def _init_content_file_scan(self):
+	#
+		"""
+Initializes the content of a file item.
+
+:return: (list) File resources
+:since:  v0.1.00
+		"""
+
+		_return = [ ]
+
+		resource_stream = self._get_stream_resource()
+
+		if (resource_stream != None):
+		#
+			resource_stream.init_cds_id("file:///{0}".format(self.path), self.client_user_agent)
+
+			if (isinstance(resource_stream, AbstractStream)
+			    and resource_stream.is_supported("metadata")
+			   ): resource_stream.set_metadata(size = self.get_size())
+
+			_return.append(resource_stream)
+
+			resource_thumbnail_pathname = re.sub("(\\.\\w+)$", ".thumbnail.\\1", self.path)
+
+			if (not os.access(resource_thumbnail_pathname, os.R_OK)):
+			#
+				if (resource_stream.get_mimeclass() != "image"):
+				#
+					path_ext = path.splitext(self.path)[1]
+					resource_thumbnail_pathname = "{0}.png".format(self.path[0:-1 * len(path_ext)])
+
+					if (not os.access(resource_thumbnail_pathname, os.R_OK)): resource_thumbnail_pathname = None
+
+					if (resource_thumbnail_pathname == None):
+					#
+						resource_thumbnail_pathname = "{0}.jpg".format(self.path[0:-1 * len(path_ext)])
+						if (not os.access(resource_thumbnail_pathname, os.R_OK)): resource_thumbnail_pathname = None
+					#
+				#
+				else: resource_thumbnail_pathname = None
+			#
+
+			if (resource_thumbnail_pathname != None):
+			#
+				path_ext = path.splitext(resource_thumbnail_pathname)[1]
+				mimetype_definition = MimeType.get_instance().get(path_ext[1:])
+				camel_case_mimeclass = "".join([word.capitalize() for word in re.split("[\\W_]+", mimetype_definition['type'])])
+
+				resource_thumbnail = (None
+				                      if (mimetype_definition == None) else
+				                      NamedLoader.get_instance("dNG.pas.data.upnp.resources.{0}Thumbnail".format(camel_case_mimeclass), False)
+				                     )
+
+				if (resource_thumbnail != None):
+				#
+					resource_thumbnail.init_cds_id("file:///{0}".format(resource_thumbnail_pathname), self.client_user_agent)
+					_return.append(resource_thumbnail)
+				#
+			#
+		#
+
+		return _return
+	#
+
 	def is_filesystem_resource(self):
 	#
 		"""
@@ -467,33 +497,6 @@ Returns true if the resource is represented in the filesystem.
 		"""
 
 		return (self.path != None)
-	#
-
-	def metadata_add_didl_xml_node(self, xml_resource, xml_node_path, parent_id = None):
-	#
-		"""
-Uses the given XML resource to add the DIDL metadata of this UPnP resource.
-
-:param xml_resource: XML resource
-:param xml_base_path: UPnP resource XML base path (e.g. "DIDL-Lite
-                      item")
-
-:since:  v0.1.01
-		"""
-
-		Resource.metadata_add_didl_xml_node(self, xml_resource, xml_node_path, parent_id)
-		resource_type = self.get_type()
-
-		if (resource_type & File.TYPE_CDS_CONTAINER == File.TYPE_CDS_CONTAINER):
-		#
-			xml_node_attributes = xml_resource.node_get_attributes(xml_node_path)
-
-			if (xml_node_attributes != None):
-			#
-				xml_node_attributes.update({ "upnp:storageUsed": "-1" })
-				xml_resource.node_change_attributes(xml_node_path, xml_node_attributes)
-			#
-		#
 	#
 #
 

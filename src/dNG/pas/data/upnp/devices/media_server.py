@@ -2,10 +2,6 @@
 ##j## BOF
 
 """
-dNG.pas.data.upnp.devices.MediaServer
-"""
-"""n// NOTE
-----------------------------------------------------------------------------
 MediaProvider
 A device centric multimedia solution
 ----------------------------------------------------------------------------
@@ -33,8 +29,7 @@ http://www.direct-netware.de/redirect.py?licenses;gpl
 ----------------------------------------------------------------------------
 #echo(mpCoreVersion)#
 #echo(__FILEPATH__)#
-----------------------------------------------------------------------------
-NOTE_END //n"""
+"""
 
 from dNG.pas.data.upnp.client import Client
 #from dNG.pas.data.upnp.services.av_transport import AvTransport
@@ -94,19 +89,19 @@ Initialize a host device.
 		self.spec_minor = 1
 
 		#service = AvTransport()
-		#if (service.init_service(self, configid = self.configid)): self.service_add(service)
+		#if (service.init_host(self, configid = self.configid)): self.add_service(service)
 
 		service = ConnectionManager()
-		if (service.init_service(self, configid = self.configid)): self.service_add(service)
+		if (service.init_host(self, configid = self.configid)): self.add_service(service)
 
 		service = ContentDirectory()
-		if (service.init_service(self, configid = self.configid)): self.service_add(service)
+		if (service.init_host(self, configid = self.configid)): self.add_service(service)
 
 		#service = ScheduledRecording()
-		#if (service.init_service(self, configid = self.configid)): self.service_add(service)
+		#if (service.init_host(self, configid = self.configid)): self.add_service(service)
 
 		service = XMSMediaReceiverRegistrar()
-		if (service.init_service(self, configid = self.configid)): self.service_add(service)
+		if (service.init_host(self, configid = self.configid)): self.add_service(service)
 
 		return True
 	#
@@ -122,24 +117,27 @@ Returns the UPnP device description for encoding.
 :since:  v0.1.01
 		"""
 
+		# pylint: disable=maybe-no-member,no-member
+		# pylint 1.2.1 gets crazy here and thinks that xml_resource is the same as self
+
 		client = Client.load_user_agent(self.client_user_agent)
 
 		xml_resource = AbstractDevice._get_xml(self, xml_resource)
 
-		xml_resource.node_add("root device dlna:X_DLNADOC", "DMS-1.50", { "xmlns:dlna": "urn:schemas-dlna-org:device-1-0" })
-		# TODO: if (client.get("upnp_xml_dlnacap_supported", True)): xml_resource.node_add("root device dlna:X_DLNACAP", "audio-upload,av-upload,image-upload", { "xmlns:dlna": "urn:schemas-dlna-org:device-1-0" }) # TODO: upload
+		xml_resource.add_node("root device dlna:X_DLNADOC", "DMS-1.50", { "xmlns:dlna": "urn:schemas-dlna-org:device-1-0" })
+		# TODO: if (client.get("upnp_xml_dlnacap_supported", True)): xml_resource.add_node("root device dlna:X_DLNACAP", "audio-upload,av-upload,image-upload", { "xmlns:dlna": "urn:schemas-dlna-org:device-1-0" }) # TODO: upload
 
 		value = client.get("mp_media_server_device_model")
-		if (value != None):  xml_resource.node_change_value("root device modelName", value)
+		if (value != None):  xml_resource.change_node_value("root device modelName", value)
 
 		value = client.get("mp_media_server_device_model_desc")
-		if (value != None): xml_resource.node_change_value("root device modelDescription", value)
+		if (value != None): xml_resource.change_node_value("root device modelDescription", value)
 
 		value = client.get("mp_media_server_device_model_version")
-		if (value != None): xml_resource.node_change_value("root device modelNumber", value)
+		if (value != None): xml_resource.change_node_value("root device modelNumber", value)
 
 		value = client.get("mp_media_server_manufacturer")
-		if (value != None): xml_resource.node_change_value("root device manufacturer", value)
+		if (value != None): xml_resource.change_node_value("root device manufacturer", value)
 
 		return xml_resource
 	#

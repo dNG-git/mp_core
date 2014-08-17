@@ -2,10 +2,6 @@
 ##j## BOF
 
 """
-dNG.pas.data.upnp.resources.AbstractDlnaStream
-"""
-"""n// NOTE
-----------------------------------------------------------------------------
 MediaProvider
 A device centric multimedia solution
 ----------------------------------------------------------------------------
@@ -33,8 +29,7 @@ http://www.direct-netware.de/redirect.py?licenses;gpl
 ----------------------------------------------------------------------------
 #echo(mpCoreVersion)#
 #echo(__FILEPATH__)#
-----------------------------------------------------------------------------
-NOTE_END //n"""
+"""
 
 from .http_block_stream import HttpBlockStream
 
@@ -114,7 +109,7 @@ Flag for streams.
 	def __init__(self):
 	#
 		"""
-Constructor __init__(AbstractStream)
+Constructor __init__(AbstractDlnaHttpStream)
 
 :since: v0.1.00
 		"""
@@ -129,10 +124,10 @@ UPnP DLNA content features
 		self.supported_features['dlna_content_features'] = True
 	#
 
-	def dlna_get_content_features(self):
+	def get_dlna_content_features(self):
 	#
 		"""
-Return the UPnP DLNA content features known used for the 4th-field.
+Returns the UPnP DLNA content features known used for the 4th-field.
 
 :return: (str) UPnP DLNA compliant content features
 :since:  v0.1.01
@@ -159,18 +154,55 @@ Initialize a UPnP resource by CDS ID.
 
 		if (_return):
 		#
-			self.dlna_content_features = "DLNA.ORG_OP={0:0>2x};DLNA.ORG_CI=0;DLNA.ORG_FLAGS={1:0>8x}000000000000000000000000".format(
-				AbstractDlnaHttpStream.DLNA_SEEK_BYTES,
-				(AbstractDlnaHttpStream.DLNA_0150 | AbstractDlnaHttpStream.DLNA_HTTP_STALLING)
-			)
-
-			self.didl_res_protocol = "http-get:*:{0}:{1}".format(
-				self.get_mimetype(),
-				self.dlna_content_features
-			)
+			self._init_dlna_content_features()
+			self._init_dlna_res_protocol()
 		#
 
 		return _return
+	#
+
+	def _init_dlna_content_features(self):
+	#
+		"""
+Initializes the UPnP DLNA content features variable.
+
+:since: v0.1.00
+		"""
+
+		dlna_content_features = "DLNA.ORG_OP={0:0>2x};DLNA.ORG_CI=0;DLNA.ORG_FLAGS={1:0>8x}000000000000000000000000"
+
+		self.dlna_content_features = dlna_content_features.format(AbstractDlnaHttpStream.DLNA_SEEK_BYTES,
+		                                                          (AbstractDlnaHttpStream.DLNA_0150
+		                                                           | AbstractDlnaHttpStream.DLNA_HTTP_STALLING
+		                                                          )
+		                                                         )
+	#
+
+	def _init_dlna_res_protocol(self):
+	#
+		"""
+Initializes the UPnP DLNA res protocol variable.
+
+:since: v0.1.00
+		"""
+
+		self.didl_res_protocol = "http-get:*:{0}:{1}".format(self.get_mimetype(),
+		                                                     self.dlna_content_features
+		                                                    )
+	#
+
+	def set_mimetype(self, mimetype):
+	#
+		"""
+Sets the UPnP resource mime type.
+
+:param mimetype: UPnP resource mime type
+
+:since: v0.1.01
+		"""
+
+		HttpBlockStream.set_mimetype(self, mimetype)
+		self._init_dlna_res_protocol()
 	#
 #
 

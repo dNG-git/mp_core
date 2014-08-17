@@ -1,4 +1,24 @@
 {
- "mp_core_upnp_container_bookmarks": "Favorites",
- "mp_core_upnp_container_settings": "Settings"
+ "mp_core_container_list_empty": "Currently no containers have been defined.",
+ "mp_core_container_resource_type": "Type",
+ "mp_core_container_resource_type_audio": "Audio",
+ "mp_core_container_resource_type_image": "Images",
+ "mp_core_container_resource_type_video": "Videos",
+ "mp_core_container_title": "Container title",
+ "mp_core_root_container_list": "Media shares",
+
+ "mp_core_root_container_delete": "Remove share",
+ "mp_core_done_root_container_delete": "The share has been removed successfully.",
+
+ "mp_core_root_container_edit": "Edit share",
+ "mp_core_done_root_container_edit": "The share has been edited successfully.",
+
+ "mp_core_root_container_new": "Add new share",
+ "mp_core_done_root_container_new": "The new share has been added successfully.",
+
+ "mp_core_container_resource_local_pathname": "Resource path",
+ "mp_core_form_container_resource_local_pathname_does_not_exist": "The defined resource path could not be accessed.",
+ "mp_core_form_container_resource_local_pathname_not_unique": "The defined resource path does already exist.",
+
+ "errors_mp_core_cid_invalid": "The defined container ID is invalid."
 }

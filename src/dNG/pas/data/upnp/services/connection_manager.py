@@ -2,10 +2,6 @@
 ##j## BOF
 
 """
-dNG.pas.data.upnp.services.ConnectionManager
-"""
-"""n// NOTE
-----------------------------------------------------------------------------
 MediaProvider
 A device centric multimedia solution
 ----------------------------------------------------------------------------
@@ -33,8 +29,7 @@ http://www.direct-netware.de/redirect.py?licenses;gpl
 ----------------------------------------------------------------------------
 #echo(mpCoreVersion)#
 #echo(__FILEPATH__)#
-----------------------------------------------------------------------------
-NOTE_END //n"""
+"""
 
 from .abstract_service import AbstractService
 
@@ -68,110 +63,128 @@ Calls the given hook and returns the result.
 		return json_parser.data_to_json(result)
 	#
 
-	def init_service(self, device, service_id = None, configid = None):
+	def init_host(self, device, service_id = None, configid = None):
 	#
 		"""
-Initialize a host service.
+Initializes a host service.
+
+:param device: Host device this UPnP service is added to
+:param service_id: Unique UPnP service ID
+:param configid: UPnP configId for the host device
 
 :return: (bool) Returns true if initialization was successful.
 :since:  v0.1.00
 		"""
 
-		if (service_id == None): service_id = "ConnectionManager"
-		AbstractService.init_service(self, device, service_id, configid)
-
-		self.actions = {
-			"GetProtocolInfo": {
-				"argument_variables": [ ],
-				"return_variable": { "name": "Source", "variable": "SourceProtocolInfo" },
-				"result_variables": [ { "name": "Sink", "variable": "SinkProtocolInfo" } ]
-			},
-			"GetCurrentConnectionIDs": {
-				"argument_variables": [ ],
-				"return_variable": { "name": "ConnectionIDs", "variable": "CurrentConnectionIDs" },
-				"result_variables": [ ]
-			},
-			"GetCurrentConnectionInfo": {
-				"argument_variables": [ { "name": "ConnectionID", "variable": "A_ARG_TYPE_ConnectionID" } ],
-				"return_variable": { "name": "RcsID", "variable": "A_ARG_TYPE_RcsID" },
-				"result_variables": [
-					{ "name": "AVTransportID", "variable": "A_ARG_TYPE_AVTransportID" },
-					{ "name": "ProtocolInfo", "variable": "A_ARG_TYPE_ProtocolInfo" },
-					{ "name": "PeerConnectionManager", "variable": "A_ARG_TYPE_ConnectionManager" },
-					{ "name": "PeerConnectionID", "variable": "A_ARG_TYPE_ConnectionID" },
-					{ "name": "Direction", "variable": "A_ARG_TYPE_Direction" },
-					{ "name": "Status", "variable": "A_ARG_TYPE_ConnectionStatus" }
-				]
-			}
-		}
-
-		self.service_id = service_id
 		self.spec_major = 1
 		self.spec_minor = 1
 		self.type = "ConnectionManager"
 		self.upnp_domain = "schemas-upnp-org"
 		self.version = "1"
 
-		self.variables = {
-			"SourceProtocolInfo": {
-				"is_sending_events": True,
-				"is_multicasting_events": False,
-				"type": "string",
-				"value": ""
-			},
-			"SinkProtocolInfo": {
-				"is_sending_events": True,
-				"is_multicasting_events": False,
-				"type": "string",
-				"value": ""
-			},
-			"CurrentConnectionIDs": {
-				"is_sending_events": True,
-				"is_multicasting_events": False,
-				"type": "string",
-				"value": ""
-			},
-			"A_ARG_TYPE_ConnectionStatus": {
-				"is_sending_events": False,
-				"is_multicasting_events": False,
-				"type": "string",
-				"values_allowed": [ "OK", "ContentFormatMismatch", "InsufficientBandwidth", "UnreliableChannel", "Unknown" ]
-			},
-			"A_ARG_TYPE_ConnectionManager": {
-				"is_sending_events": False,
-				"is_multicasting_events": False,
-				"type": "string",
-				"value": ""
-			},
-			"A_ARG_TYPE_Direction": {
-				"is_sending_events": False,
-				"is_multicasting_events": False,
-				"type": "string",
-				"values_allowed": [ "Output", "Input" ]
-			},
-			"A_ARG_TYPE_ProtocolInfo": {
-				"is_sending_events": False,
-				"is_multicasting_events": False,
-				"type": "string"
-			},
-			"A_ARG_TYPE_ConnectionID": {
-				"is_sending_events": False,
-				"is_multicasting_events": False,
-				"type": "i4"
-			},
-			"A_ARG_TYPE_AVTransportID": {
-				"is_sending_events": False,
-				"is_multicasting_events": False,
-				"type": "i4"
-			},
-			"A_ARG_TYPE_RcsID": {
-				"is_sending_events": False,
-				"is_multicasting_events": False,
-				"type": "i4"
-			}
-		}
+		if (service_id == None): service_id = "ConnectionManager"
+		return AbstractService.init_host(self, device, service_id, configid)
+	#
 
-		return True
+	def _init_host_actions(self, device):
+	#
+		"""
+Initializes the dict of host service actions.
+
+:param device: Host device this UPnP service is added to
+
+:since: v0.1.00
+		"""
+
+		get_protocol_info = { "argument_variables": [ ],
+		                      "return_variable": { "name": "Source", "variable": "SourceProtocolInfo" },
+		                      "result_variables": [ { "name": "Sink", "variable": "SinkProtocolInfo" } ]
+		                    }
+
+		get_current_connection_ids = { "argument_variables": [ ],
+		                               "return_variable": { "name": "ConnectionIDs", "variable": "CurrentConnectionIDs" },
+		                               "result_variables": [ ]
+		                             }
+
+		get_current_connection_info = { "argument_variables": [ { "name": "ConnectionID", "variable": "A_ARG_TYPE_ConnectionID" } ],
+		                                "return_variable": { "name": "RcsID", "variable": "A_ARG_TYPE_RcsID" },
+		                                "result_variables": [ { "name": "AVTransportID", "variable": "A_ARG_TYPE_AVTransportID" },
+		                                                      { "name": "ProtocolInfo", "variable": "A_ARG_TYPE_ProtocolInfo" },
+		                                                      { "name": "PeerConnectionManager", "variable": "A_ARG_TYPE_ConnectionManager" },
+		                                                      { "name": "PeerConnectionID", "variable": "A_ARG_TYPE_ConnectionID" },
+		                                                      { "name": "Direction", "variable": "A_ARG_TYPE_Direction" },
+		                                                      { "name": "Status", "variable": "A_ARG_TYPE_ConnectionStatus" }
+		                                                    ]
+		                              }
+
+		self.actions = { "GetProtocolInfo": get_protocol_info,
+		                 "GetCurrentConnectionIDs": get_current_connection_ids,
+		                 "GetCurrentConnectionInfo": get_current_connection_info
+		               }
+	#
+
+	def _init_host_variables(self, device):
+	#
+		"""
+Initializes the dict of host service variables.
+
+:param device: Host device this UPnP service is added to
+
+:since: v0.1.00
+		"""
+
+		self.variables = { "SourceProtocolInfo": { "is_sending_events": True,
+		                                           "is_multicasting_events": False,
+		                                           "type": "string",
+		                                           "value": ""
+		                                         },
+		                   "SinkProtocolInfo": { "is_sending_events": True,
+		                                         "is_multicasting_events": False,
+		                                         "type": "string",
+		                                         "value": ""
+		                                       },
+		                   "CurrentConnectionIDs": { "is_sending_events": True,
+		                                             "is_multicasting_events": False,
+		                                             "type": "string",
+		                                             "value": ""
+		                                           },
+		                   "A_ARG_TYPE_ConnectionStatus": { "is_sending_events": False,
+		                                                    "is_multicasting_events": False,
+		                                                    "type": "string",
+		                                                    "values_allowed": [ "OK",
+		                                                                        "ContentFormatMismatch",
+		                                                                        "InsufficientBandwidth",
+		                                                                        "UnreliableChannel",
+		                                                                        "Unknown"
+		                                                                      ]
+		                                                  },
+		                   "A_ARG_TYPE_ConnectionManager": { "is_sending_events": False,
+		                                                     "is_multicasting_events": False,
+		                                                     "type": "string",
+		                                                     "value": ""
+		                                                   },
+		                   "A_ARG_TYPE_Direction": { "is_sending_events": False,
+		                                             "is_multicasting_events": False,
+		                                             "type": "string",
+		                                             "values_allowed": [ "Output", "Input" ]
+		                                           },
+		                   "A_ARG_TYPE_ProtocolInfo": { "is_sending_events": False,
+		                                                "is_multicasting_events": False,
+		                                                "type": "string"
+		                                              },
+		                   "A_ARG_TYPE_ConnectionID": { "is_sending_events": False,
+		                                                "is_multicasting_events": False,
+		                                                "type": "i4"
+		                                              },
+		                   "A_ARG_TYPE_AVTransportID": { "is_sending_events": False,
+		                                                 "is_multicasting_events": False,
+		                                                 "type": "i4"
+		                                               },
+		                   "A_ARG_TYPE_RcsID": { "is_sending_events": False,
+		                                         "is_multicasting_events": False,
+		                                         "type": "i4"
+		                                       }
+		                 }
 	#
 #
 

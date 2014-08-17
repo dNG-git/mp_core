@@ -1,0 +1,4 @@
+{
+ "ssdp_notify_use_filter": true,
+ "upnp_cehtml_apps_supported": false
+}

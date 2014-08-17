@@ -29,6 +29,16 @@ http://www.direct-netware.de/redirect.py?licenses;gpl
 	<dirname property="mp.basedir" file="${ant.file}" />
 	<property file="${mp.basedir}/_extras/build.properties" />
 
+	<target name="compile.mp.css" description="Compile data.css ${ant.project.name}">
+		<exec executable="python">
+			<arg file="${cssBuilder.filePathName}" />
+			<arg value="--filetype=${cssBuilder.fileTypes}" />
+			<arg value="--include=${mp.basedir}/data/" />
+			<arg value="--strip_prefix=${mp.basedir}/" />
+			<arg value="--output_dirs_chmod=0755" />
+		</exec>
+	</target>
+
 	<target name="compile.mp.src" description="Compile src.py ${ant.project.name}">
 		<exec executable="python">
 			<arg file="${pyBuilder.filePathName}" />

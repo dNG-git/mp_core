@@ -1,0 +1,10 @@
+{
+ "upnp_cehtml_apps_supported": false,
+
+ "upnp_custom_mimetypes": {
+  "video/mp2t": "video/mpeg",
+  "video/x-msvideo": "video/avi"
+ },
+
+ "upnp_stream_url_use_filter": true
+}
