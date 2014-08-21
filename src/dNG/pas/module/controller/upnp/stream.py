@@ -42,6 +42,7 @@ from dNG.pas.controller.http_upnp_request import HttpUpnpRequest
 from dNG.pas.data.text.input_filter import InputFilter
 from dNG.pas.data.http.streaming import Streaming
 from dNG.pas.data.http.translatable_exception import TranslatableException
+from dNG.pas.data.upnp.client import Client
 from dNG.pas.data.upnp.resource import Resource
 from dNG.pas.data.upnp.resources.abstract_stream import AbstractStream
 from dNG.pas.module.named_loader import NamedLoader
@@ -74,6 +75,10 @@ Action for "source"
 		client_host = self.request.get_client_host()
 		upnp_control_point = self.request.get_upnp_control_point()
 		url = self.request.get_dsd("src")
+
+		client = Client.load_user_agent(self.client_user_agent)
+
+		self.response.init(True, compress = client.get("upnp_http_compression_supported", True))
 
 		if (client_host == None): is_allowed = False
 		else:
