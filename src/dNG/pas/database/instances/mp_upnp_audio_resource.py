@@ -6,7 +6,7 @@ MediaProvider
 A device centric multimedia solution
 ----------------------------------------------------------------------------
 (C) direct Netware Group - All rights reserved
-http://www.direct-netware.de/redirect.py?mp;core
+https://www.direct-netware.de/redirect?mp;core
 
 The following license agreement remains valid unless any additions or
 changes are being made by direct Netware Group in a written form.
@@ -25,7 +25,7 @@ You should have received a copy of the GNU General Public License along with
 this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
 ----------------------------------------------------------------------------
-http://www.direct-netware.de/redirect.py?licenses;gpl
+https://www.direct-netware.de/redirect?licenses;gpl
 ----------------------------------------------------------------------------
 #echo(mpCoreVersion)#
 #echo(__FILEPATH__)#
@@ -47,7 +47,7 @@ class MpUpnpAudioResource(MpUpnpResource):
 :package:    mp
 :subpackage: core
 :since:      v0.1.00
-:license:    http://www.direct-netware.de/redirect.py?licenses;gpl
+:license:    https://www.direct-netware.de/redirect?licenses;gpl
              GNU General Public License 2
 	"""
 
