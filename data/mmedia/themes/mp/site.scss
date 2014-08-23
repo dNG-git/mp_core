@@ -113,30 +113,33 @@ small { font-size: 0.75em }
 		vertical-align: middle; white-space: nowrap
 	}
 
-	li:not(:last-child):after { margin: 0 0.3em; content: "•" }
+	li:not(:last-child)::after { margin: 0 0.3em; content: "•" }
 
 	ul { display: inline-block; margin: 0; padding: 0; list-style: none }
 }
 
 .pagecontent_quote_box {
-	padding: 0.4em; background-color: $light_grey; border: 1px solid $dark_grey;
+	position: relative; padding: 0.4em 0.4em 0.4em 1.4em; background-color: $light_grey; border: 1px solid $dark_grey;
 
-	&:first-child:before {
-		display: block; float: left; padding-bottom: 0.4em; padding-right: 0.4em;
-		font-size: 200%; content: open-quote
+	&::before, &::after {
+		position: absolute; top: 0; left: 0.4em; margin-left: 9px; border: 9px solid transparent;
+		content: " "
 	}
+
+	&::before { margin-top: -18px; border-bottom-color: $dark_grey }
+	&::after { margin-top: -17px; border-bottom-color: $light_grey }
 }
 
 .pagecontent_user_above_wrote {
 	padding: 0.4em; background-color: $grey; border: 1px solid $dark_grey;
 
-	&:before, &:after {
-		position: absolute; top: 0;
+	&::before, &::after {
+		position: absolute; top: 0; left: 0.4em; margin-left: 9px; border: 9px solid transparent;
 		content: " "
 	}
 
-	&:before { margin-top: -18px; margin-left: 9px; border: 9px solid transparent; border-bottom-color: $dark_grey }
-	&:after { margin-top: -17px; margin-left: 9px; border: 9px solid transparent; border-bottom-color: $grey }
+	&::before { margin-top: -18px; border-bottom-color: $dark_grey }
+	&::after { margin-top: -17px; border-bottom-color: $grey }
 
 	& > :first-child { margin-top: 0 }
 	& > :last-child { margin-bottom: 0 }
@@ -234,7 +237,7 @@ small { font-size: 0.75em }
 		vertical-align: middle; white-space: nowrap
 	}
 
-	li:not(:last-child):after { margin: 0 0.3em; content: "•" }
+	li:not(:last-child)::after { margin: 0 0.3em; content: "•" }
 
 	ul { margin: 0; padding: 0; list-style: none }
 }
@@ -267,6 +270,7 @@ small { font-size: 0.75em }
 	}
 }
 
+.pageoptionsbar_button { z-index: 123 }
 .pageoptionsbar_button:link, .pageoptionsbar_button:active, .pageoptionsbar_button:visited, .pageoptionsbar_button:hover, .pageoptionsbar_button:focus { text-decoration: none }
 
 .pageoptionsbar_left { display: inline-block; float: left; margin-right: 0.25em }
@@ -314,7 +318,7 @@ small { font-size: 0.75em }
 		vertical-align: top
 	}
 
-	li:not(:last-child):after { margin-right: 0.3em; content: ", " }
+	li:not(:last-child)::after { margin-right: 0.3em; content: ", " }
 
 	ul { position: relative; margin: 0; padding: 0; list-style: none inside none }
 }
@@ -416,7 +420,7 @@ small { font-size: 0.75em }
 			display: block; width: inherit;
 			text-align: left !important;
 
-			&:before {
+			&::before {
 				display: block; margin: 0 -0.3em 0.2em -0.3em; padding: 0 0.3em 0.1em 0.3em; border-bottom: 1px solid $neon;
 				background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, rgba(#{$grey_rgba}, 0)), color-stop(1, $light_neon));
 				background-image: -o-linear-gradient(rgba(#{$grey_rgba}, 0) 0%, $light_neon 100%);

@@ -561,36 +561,33 @@ Initialize a UPnP resource by CDS ID.
 
 		if (_return):
 		#
-			url_elements = urlsplit(self.id)
-
-			if (url_elements.scheme == "mp-entry" or url_elements.scheme.startswith("mp-entry-")):
+			with Connection.get_instance() as connection:
 			#
-				if (self.local.db_instance == None):
+				url_elements = urlsplit(self.id)
+
+				if (url_elements.scheme == "mp-entry" or url_elements.scheme.startswith("mp-entry-")):
 				#
-					with Connection.get_instance() as connection:
+					if (self.local.db_instance == None):
 					#
 						self.local.db_instance = (connection.query(_DbMpUpnpResource)
 						                          .filter(_DbMpUpnpResource.id == url_elements.path[1:])
 						                          .first()
 						                         )
 					#
+
+					if (self.local.db_instance == None): _return = False
+					else: self._load()
 				#
-
-				if (self.local.db_instance == None): _return = False
-				else: self._load()
-			#
-			else:
-			#
-				self.encapsulated_resource = Resource.load_cds_id(_id, deleted = True)
-
-				if (self.encapsulated_resource == None): _return = False
 				else:
 				#
-					self.encapsulated_id = self.encapsulated_resource.get_id()
+					self.encapsulated_resource = Resource.load_cds_id(_id, deleted = True)
 
-					if (self.local.db_instance == None):
+					if (self.encapsulated_resource == None): _return = False
+					else:
 					#
-						with Connection.get_instance() as connection:
+						self.encapsulated_id = self.encapsulated_resource.get_id()
+
+						if (self.local.db_instance == None):
 						#
 							self.local.db_instance = (connection.query(_DbMpUpnpResource)
 							                          .filter(_DbMpUpnpResource.resource == self.encapsulated_id)
@@ -605,9 +602,9 @@ Initialize a UPnP resource by CDS ID.
 								_return = (self.id != None)
 							#
 						#
-					#
 
-					self.updatable = self.encapsulated_resource.get_updatable()
+						self.updatable = self.encapsulated_resource.get_updatable()
+					#
 				#
 			#
 		#
