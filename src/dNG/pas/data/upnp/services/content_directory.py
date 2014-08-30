@@ -31,6 +31,7 @@ https://www.direct-netware.de/redirect?licenses;gpl
 #echo(__FILEPATH__)#
 """
 
+from dNG.pas.data.upnp.update_id_registry import UpdateIdRegistry
 from dNG.pas.data.upnp.upnp_exception import UpnpException
 from dNG.pas.data.upnp.resource import Resource
 from .abstract_service import AbstractService
@@ -60,6 +61,17 @@ Implementation for "urn:schemas-upnp-org:service:ContentDirectory:1".
 	"""
 UPnP SystemUpdateID
 	"""
+
+	def __del__(self):
+	#
+		"""
+Destructor __del__(ContentDirectory)
+
+:since: v0.1.00
+		"""
+
+		UpdateIdRegistry.unregister(self._on_updated_id)
+	#
 
 	def browse(self, object_id, browse_flag, filter = "*", starting_index = 0, requested_count = 0, sort_criteria = ""):
 	#
@@ -215,6 +227,7 @@ Initializes a host service.
 		self.spec_major = 1
 		self.spec_minor = 1
 		self.type = "ContentDirectory"
+		self.update_id_listener = UpdateIdRegistry.register(self._on_updated_id)
 		self.upnp_domain = "schemas-upnp-org"
 		self.version = "1"
 
@@ -368,6 +381,11 @@ Initializes the dict of host service variables.
 		                                            "type": "ui4"
 		                                          }
 		                 }
+	#
+
+	def _on_updated_id(self):
+	#
+		pass
 	#
 
 	def search(self, container_id, search_criteria = "", filter = "*", starting_index = 0, requested_count = 0, sort_criteria = ""):

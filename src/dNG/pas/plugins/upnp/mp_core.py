@@ -141,22 +141,9 @@ Called for "dNG.pas.upnp.ControlPoint.onShutdown"
 	# global: _lock
 	global _instances
 
-	_return = False
+	with _lock: _instances = [ ]
 
-	with _lock:
-	#
-		if (len(_instances) > 0):
-		#
-			upnp_control_point = NamedLoader.get_singleton("dNG.pas.net.upnp.ControlPoint")
-
-			for device in _instances: upnp_control_point.remove_device(device)
-			_instances = [ ]
-
-			_return = True
-		#
-	#
-
-	return _return
+	return last_return
 #
 
 def on_control_point_startup(params, last_return = None):

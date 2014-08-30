@@ -136,21 +136,20 @@ Returns the UPnP DLNA content features known used for the 4th-field.
 		return self.dlna_content_features
 	#
 
-	def init_cds_id(self, _id, client_user_agent = None, update_id = None, deleted = False):
+	def init_cds_id(self, _id, client_user_agent = None, deleted = False):
 	#
 		"""
 Initialize a UPnP resource by CDS ID.
 
 :param _id: UPnP CDS ID
 :param client_user_agent: Client user agent
-:param update_id: Initial UPnP resource update ID
 :param deleted: True to include deleted resources
 
 :return: (bool) Returns true if initialization was successful.
 :since:  v0.1.00
 		"""
 
-		_return = HttpBlockStream.init_cds_id(self, _id, client_user_agent, update_id, deleted)
+		_return = HttpBlockStream.init_cds_id(self, _id, client_user_agent, deleted)
 
 		if (_return):
 		#

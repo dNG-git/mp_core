@@ -542,21 +542,20 @@ Returns the data for the requested attribute not defined for this instance.
 		       )
 	#
 
-	def init_cds_id(self, _id, client_user_agent = None, update_id = None, deleted = False):
+	def init_cds_id(self, _id, client_user_agent = None, deleted = False):
 	#
 		"""
 Initialize a UPnP resource by CDS ID.
 
 :param _id: UPnP CDS ID
 :param client_user_agent: Client user agent
-:param update_id: Initial UPnP resource update ID
 :param deleted: True to include deleted resources
 
 :return: (bool) Returns true if initialization was successful.
 :since:  v0.1.00
 		"""
 
-		Resource.init_cds_id(self, _id, client_user_agent, update_id, deleted)
+		Resource.init_cds_id(self, _id, client_user_agent, deleted)
 		_return = (self.id != None)
 
 		if (_return):
@@ -827,7 +826,7 @@ Removes the given resource from the content list.
 				if (matched_entry > 0):
 				#
 					self.remove_entry(resource)
-					self.set_update_id("--")
+					self.set_update_id("++")
 
 					_return = True
 				#
@@ -1072,7 +1071,7 @@ Loads a matching MpEntry for the given UPnP CDS ID.
 			#
 
 			_return = NamedLoader.get_instance(entry_class_name, False)
-			if (_return != None and (not _return.init_cds_id(_id, client_user_agent, cds, deleted))): _return = None
+			if (_return != None and (not _return.init_cds_id(_id, client_user_agent, deleted))): _return = None
 		#
 
 		return _return
