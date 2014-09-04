@@ -32,7 +32,6 @@ https://www.direct-netware.de/redirect?licenses;gpl
 """
 
 from dNG.pas.controller.abstract_request import AbstractRequest
-from dNG.pas.data.upnp.device import Device
 from dNG.pas.data.upnp.upnp_exception import UpnpException
 from dNG.pas.module.named_loader import NamedLoader
 from .abstract_service import AbstractService
@@ -173,7 +172,7 @@ Returns true for all devices previously processed.
 
 			if (client_host != None): _return = (upnp_control_point.get_rootdevice_for_host(client_host) != None)
 		#
-		else: _return = (upnp_control_point.get_rootdevice(Device.get_identifier(device_id)) != None)
+		else: _return = (upnp_control_point.get_rootdevice(XMSMediaReceiverRegistrar.get_identifier(device_id)) != None)
 
 		return _return
 	#

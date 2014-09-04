@@ -31,9 +31,11 @@ https://www.direct-netware.de/redirect?licenses;gpl
 #echo(__FILEPATH__)#
 """
 
+from dNG.pas.data.upnp.gena_event import GenaEvent
+from dNG.pas.data.upnp.resource import Resource
 from dNG.pas.data.upnp.update_id_registry import UpdateIdRegistry
 from dNG.pas.data.upnp.upnp_exception import UpnpException
-from dNG.pas.data.upnp.resource import Resource
+from dNG.pas.plugins.hook import Hook
 from .abstract_service import AbstractService
 
 _py_filter = filter
@@ -57,20 +59,20 @@ Implementation for "urn:schemas-upnp-org:service:ContentDirectory:1".
 
 	# pylint: disable=redefined-builtin,unused-argument
 
-	_update_id = 1
-	"""
-UPnP SystemUpdateID
-	"""
-
-	def __del__(self):
+	def __init__(self):
 	#
 		"""
-Destructor __del__(ContentDirectory)
+Constructor __init__(ContentDirectory)
 
-:since: v0.1.00
+:since: v0.1.03
 		"""
 
-		UpdateIdRegistry.unregister(self._on_updated_id)
+		AbstractService.__init__(self)
+
+		self.container_update_ids = { }
+		"""
+Container update IDs
+		"""
 	#
 
 	def browse(self, object_id, browse_flag, filter = "*", starting_index = 0, requested_count = 0, sort_criteria = ""):
@@ -133,6 +135,19 @@ Returns the current UPnP SystemUpdateID value.
 		#
 
 		return _return
+	#
+
+	def _get_container_update_ids(self):
+	#
+		"""
+Returns the CSV list of UPnP ContainerUpdateIDs.
+
+:return: (str) CSV list of UPnP ContainerUpdateIDs
+:since:  v0.1.03
+		"""
+
+		ids = self.container_update_ids.copy()
+		return ",".join([ "{0},{1}".format(container_id, ids[container_id]) for container_id in ids ])
 	#
 
 	def _get_metadata(self, object_id, _filter = "*"):
@@ -208,7 +223,28 @@ Returns the current UPnP SystemUpdateID value.
 :since:  v0.1.00
 		"""
 
-		return ContentDirectory._update_id
+		return UpdateIdRegistry.get("upnp://{0}/system_update_id".format(self.get_udn()))
+	#
+
+	def _handle_gena_registration(self, sid):
+	#
+		"""
+Handles the registration of an UPnP device at GENA with the given SID.
+
+:param sid: UPnP SID
+
+:since: v0.1.03
+		"""
+
+		event = GenaEvent(GenaEvent.TYPE_PROPCHANGE)
+
+		event.set_variables(ContainerUpdateIDs = self._get_container_update_ids(),
+		                    SystemUpdateID = self.get_system_update_id()
+		                   )
+
+		event.set_sid(sid)
+		event.set_usn(self.get_usn())
+		event.schedule()
 	#
 
 	def init_host(self, device, service_id = None, configid = None):
@@ -227,11 +263,13 @@ Initializes a host service.
 		self.spec_major = 1
 		self.spec_minor = 1
 		self.type = "ContentDirectory"
-		self.update_id_listener = UpdateIdRegistry.register(self._on_updated_id)
 		self.upnp_domain = "schemas-upnp-org"
 		self.version = "1"
 
 		if (service_id == None): service_id = "ContentDirectory"
+
+		Hook.register_weakref("dNG.pas.upnp.Resource.onUpdateIdChanged", self._on_updated_id)
+
 		return AbstractService.init_host(self, device, service_id, configid)
 	#
 
@@ -331,8 +369,13 @@ Initializes the dict of host service variables.
 		                   "SystemUpdateID": { "is_sending_events": True,
 		                                       "is_multicasting_events": False,
 		                                       "type": "ui4",
-		                                       "value": self._update_id
+		                                       "value": self.get_system_update_id()
 		                                     },
+		                   "ContainerUpdateIDs": { "is_sending_events": True,
+		                                           "is_multicasting_events": False,
+		                                           "type": "string",
+		                                           "value": self._get_container_update_ids()
+		                                         },
 		                   "ServiceResetToken": { "is_sending_events": False,
 		                                          "is_multicasting_events": False,
 		                                          "type": "string",
@@ -383,9 +426,36 @@ Initializes the dict of host service variables.
 		                 }
 	#
 
-	def _on_updated_id(self):
+	def _on_updated_id(self, params, last_return = None):
 	#
-		pass
+		"""
+Called after an UPnP UpdateID value has been changed.
+
+:return: (mixed) Return value
+:since:  v0.1.03
+		"""
+
+		if ("id" in params and "value" in params):
+		#
+			_id = "upnp://{0}/system_update_id".format(self.get_udn())
+
+			if (params['id'] != _id):
+			#
+				self.container_update_ids[params['id']] = params['value']
+				UpdateIdRegistry.set(_id, "++")
+			#
+
+			event = GenaEvent(GenaEvent.TYPE_PROPCHANGE)
+
+			event.set_variables(ContainerUpdateIDs = self._get_container_update_ids(),
+			                    SystemUpdateID = self.get_system_update_id()
+			                   )
+
+			event.set_usn(self.get_usn())
+			event.schedule()
+		#
+
+		return last_return
 	#
 
 	def search(self, container_id, search_criteria = "", filter = "*", starting_index = 0, requested_count = 0, sort_criteria = ""):
