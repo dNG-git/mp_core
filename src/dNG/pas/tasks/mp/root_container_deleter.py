@@ -33,20 +33,15 @@ https://www.direct-netware.de/redirect?licenses;gpl
 
 # pylint: disable=import-error,no-name-in-module
 
-from math import floor
-
-from dNG.pas.data.data_linker import DataLinker
-from dNG.pas.data.settings import Settings
-from dNG.pas.data.logging.log_line import LogLine
 from dNG.pas.database.condition_definition import ConditionDefinition
-from dNG.pas.database.transaction_context import TransactionContext
-from dNG.pas.tasks.abstract import Abstract as AbstractTask
+from dNG.pas.runtime.value_exception import ValueException
+from .resource_deleter import ResourceDeleter
 
-class RootContainerDeleter(AbstractTask):
+class RootContainerDeleter(ResourceDeleter):
 #
 	"""
-"RootContainerDeleter" runs deletes all database entries for the given
-DataLinker main entry ID.
+"RootContainerDeleter" deletes all database entries for the given
+UPnP root container ID.
 
 :author:     direct Netware Group
 :copyright:  direct Netware Group - All rights reserved
@@ -57,46 +52,40 @@ DataLinker main entry ID.
              GNU General Public License 2
 	"""
 
-	def __init__(self, root_container_id):
+	def __init__(self, root_container_id = None):
 	#
 		"""
-Constructor __init__(RootContainerDeleter)
+Constructor __init__(ResourceDeleter)
 
-:since: v0.1.00
+:param root_container_id: UPnP root container ID
+
+:since: v0.1.01
 		"""
 
-		AbstractTask.__init__(self)
+		ResourceDeleter.__init__(self)
 
-		self.root_container_id = None
+		self.root_container_id = root_container_id
 		"""
-UPnP root container resource ID
+UPnP root resource IDgiven
 		"""
 	#
 
-	def run(self):
+	def _get_condition_definition(self):
 	#
 		"""
-Task execution
+Returns the condition definition instance used for identifying the root
+UPnP resource to be deleted.
 
-:since: v0.1.00
+:return: (object) ConditionDefinition instance
+:since:  v0.1.01
 		"""
 
-		condition_definition = ConditionDefinition()
-		condition_definition.add_exact_match_condition("id_main", self.root_container_id)
+		if (self.root_container_id is None): raise ValueException("UPnP root container ID is invalid")
 
-		entries_count = DataLinker.get_entries_count_with_condition(condition_definition)
+		_return = ConditionDefinition()
+		_return.add_exact_match_condition("id_main", self.root_container_id)
 
-		limit = Settings.get("pas_database_delete_iterator_limit", 50)
-		entry_iterator_count = floor(entries_count / limit)
-
-		for _ in range(0, entry_iterator_count):
-		#
-			with TransactionContext():
-			#
-				entries = DataLinker.load_entries_list_with_condition(condition_definition, limit = limit)
-				for entry in entries: entry.delete()
-			#
-		#
+		return _return
 	#
 #
 

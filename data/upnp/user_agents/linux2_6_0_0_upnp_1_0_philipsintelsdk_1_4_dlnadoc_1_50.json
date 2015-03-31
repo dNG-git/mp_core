@@ -1,3 +1,9 @@
 {
- "upnp_didl_title_default_item_format": "[if:dc:creator !=][rewrite]dc:creator[/rewrite] - [/if][rewrite]dc:title[/rewrite]"
+ "upnp_cehtml_apps_supported": false,
+ "upnp_didl_title_default_item_format": "[if:dc:creator !=][rewrite]dc:creator[/rewrite] - [/if][rewrite]dc:title[/rewrite]",
+
+ "upnp_stream_image_resized": true,
+ "upnp_stream_image_resized_type": "jpeg",
+ "upnp_stream_image_resized_width": 1920,
+ "upnp_stream_image_resized_height": 1080
 }

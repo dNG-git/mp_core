@@ -66,7 +66,7 @@ Action for "render"
 
 		limit = 20
 
-		page = (self.context['page'] if ("page" in self.context) else 1)
+		page = self.context.get("page", 1)
 		pages = (1 if (root_containers_count == 0) else ceil(float(root_containers_count) / limit))
 
 		offset = (0 if (page < 1 or page > pages) else (page - 1) * limit)
@@ -102,7 +102,7 @@ Renders the UPnP root container.
 		          }
 
 		options = [ { "title": L10n.get("mp_core_root_container_edit"),
-		              "type": (Link.TYPE_RELATIVE | Link.TYPE_JS_REQUIRED),
+		              "type": (Link.TYPE_RELATIVE_URL | Link.TYPE_JS_REQUIRED),
 		              "parameters": { "m": "mp",
 		                              "s": "root_container",
 		                              "a": "edit",
@@ -110,7 +110,7 @@ Renders the UPnP root container.
 		                            }
 		            },
 		            { "title": L10n.get("mp_core_root_container_delete"),
-		              "type": Link.TYPE_RELATIVE,
+		              "type": Link.TYPE_RELATIVE_URL,
 		              "parameters": { "m": "mp",
 		                              "s": "root_container",
 		                              "a": "delete",

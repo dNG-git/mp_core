@@ -77,13 +77,13 @@ Called for "dNG.pas.Database.applySchema.before"
 	"""
 
 	audio_class = NamedLoader.get_class("dNG.pas.database.instances.MpUpnpAudioResource")
-	if (audio_class != None): audio_class.before_apply_schema()
+	if (audio_class is not None): audio_class.before_apply_schema()
 
 	image_class = NamedLoader.get_class("dNG.pas.database.instances.MpUpnpImageResource")
-	if (image_class != None): image_class.before_apply_schema()
+	if (image_class is not None): image_class.before_apply_schema()
 
 	video_class = NamedLoader.get_class("dNG.pas.database.instances.MpUpnpVideoResource")
-	if (video_class != None): video_class.before_apply_schema()
+	if (video_class is not None): video_class.before_apply_schema()
 
 	return last_return
 #

@@ -68,28 +68,28 @@ Uses the given XML resource to add the DIDL metadata of this UPnP resource.
 
 		MpEntry._add_metadata_to_didl_xml_node(self, xml_resource, xml_node_path, parent_id)
 
-		if (self.get_type() & MpEntryAudio.TYPE_CDS_ITEM == MpEntryAudio.TYPE_CDS_ITEM and xml_resource.get_node(xml_node_path) != None):
+		if (self.get_type() & MpEntryAudio.TYPE_CDS_ITEM == MpEntryAudio.TYPE_CDS_ITEM and xml_resource.get_node(xml_node_path) is not None):
 		#
 			entry_data = self.get_data_attributes("artist", "genre", "description", "album", "album_artist", "track_number")
 
-			if (entry_data['album'] != None): xml_resource.add_node("{0} upnp:album".format(xml_node_path), entry_data['album'])
+			if (entry_data['album'] is not None): xml_resource.add_node("{0} upnp:album".format(xml_node_path), entry_data['album'])
 
-			if (entry_data['album_artist'] != None):
+			if (entry_data['album_artist'] is not None):
 			#
 				xml_resource.add_node("{0} upnp:albumArtist".format(xml_node_path), entry_data['album_artist'])
 				xml_resource.add_node("{0} upnp:artist".format(xml_node_path), entry_data['album_artist'], { "role": "AlbumArtist" })
 			#
 
-			if (entry_data['artist'] != None):
+			if (entry_data['artist'] is not None):
 			#
 				xml_resource.add_node("{0} dc:creator".format(xml_node_path), entry_data['artist'])
 				xml_resource.add_node("{0} upnp:artist".format(xml_node_path), entry_data['artist'], { "role": "Performer" })
 			#
 
-			if (entry_data['description'] != None): xml_resource.add_node("{0} dc:description".format(xml_node_path), entry_data['description'])
-			if (entry_data['genre'] != None): xml_resource.add_node("{0} upnp:genre".format(xml_node_path), entry_data['genre'])
+			if (entry_data['description'] is not None): xml_resource.add_node("{0} dc:description".format(xml_node_path), entry_data['description'])
+			if (entry_data['genre'] is not None): xml_resource.add_node("{0} upnp:genre".format(xml_node_path), entry_data['genre'])
 
-			if (entry_data['track_number'] != None):
+			if (entry_data['track_number'] is not None):
 			#
 				xml_resource.add_node("{0} upnp:originalTrackNumber".format(xml_node_path),
 				                      entry_data['track_number']
@@ -113,14 +113,14 @@ Appends audio metadata to the given stream resource.
 			entry_data = self.get_data_attributes("size", "duration", "channels", "bitrate", "bps", "sample_frequency")
 			data = { }
 
-			if (entry_data['duration'] != None): data['duration'] = Variable.get_upnp_duration(entry_data['duration'])
-			if (entry_data['channels'] != None): data['nrAudioChannels'] = entry_data['channels']
+			if (entry_data['duration'] is not None): data['duration'] = Variable.get_upnp_duration(entry_data['duration'])
+			if (entry_data['channels'] is not None): data['nrAudioChannels'] = entry_data['channels']
 
-			if (entry_data['bitrate'] != None): data['bitrate'] = int(entry_data['bitrate'] / 8)
-			elif (entry_data['duration'] != None and entry_data['size'] != None): data['bitrate'] = int(entry_data['size'] / entry_data['duration'])
+			if (entry_data['bitrate'] is not None): data['bitrate'] = int(entry_data['bitrate'] / 8)
+			elif (entry_data['duration'] is not None and entry_data['size'] is not None): data['bitrate'] = int(entry_data['size'] / entry_data['duration'])
 
-			if (entry_data['bps'] != None): data['bitsPerSample'] = entry_data['bps']
-			if (entry_data['sample_frequency'] != None): data['sampleFrequency'] = entry_data['sample_frequency']
+			if (entry_data['bps'] is not None): data['bitsPerSample'] = entry_data['bps']
+			if (entry_data['sample_frequency'] is not None): data['sampleFrequency'] = entry_data['sample_frequency']
 
 			if (len(data) > 0): resource.set_metadata(**data)
 		#
@@ -141,7 +141,7 @@ client.
 
 		MpEntry._filter_metadata_of_didl_xml_node(self, xml_resource, xml_node_path)
 
-		if (self.get_type() & MpEntryAudio.TYPE_CDS_ITEM == MpEntryAudio.TYPE_CDS_ITEM and xml_resource.get_node(xml_node_path) != None):
+		if (self.get_type() & MpEntryAudio.TYPE_CDS_ITEM == MpEntryAudio.TYPE_CDS_ITEM and xml_resource.get_node(xml_node_path) is not None):
 		#
 			didl_fields = self.get_didl_fields()
 
@@ -170,7 +170,12 @@ Returns the UPnP content resource at the given position.
 		"""
 
 		_return = MpEntry.get_content(self, position)
-		if (self.type & MpEntry.TYPE_CDS_ITEM == MpEntry.TYPE_CDS_ITEM): self._append_stream_content_metadata(_return)
+
+		if (self.type & MpEntryAudio.TYPE_CDS_ITEM == MpEntryAudio.TYPE_CDS_ITEM):
+		#
+			encapsulated_id = self.get_encapsulated_id()
+			if (encapsulated_id == _return.get_resource_id()): self._append_stream_content_metadata(_return)
+		#
 
 		return _return
 	#
@@ -186,9 +191,14 @@ Returns the UPnP content resources between offset and limit.
 
 		_return = MpEntry.get_content_list(self)
 
-		if (self.type & MpEntry.TYPE_CDS_ITEM == MpEntry.TYPE_CDS_ITEM):
+		if (self.type & MpEntryAudio.TYPE_CDS_ITEM == MpEntryAudio.TYPE_CDS_ITEM):
 		#
-			for resource in _return: self._append_stream_content_metadata(resource)
+			encapsulated_id = self.get_encapsulated_id()
+
+			for resource in _return:
+			#
+				if (encapsulated_id == resource.get_resource_id()): self._append_stream_content_metadata(resource)
+			#
 		#
 
 		return _return
@@ -208,7 +218,7 @@ offset and limit.
 
 		_return = MpEntry.get_content_list_of_type(self, _type)
 
-		if (self.type & MpEntry.TYPE_CDS_ITEM == MpEntry.TYPE_CDS_ITEM):
+		if (self.type & MpEntryAudio.TYPE_CDS_ITEM == MpEntryAudio.TYPE_CDS_ITEM):
 		#
 			for resource in _return: self._append_stream_content_metadata(resource)
 		#
@@ -236,40 +246,51 @@ Refresh metadata associated with this MpEntryAudio.
 :since: v0.1.00
 		"""
 
-		MpEntry.refresh_metadata(self)
-
-		encapsulated_resource = self.load_encapsulated_resource()
-
-		if ((not issubclass(Audio, NotImplementedClass))
-		    and encapsulated_resource != None
-		    and encapsulated_resource.is_filesystem_resource()
-		    and encapsulated_resource.get_path() != None
-		   ):
+		with self:
 		#
-			audio = Audio()
-			metadata = (audio.get_metadata() if (audio.open_url(encapsulated_resource.get_id())) else None)
+			MpEntry.refresh_metadata(self)
 
-			if (isinstance(metadata, AudioMetadata)):
-			#
-				self.set_data_attributes(title = metadata.get_title(),
-				                         mimetype = metadata.get_mimetype(),
-				                         metadata = metadata.get_json(),
-				                         duration = metadata.get_length(),
-				                         artist = metadata.get_artist(),
-				                         genre = metadata.get_genre(),
-				                         description = metadata.get_comment(),
-				                         album = metadata.get_album(),
-				                         album_artist = metadata.get_album_artist(),
-				                         track_number = metadata.get_track(),
-				                         codec = metadata.get_codec(),
-				                         channels = metadata.get_channels(),
-				                         bitrate = metadata.get_bitrate(),
-				                         bps = metadata.get_bps(),
-				                         sample_frequency = metadata.get_sample_rate()
-				                        )
+			encapsulated_resource = self.load_encapsulated_resource()
 
-				self.save()
-			#
+			if ((not issubclass(Audio, NotImplementedClass))
+			    and encapsulated_resource is not None
+			    and encapsulated_resource.is_filesystem_resource()
+			    and encapsulated_resource.get_path() is not None
+			   ): self._refresh_audio_metadata(encapsulated_resource.get_resource_id())
+		#
+	#
+
+	def _refresh_audio_metadata(self, resource_url):
+	#
+		"""
+Refresh metadata associated with this MpEntryAudio.
+
+:since: v0.1.00
+		"""
+
+		audio = Audio()
+		metadata = (audio.get_metadata() if (audio.open_url(resource_url)) else None)
+
+		if (isinstance(metadata, AudioMetadata)):
+		#
+			self.set_data_attributes(title = metadata.get_title(),
+			                         mimetype = metadata.get_mimetype(),
+			                         metadata = metadata.get_json(),
+			                         duration = metadata.get_length(),
+			                         artist = metadata.get_artist(),
+			                         genre = metadata.get_genre(),
+			                         description = metadata.get_comment(),
+			                         album = metadata.get_album(),
+			                         album_artist = metadata.get_album_artist(),
+			                         track_number = metadata.get_track(),
+			                         codec = metadata.get_codec(),
+			                         channels = metadata.get_channels(),
+			                         bitrate = metadata.get_bitrate(),
+			                         bps = metadata.get_bps(),
+			                         sample_frequency = metadata.get_sample_rate()
+			                        )
+
+			self.save()
 		#
 	#
 

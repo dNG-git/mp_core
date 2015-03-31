@@ -31,7 +31,7 @@ https://www.direct-netware.de/redirect?licenses;gpl
 #echo(__FILEPATH__)#
 """
 
-from dNG.pas.data.http.translatable_exception import TranslatableError
+from dNG.pas.data.http.translatable_error import TranslatableError
 from dNG.pas.data.text.input_filter import InputFilter
 from dNG.pas.data.text.l10n import L10n
 from dNG.pas.data.xhtml.link import Link
@@ -76,16 +76,16 @@ Action for "list_root_containers"
 		L10n.init("mp_core")
 
 		session = self.request.get_session()
-		user_profile = (None if (session == None) else session.get_user_profile())
+		user_profile = (None if (session is None) else session.get_user_profile())
 
-		if (user_profile == None
+		if (user_profile is None
 		    or (not user_profile.is_type("ad"))
 		   ): raise TranslatableError("core_access_denied", 403)
 
 		if (self.response.is_supported("html_css_files")): self.response.add_theme_css_file("mini_default_sprite.min.css")
 
 		Link.set_store("servicemenu",
-		               (Link.TYPE_RELATIVE | Link.TYPE_JS_REQUIRED),
+		               (Link.TYPE_RELATIVE_URL | Link.TYPE_JS_REQUIRED),
 		               L10n.get("mp_core_root_container_new"),
 		               { "m": "mp", "s": "root_container", "a": "new" },
 		               icon = "mini-default-option",

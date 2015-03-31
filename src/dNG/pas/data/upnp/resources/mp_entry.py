@@ -33,6 +33,7 @@ https://www.direct-netware.de/redirect?licenses;gpl
 
 # pylint: disable=import-error,no-name-in-module
 
+from copy import copy
 from sqlalchemy.sql.functions import count as sql_count
 import re
 
@@ -41,20 +42,24 @@ except ImportError: from urlparse import urlsplit
 
 from dNG.pas.data.binary import Binary
 from dNG.pas.data.data_linker import DataLinker
-from dNG.pas.data.upnp.client import Client
 from dNG.pas.data.upnp.resource import Resource
-from dNG.pas.data.upnp.resources.abstract_stream import AbstractStream
 from dNG.pas.database.connection import Connection
+from dNG.pas.database.nothing_matched_exception import NothingMatchedException
 from dNG.pas.database.sort_definition import SortDefinition
 from dNG.pas.database.transaction_context import TransactionContext
 from dNG.pas.database.instances.data_linker_meta import DataLinkerMeta as _DbDataLinkerMeta
 from dNG.pas.database.instances.key_store import KeyStore as _DbKeyStore
 from dNG.pas.database.instances.mp_upnp_resource import MpUpnpResource as _DbMpUpnpResource
 from dNG.pas.module.named_loader import NamedLoader
+from dNG.pas.runtime.exception_log_trap import ExceptionLogTrap
 from dNG.pas.runtime.not_implemented_exception import NotImplementedException
+from dNG.pas.runtime.type_exception import TypeException
 from dNG.pas.runtime.value_exception import ValueException
+from .abstract_thumbnail import AbstractThumbnail
+from .thumbnail_mixin import ThumbnailMixin
+from .thumbnail_resource_mixin import ThumbnailResourceMixin
 
-class MpEntry(Resource, DataLinker):
+class MpEntry(Resource, DataLinker, ThumbnailResourceMixin):
 #
 	"""
 "MpEntry" represents an database resource.
@@ -80,30 +85,6 @@ Database item entry
 	"""
 Database root container entry
 	"""
-	TYPE_CDS_CONTAINER_AUDIO = 8
-	"""
-UPnP CDS audio container type
-	"""
-	TYPE_CDS_CONTAINER_IMAGE = 16
-	"""
-UPnP CDS image container type
-	"""
-	TYPE_CDS_CONTAINER_VIDEO = 32
-	"""
-UPnP CDS video container type
-	"""
-	TYPE_CDS_ITEM_AUDIO = 64
-	"""
-UPnP CDS audio item type
-	"""
-	TYPE_CDS_ITEM_IMAGE = 128
-	"""
-UPnP CDS image item type
-	"""
-	TYPE_CDS_ITEM_VIDEO = 256
-	"""
-UPnP CDS video item type
-	"""
 
 	def __init__(self, db_instance = None, user_agent = None, didl_fields = None):
 	#
@@ -118,8 +99,8 @@ Constructor __init__(MpEntry)
 		"""
 
 		Resource.__init__(self)
-
 		DataLinker.__init__(self, db_instance)
+		ThumbnailResourceMixin.__init__(self)
 
 		self.encapsulated_id = None
 		"""
@@ -134,18 +115,18 @@ Encapsulated UPnP resource
 UPnP resource title
 		"""
 
-		if (isinstance(self.local.db_instance, _DbMpUpnpResource)):
+		if (isinstance(db_instance, _DbMpUpnpResource)):
 		#
-			with Connection.get_instance():
+			with self:
 			#
-				self._load()
+				self._load_data()
 
-				if (user_agent != None): self.set_client_user_agent(user_agent)
-				if (didl_fields != None): self.set_didl_fields(didl_fields)
+				if (user_agent is not None): self.set_client_user_agent(user_agent)
+				if (didl_fields is not None): self.set_didl_fields(didl_fields)
 			#
 		#
 
-		self.supported_features['search_content'] = self._supports_search_content
+		self.supported_features['thumbnail_file'] = True
 	#
 
 	def add_content(self, resource):
@@ -163,7 +144,7 @@ Add the given resource to the content list.
 
 		_return = False
 
-		if (isinstance(resource, MpEntry) and resource.get_type() != None):
+		if (isinstance(resource, MpEntry) and resource.get_type() is not None):
 		#
 			with self, self._lock:
 			#
@@ -185,6 +166,21 @@ Add the given resource to the content list.
 		return _return
 	#
 
+	def _apply_content_list_where_condition(self, db_query):
+	#
+		"""
+Returns the modified SQLAlchemy database query with the "where" condition
+applied.
+
+:param db_query: Unmodified SQLAlchemy database query
+
+:return: (object) SQLAlchemy database query
+:since:  v0.1.02
+		"""
+
+		raise NotImplementedException()
+	#
+
 	def delete(self):
 	#
 		"""
@@ -203,7 +199,7 @@ Deletes this entry from the database.
 			db_resource_metadata_instance = self.local.db_instance.rel_resource_metadata
 
 			DataLinker.delete(self)
-			if (db_resource_metadata_instance != None): self.local.connection.delete(db_resource_metadata_instance)
+			if (db_resource_metadata_instance is not None): self.local.connection.delete(db_resource_metadata_instance)
 		#
 	#
 
@@ -218,9 +214,9 @@ Returns the UPnP content resource at the given position.
 :since:  v0.1.01
 		"""
 
-		if (self.local.db_instance == None): raise ValueException("Database instance is not correctly initialized")
+		if (self.local.db_instance is None): raise ValueException("Database instance is not correctly initialized")
 
-		child_position = (position if (self.content_offset == None or self.content_offset < 1) else (position - self.content_offset))
+		child_position = (position if (self.content_offset is None or self.content_offset < 1) else (position - self.content_offset))
 		children = self.get_content_list()
 
 		if (len(children) < child_position): raise ValueException("UPnP content position out of range")
@@ -238,50 +234,42 @@ Returns the UPnP content resources between offset and limit.
 
 		# pylint: disable=maybe-no-member,protected-access
 
-		_return = [ ]
+		if (self.local.db_instance is None): raise ValueException("Database instance is not correctly initialized")
 
-		if (self.local.db_instance == None): raise ValueException("Database instance is not correctly initialized")
+		_return = [ ]
 
 		if (self.type & MpEntry.TYPE_CDS_CONTAINER == MpEntry.TYPE_CDS_CONTAINER):
 		#
 			with self:
 			#
 				db_query = self.local.db_instance.rel_mp_upnp_resource_children.join(_DbMpUpnpResource.rel_meta)
-				children_length = self.local.db_instance.rel_meta.sub_entries
+
+				if (self.is_supported("content_list_where_condition")):
+				#
+					db_query = self._apply_content_list_where_condition(db_query)
+					children_length = db_query.from_self(sql_count(_DbMpUpnpResource.id)).scalar()
+				#
+				else: children_length = self.local.db_instance.rel_meta.sub_entries
 
 				if (children_length > 0):
 				#
-					db_query = self._apply_db_sort_definition(db_query)
+					db_query = self._apply_db_sort_definition(db_query, "MpEntry")
 
-					child_first = (0 if (self.content_offset == None or self.content_offset >= children_length) else self.content_offset)
+					child_first = (0 if (self.content_offset is None or self.content_offset >= children_length) else self.content_offset)
 					child_last = (self.content_limit if (child_first < 1) else self.content_offset + self.content_limit)
-					if (child_last == None or child_last >= children_length): child_last = children_length
+					if (child_last is None or child_last >= children_length): child_last = children_length
 
 					if (child_first > 0): db_query = db_query.offset(child_first)
 					if (child_first <= child_last): db_query = db_query.limit(child_last - child_first)
 
-					_return = MpEntry.buffered_iterator(_DbMpUpnpResource, self.local.connection.execute(db_query), MpEntry, self.client_user_agent, self.didl_fields)
+					_return = MpEntry.buffered_iterator(_DbMpUpnpResource, self.local.connection.execute(db_query), self.client_user_agent, self.didl_fields)
 				#
 			#
 		#
 		elif (self.type & MpEntry.TYPE_CDS_ITEM == MpEntry.TYPE_CDS_ITEM):
 		#
-			encapsulated_resource = self.load_encapsulated_resource()
-			resource_stream = (None if (encapsulated_resource == None) else encapsulated_resource._get_stream_resource())
-
-			if (resource_stream != None):
-			#
-				resource_stream.init_cds_id(encapsulated_resource.get_id(), self.client_user_agent)
-
-				resource_stream.set_mimeclass(self.mimeclass)
-				resource_stream.set_mimetype(self.mimetype)
-				resource_stream.set_parent_id(self.get_id())
-
-				if (isinstance(resource_stream, AbstractStream) and resource_stream.is_supported("metadata")): resource_stream.set_metadata(size = self.get_size())
-
-				_return = [ resource_stream ]
-			#
-			elif (self.log_handler != None): self.log_handler.warning("mp.MpEntry failed to load resource stream for ID '{0}'", self.id, context = "mp_server")
+			self._init_content()
+			if (self.content is not None): _return = self.content
 		#
 
 		return _return
@@ -305,27 +293,33 @@ offset and limit.
 		elif (_type & MpEntry.TYPE_CDS_ITEM == MpEntry.TYPE_CDS_ITEM): db_type = _DbMpUpnpResource.CDS_TYPE_ITEM
 		else: db_type = None
 
-		if (db_type == None): _return = self.get_content_list()
+		if (db_type is None): _return = self.get_content_list()
 		else:
 		#
 			with self:
 			#
 				db_query = self.local.db_instance.rel_mp_upnp_resource_children.filter(_DbMpUpnpResource.cds_type == db_type).join(_DbMpUpnpResource.rel_meta)
 				_return = [ ]
-				children_length = self.local.db_instance.rel_meta.sub_entries
+
+				if (self.is_supported("content_list_where_condition")):
+				#
+					db_query = self._apply_content_list_where_condition(db_query)
+					children_length = db_query.from_self(sql_count(_DbMpUpnpResource.id)).scalar()
+				#
+				else: children_length = self.local.db_instance.rel_meta.sub_entries
 
 				if (children_length > 0):
 				#
-					db_query = self._apply_db_sort_definition(db_query)
+					db_query = self._apply_db_sort_definition(db_query, "MpEntry")
 
-					child_first = (0 if (self.content_offset == None or self.content_offset >= children_length) else self.content_offset)
+					child_first = (0 if (self.content_offset is None or self.content_offset >= children_length) else self.content_offset)
 					child_last = (self.content_limit if (child_first < 1) else self.content_offset + self.content_limit)
-					if (child_last == None or child_last >= children_length): child_last = children_length
+					if (child_last is None or child_last >= children_length): child_last = children_length
 
 					if (child_first > 0): db_query = db_query.offset(child_first)
 					if (child_first <= child_last): db_query = db_query.limit(1 + child_last - child_first)
 
-					_return = MpEntry.buffered_iterator(_DbMpUpnpResource, self.local.connection.execute(db_query), MpEntry, self.client_user_agent, self.didl_fields)
+					_return = MpEntry.buffered_iterator(_DbMpUpnpResource, self.local.connection.execute(db_query), self.client_user_agent, self.didl_fields)
 				#
 			#
 		#
@@ -359,14 +353,14 @@ Returns the default sort definition list.
 :since:  v0.1.00
 		"""
 
-		if (self.log_handler != None): self.log_handler.debug("#echo(__FILEPATH__)# -{0!r}._get_default_sort_definition({1})- (#echo(__LINE__)#)", self, context, context = "pas_datalinker")
+		if (self.log_handler is not None): self.log_handler.debug("#echo(__FILEPATH__)# -{0!r}._get_default_sort_definition({1})- (#echo(__LINE__)#)", self, context, context = "pas_datalinker")
 
-		return (DataLinker._get_default_sort_definition(self, context)
-		        if (context == "DataLinker") else
-		        SortDefinition([ ( "cds_type", SortDefinition.ASCENDING ),
+		return (SortDefinition([ ( "cds_type", SortDefinition.ASCENDING ),
 		                         ( "position", SortDefinition.ASCENDING ),
-		                         ( "resource", SortDefinition.ASCENDING )
+		                         ( "resource_title", SortDefinition.ASCENDING )
 		                       ])
+		        if (context == "MpEntry") else
+		        DataLinker._get_default_sort_definition(self, context)
 		       )
 	#
 
@@ -375,6 +369,8 @@ Returns the default sort definition list.
 		"""
 Returns the ID of the encapsulated resource.
 
+:return: (str) UPnP encapsulated resource ID
+:since:  v0.1.01
 		"""
 
 		return self.encapsulated_id
@@ -385,9 +381,55 @@ Returns the ID of the encapsulated resource.
 		"""
 Returns the encapsulated resource if used to create the UPnP resource.
 
+:return: (object) UPnP encapsulated resource
+:since:  v0.1.01
 		"""
 
 		return self.encapsulated_resource
+	#
+
+	def get_parent_resource_id(self):
+	#
+		"""
+Returns the UPnP resource parent ID.
+
+:return: (str) UPnP resource parent ID; None if empty
+:since:  v0.1.01
+		"""
+
+		if (self.parent_resource_id is None):
+		#
+			entry_data = self.get_data_attributes("cds_type")
+
+			if (entry_data['cds_type'] == MpEntry.DB_CDS_TYPE_ROOT): self.parent_resource_id = "0"
+			else:
+			#
+				parent_object = self.load_parent()
+				if (isinstance(parent_object, Resource)): self.parent_resource_id = parent_object.get_resource_id()
+			#
+		#
+
+		return Resource.get_parent_resource_id(self)
+	#
+
+	def get_thumbnail_file_path_name(self):
+	#
+		"""
+Returns the thumbnail file path and name if applicable.
+
+:return: (str) File path and name; None if no thumbnail file exist
+:since:  v0.1.02
+		"""
+
+		_return = None
+
+		with ExceptionLogTrap("pas_upnp"):
+		#
+			encapsulated_resource = self.load_encapsulated_resource()
+			if (isinstance(encapsulated_resource, ThumbnailMixin)): _return = encapsulated_resource.get_thumbnail_file_path_name()
+		#
+
+		return _return
 	#
 
 	def get_mimeclass(self):
@@ -400,9 +442,9 @@ Returns the UPnP resource mime class.
 		"""
 
 		_return = self.mimeclass
-		if (_return == None and self.encapsulated_resource != None): _return = self.encapsulated_resource.get_mimeclass()
+		if (_return is None and self.encapsulated_resource is not None): _return = self.encapsulated_resource.get_mimeclass()
 
-		if (_return == None):
+		if (_return is None):
 		#
 			_type = self.get_type()
 
@@ -415,7 +457,7 @@ Returns the UPnP resource mime class.
 			elif (_type & MpEntry.TYPE_CDS_CONTAINER == MpEntry.TYPE_CDS_CONTAINER): _return = "directory"
 		#
 
-		if (_return == None): _return = "unknown"
+		if (_return is None): _return = "unknown"
 		return _return
 	#
 
@@ -428,7 +470,12 @@ Returns the resource's timestamp if any.
 :since:  v0.1.00
 		"""
 
-		with self: return self.local.db_instance.rel_meta.time_sortable
+		with self:
+		#
+			return (-1
+			        if (self.local.db_instance.rel_meta is None) else
+			        self.local.db_instance.rel_meta.time_sortable
+			       )
 	#
 
 	def get_total(self):
@@ -440,7 +487,20 @@ Returns the content resources total.
 :since:  v0.1.00
 		"""
 
-		with self: return self.local.db_instance.rel_meta.sub_entries
+		_return = 0
+
+		with self:
+		#
+			if (self.is_supported("content_list_where_condition")):
+			#
+				db_query = self.local.db_instance.rel_mp_upnp_resource_children.join(_DbMpUpnpResource.rel_meta)
+				db_query = self._apply_content_list_where_condition(db_query)
+				_return = db_query.from_self(sql_count(_DbMpUpnpResource.id)).scalar()
+			#
+			else: _return = self.local.db_instance.rel_meta.sub_entries
+		#
+
+		return _return
 	#
 
 	def get_type(self):
@@ -452,7 +512,7 @@ Returns the UPnP resource type.
 :since:  v0.1.01
 		"""
 
-		if (self.type == None):
+		if (self.type is None):
 		#
 			entry_data = self.get_data_attributes("cds_type")
 
@@ -460,8 +520,8 @@ Returns the UPnP resource type.
 			#
 				_return = MpEntry.TYPE_CDS_ITEM
 
-				if (self.mimeclass != None): mimeclass = self.mimeclass
-				elif (self.encapsulated_resource != None): mimeclass = self.encapsulated_resource.get_mimeclass()
+				if (self.mimeclass is not None): mimeclass = self.mimeclass
+				elif (self.encapsulated_resource is not None): mimeclass = self.encapsulated_resource.get_mimeclass()
 				else: mimeclass = self.get_mimetype().split("/")[0]
 
 				if (mimeclass == "audio"): _return = MpEntry.TYPE_CDS_ITEM_AUDIO | MpEntry.TYPE_CDS_ITEM
@@ -485,46 +545,6 @@ Returns the UPnP resource type.
 		return _return
 	#
 
-	def get_type_class(self):
-	#
-		"""
-Returns the UPnP resource type class.
-
-:return: (str) UPnP resource type class; None if unknown
-:since:  v0.1.00
-		"""
-
-		_return = None
-
-		is_cds1_container_supported = False
-		is_cds1_object_supported = False
-		_type = self.get_type()
-
-		if (_type != None):
-		#
-			client = Client.load_user_agent(self.client_user_agent)
-			is_cds1_container_supported = client.get("upnp_didl_cds1_container_classes_supported", True)
-			is_cds1_object_supported = client.get("upnp_didl_cds1_object_classes_supported", True)
-		#
-
-		if (is_cds1_container_supported):
-		#
-			if (_type & MpEntry.TYPE_CDS_CONTAINER_AUDIO == MpEntry.TYPE_CDS_CONTAINER_AUDIO): _return = "object.container.genre.musicGenre"
-			elif (_type & MpEntry.TYPE_CDS_CONTAINER_IMAGE == MpEntry.TYPE_CDS_CONTAINER_IMAGE): _return = "object.container.album.photoAlbum"
-			elif (_type & MpEntry.TYPE_CDS_CONTAINER_VIDEO == MpEntry.TYPE_CDS_CONTAINER_VIDEO): _return = "object.container.genre.movieGenre"
-		#
-
-		if (is_cds1_object_supported):
-		#
-			if (_type & MpEntry.TYPE_CDS_ITEM_AUDIO == MpEntry.TYPE_CDS_ITEM_AUDIO): _return = "object.item.audioItem.musicTrack"
-			elif (_type & MpEntry.TYPE_CDS_ITEM_IMAGE == MpEntry.TYPE_CDS_ITEM_IMAGE): _return = "object.item.imageItem.photo"
-			elif (_type & MpEntry.TYPE_CDS_ITEM_VIDEO == MpEntry.TYPE_CDS_ITEM_VIDEO): _return = "object.item.videoItem.movie"
-		#
-
-		if (_return == None): _return = Resource.get_type_class(self)
-		return _return
-	#
-
 	def _get_unknown_data_attribute(self, attribute):
 	#
 		"""
@@ -537,7 +557,7 @@ Returns the data for the requested attribute not defined for this instance.
 		"""
 
 		return (self.local.db_instance.rel_resource_metadata.value
-		        if (attribute == "metadata" and self.local.db_instance.rel_resource_metadata != None) else
+		        if (attribute == "metadata" and self.local.db_instance.rel_resource_metadata is not None) else
 		        DataLinker._get_unknown_data_attribute(self, attribute)
 		       )
 	#
@@ -556,17 +576,17 @@ Initialize a UPnP resource by CDS ID.
 		"""
 
 		Resource.init_cds_id(self, _id, client_user_agent, deleted)
-		_return = (self.id != None)
+		_return = (self.resource_id is not None)
 
 		if (_return):
 		#
 			with Connection.get_instance() as connection:
 			#
-				url_elements = urlsplit(self.id)
+				url_elements = urlsplit(self.resource_id)
 
 				if (url_elements.scheme == "mp-entry" or url_elements.scheme.startswith("mp-entry-")):
 				#
-					if (self.local.db_instance == None):
+					if (self.local.db_instance is None):
 					#
 						self.local.db_instance = (connection.query(_DbMpUpnpResource)
 						                          .filter(_DbMpUpnpResource.id == url_elements.path[1:])
@@ -574,31 +594,31 @@ Initialize a UPnP resource by CDS ID.
 						                         )
 					#
 
-					if (self.local.db_instance == None): _return = False
-					else: self._load()
+					if (self.local.db_instance is None): _return = False
+					else: self._load_data()
 				#
 				else:
 				#
 					self.encapsulated_resource = Resource.load_cds_id(_id, deleted = True)
 
-					if (self.encapsulated_resource == None): _return = False
+					if (self.encapsulated_resource is None): _return = False
 					else:
 					#
-						self.encapsulated_id = self.encapsulated_resource.get_id()
+						self.encapsulated_id = self.encapsulated_resource.get_resource_id()
 
-						if (self.local.db_instance == None):
+						if (self.local.db_instance is None):
 						#
 							self.local.db_instance = (connection.query(_DbMpUpnpResource)
 							                          .filter(_DbMpUpnpResource.resource == self.encapsulated_id)
 							                          .first()
 							                         )
 
-							if (self.local.db_instance == None): self._init_encapsulated_resource()
+							if (self.local.db_instance is None): self._init_encapsulated_resource()
 							else:
 							#
-								self.id = None
-								self._load()
-								_return = (self.id != None)
+								self.resource_id = None
+								self._load_data()
+								_return = (self.resource_id is not None)
 							#
 						#
 
@@ -620,7 +640,36 @@ Initializes the content of a container.
 :since:  v0.1.00
 		"""
 
-		raise NotImplementedException()
+		_return = False
+
+		if (self.type is not None
+		    and self.type & MpEntry.TYPE_CDS_ITEM == MpEntry.TYPE_CDS_ITEM
+		   ):
+		#
+			_return = self._init_item_content()
+
+			if (_return):
+			#
+				is_thumbnail_available = False
+
+				for resource in self.content:
+				#
+					if (isinstance(resource, AbstractThumbnail)):
+					#
+						is_thumbnail_available = True
+						break
+					#
+				#
+
+				thumbnail_path_name = (None if (is_thumbnail_available) else self.get_thumbnail_file_path_name())
+
+				if ((not is_thumbnail_available)
+				    and thumbnail_path_name is not None
+				   ): self.append_thumbnail_resources(self.content, thumbnail_path_name)
+			#
+		#
+
+		return _return
 	#
 
 	def _init_encapsulated_resource(self):
@@ -631,10 +680,10 @@ Initialize an new encapsulated UPnP resource.
 :since: v0.1.00
 		"""
 
-		if (self.encapsulated_resource == None): raise ValueException("Encapsulated resource not accessible")
+		if (self.encapsulated_resource is None): raise ValueException("Encapsulated resource not accessible")
 		self._ensure_thread_local_instance(_DbMpUpnpResource)
 
-		self.id = self.encapsulated_resource.get_id()
+		self.resource_id = self.encapsulated_resource.get_resource_id()
 		self.name = self.encapsulated_resource.get_name()
 		self.mimeclass = self.encapsulated_resource.get_mimeclass()
 		self.mimetype = self.encapsulated_resource.get_mimetype()
@@ -650,10 +699,36 @@ Initialize an new encapsulated UPnP resource.
 		                         cds_type = db_type,
 		                         mimeclass = self.mimeclass,
 		                         mimetype = self.mimetype,
-		                         resource_type = NamedLoader.RE_CAMEL_CASE_SPLITTER.sub("\\1-\\2", self.__class__.__name__).lower(),
 		                         resource_title = self.name,
 		                         resource = self.encapsulated_id
 		                        )
+	#
+
+	def _init_item_content(self):
+	#
+		"""
+Initializes the content of an UPnP CDS item entry.
+
+:return: (bool) True if successful
+:since:  v0.1.00
+		"""
+
+		_return = True
+
+		encapsulated_resource = self.load_encapsulated_resource()
+
+		if (encapsulated_resource is not None):
+		#
+			encapsulated_resource.set_parent_resource_id(self.get_resource_id())
+			with ExceptionLogTrap("mp_server"): self.content = encapsulated_resource.get_content_list()
+		#
+		elif (self.log_handler is not None):
+		#
+			_return = False
+			self.log_handler.warning("mp.MpEntry failed to load encapsulated resource for ID '{0}'", self.resource_id, context = "mp_server")
+		#
+
+		return _return
 	#
 
 	def _insert(self):
@@ -673,16 +748,19 @@ Insert the instance into the database.
 			if (self.local.db_instance.mimeclass == "directory"):
 			#
 				parent_object = self.load_parent()
+				if (isinstance(parent_object, MpEntry)): self.local.db_instance.mimetype = parent_object.get_mimetype()
+			#
 
-				if (parent_object != None
-				    and isinstance(parent_object, _DbMpUpnpResource)
-				    and parent_object.mimetype != None
-				   ): self.local.db_instance.mimetype = parent_object.mimetype
+			if (self.local.db_instance.resource_type is None):
+			#
+				self.local.db_instance.resource_type = NamedLoader.RE_CAMEL_CASE_SPLITTER.sub("\\1-\\2",
+				                                                                              self.__class__.__name__
+				                                                                             ).lower()
 			#
 		#
 	#
 
-	def is_encapsulated_resource(self, _id):
+	def is_resource_id(self, _id):
 	#
 		"""
 Returns true if the given ID identifies this resource or the contained one.
@@ -690,30 +768,25 @@ Returns true if the given ID identifies this resource or the contained one.
 :param _id: ID
 
 :return: (bool) True if successful
-:since:  v0.1.00
+:since:  v0.1.02
 		"""
 
-		return (_id == self.id or _id == self.encapsulated_id)
+		return (_id == self.resource_id or _id == self.encapsulated_id)
 	#
 
-	def _load(self):
+	def _load_data(self):
 	#
 		"""
-Load a matching MpEntry for the given UPnP CDS ID.
+Loads the MpEntry instance and populates variables.
 
-:param _id: UPnP CDS ID
-:param client_user_agent: Client user agent
-:param cds: UPnP CDS
-:param deleted: True to include deleted resources
-
-:return: (object) Resource object; None on error
-:since:  v0.1.00
+:since: v0.1.00
 		"""
 
 		with self:
 		#
-			entry_data = self.get_data_attributes("id", "title", "mimeclass", "mimetype", "resource_type", "resource_title", "resource", "size")
+			entry_data = self.get_data_attributes("id", "id_parent", "title", "mimeclass", "mimetype", "resource_type", "resource_title", "resource", "size")
 
+			self.db_id = entry_data['id']
 			self.name = entry_data['title']
 			self.mimeclass = entry_data['mimeclass']
 			self.mimetype = entry_data['mimetype']
@@ -722,21 +795,24 @@ Load a matching MpEntry for the given UPnP CDS ID.
 			self.size = entry_data['size']
 			self.source = "MediaProvider"
 			self.type = self.get_type()
-			self.updatable = True
+			# self.updatable = True # @TODO: Support CreateObject & co.
 
 			if (entry_data['resource_type'] == "mp-entry" or entry_data['resource_type'].startswith("mp-entry-")):
 			#
-				if (self.id == None): self.id = "{0}:///{1}".format(entry_data['resource_type'], entry_data['id'])
+				if (self.resource_id is None): self.resource_id = "{0}:///{1}".format(entry_data['resource_type'], entry_data['id'])
+				self.searchable = True
 			#
 			else:
 			#
 				self.encapsulated_resource = Resource.load_cds_id(self.encapsulated_id, self.client_user_agent)
-				if (self.id == None): self.id = self.encapsulated_id
+				if (self.resource_id is None): self.resource_id = self.encapsulated_id
 
-				if (self.encapsulated_resource != None):
+				if (self.encapsulated_resource is not None):
 				#
 					self.encapsulated_resource.set_didl_fields(self.didl_fields)
 					self.encapsulated_resource.set_sort_criteria(self.sort_criteria)
+
+					self.searchable = self.encapsulated_resource.get_searchable()
 				#
 			#
 		#
@@ -753,7 +829,10 @@ Returns the ID of the encapsulated resource.
 :since:  v0.1.01
 		"""
 
-		return Resource.load_cds_id(self.get_encapsulated_id(), self.client_user_agent, deleted = deleted)
+		return (Resource.load_cds_id(self.get_encapsulated_id(), self.client_user_agent, deleted = deleted)
+		        if (self.encapsulated_resource is None) else
+		        self.encapsulated_resource
+		       )
 	#
 
 	def load_parent(self):
@@ -772,7 +851,7 @@ Load the parent instance.
 			db_parent_instance = self.local.db_instance.rel_parent
 
 			_return = (None
-			           if (db_parent_instance == None or (not isinstance(db_parent_instance, _DbMpUpnpResource))) else
+			           if (db_parent_instance is None or (not isinstance(db_parent_instance, _DbMpUpnpResource))) else
 			           MpEntry(db_parent_instance)
 			          )
 		#
@@ -789,14 +868,22 @@ Refresh metadata associated with the MpEntry.
 		"""
 
 		encapsulated_resource = self.get_encapsulated_resource()
-		if (encapsulated_resource == None): raise ValueException("Encapsulated resource not accessible")
 
-		self.set_data_attributes(mimeclass = encapsulated_resource.get_mimeclass(),
-		                         mimetype = encapsulated_resource.get_mimetype(),
-		                         refreshable = False,
-		                         time_sortable = encapsulated_resource.get_timestamp(),
-		                         size = encapsulated_resource.get_size()
-		                        )
+		if (encapsulated_resource is not None):
+		#
+			entry_data = { "refreshable": False,
+			               "time_sortable": encapsulated_resource.get_timestamp(),
+			               "size": encapsulated_resource.get_size()
+			             }
+
+			if (self.get_type() & MpEntry.TYPE_CDS_ITEM == MpEntry.TYPE_CDS_ITEM):
+			#
+				entry_data['mimeclass'] = encapsulated_resource.get_mimeclass()
+				entry_data['mimetype'] = encapsulated_resource.get_mimetype()
+			#
+
+			self.set_data_attributes(**entry_data)
+		#
 	#
 
 	def remove_content(self, resource):
@@ -814,7 +901,7 @@ Removes the given resource from the content list.
 
 		_return = False
 
-		if (isinstance(resource, MpEntry) and resource.get_type() != None):
+		if (isinstance(resource, MpEntry) and resource.get_type() is not None):
 		#
 			with self, self._lock:
 			#
@@ -845,15 +932,13 @@ used for "init_cds_id()" will be cleared.
 :since: v0.1.00
 		"""
 
-		DataLinker.save(self)
-
-		with self._lock:
+		with self:
 		#
-			if (self.encapsulated_resource != None):
-			#
-				self.encapsulated_resource = None
-				self.id = "{0}:///{1}".format(self.local.db_instance.resource_type, self.local.db_instance.id)
-			#
+			DataLinker.save(self)
+
+			if (self.encapsulated_resource is not None): self.encapsulated_resource = None
+			if (self.resource_id is None): self.resource_id = "{0}:///{1}".format(self.local.db_instance.resource_type, self.local.db_instance.id)
+			self.set_update_id("++")
 		#
 	#
 
@@ -901,9 +986,9 @@ Sets values given as keyword arguments to this method.
 
 			if ("metadata" in kwargs):
 			#
-				is_empty = (kwargs['metadata'] == None or kwargs['metadata'].strip() == "")
+				is_empty = (kwargs['metadata'] is None or kwargs['metadata'].strip() == "")
 
-				if (self.local.db_instance.rel_resource_metadata == None):
+				if (self.local.db_instance.rel_resource_metadata is None):
 				#
 					self.local.db_instance.rel_resource_metadata = _DbKeyStore()
 					self.local.db_instance.rel_resource_metadata.key = self.local.db_instance.id
@@ -929,19 +1014,21 @@ Sets the DIDL fields to be returned.
 
 		Resource.set_sort_criteria(self, sort_criteria)
 
-		sort_definition = SortDefinition([ ( "cds_type", SortDefinition.ASCENDING ) ])
-
-		criteria_list = ([ "+dc:title" ] if (len(self.sort_criteria) < 1) else self.sort_criteria)
-
-		for criteria in criteria_list:
+		if (len(self.sort_criteria) > 0):
 		#
-			criteria_first_char = criteria[:1]
-			if (criteria_first_char == "+" or criteria_first_char == "-"): criteria = criteria[1:]
-			direction = (SortDefinition.ASCENDING if (criteria_first_char == "+") else SortDefinition.DESCENDING)
+			criteria_list = (self.sort_criteria.copy() if (hasattr(self.sort_criteria, "copy")) else copy(self.sort_criteria))
+			sort_definition = SortDefinition([ ( "cds_type", SortDefinition.ASCENDING ) ])
 
-			self.__class__._db_append_didl_field_sort_definition(sort_definition, criteria, direction)
+			for criteria in criteria_list:
+			#
+				criteria_first_char = criteria[:1]
+				if (criteria_first_char == "+" or criteria_first_char == "-"): criteria = criteria[1:]
+				direction = (SortDefinition.ASCENDING if (criteria_first_char == "+") else SortDefinition.DESCENDING)
 
-			self.set_sort_definition(sort_definition)
+				self.__class__._db_append_didl_field_sort_definition(sort_definition, criteria, direction)
+
+				self.set_sort_definition(sort_definition)
+			#
 		#
 	#
 
@@ -993,8 +1080,8 @@ Apply the filter to the given SQLAlchemy query instance.
 
 		_return = query.order_by(_DbMpUpnpResource.cds_type.asc())
 
-		if (sort_criteria == None): criteria_list = [ ]
-		else: criteria_list = (sort_criteria if (type(sort_criteria) == list) else sort_criteria.split(","))
+		if (sort_criteria is None): criteria_list = [ ]
+		else: criteria_list = (sort_criteria if (type(sort_criteria) is list) else sort_criteria.split(","))
 
 		for criteria in criteria_list:
 		#
@@ -1040,6 +1127,21 @@ Returns the count of root container MpEntry entries.
 	#
 
 	@staticmethod
+	def get_entries_count_with_condition(condition_definition):
+	#
+		"""
+Returns the count of MpEntry entries based on the given condition definition.
+
+:param condition_definition: ConditionDefinition instance
+
+:return: (int) Number of MpEntry entries
+:since:  v0.1.00
+		"""
+
+		return MpEntry._get_entries_count_with_condition(_DbMpUpnpResource, condition_definition)
+	#
+
+	@staticmethod
 	def load_encapsulating_entry(_id, client_user_agent = None, cds = None, deleted = False):
 	#
 		"""
@@ -1054,27 +1156,79 @@ Loads a matching MpEntry for the given UPnP CDS ID.
 :since:  v0.1.00
 		"""
 
+		if (_id is None): raise TypeException("Encapsulated ID is invalid")
 		_return = None
 
-		resource = Resource.load_cds_id(_id, client_user_agent, cds, deleted)
-		mimeclass = (None if (resource == None) else resource.get_mimeclass())
-
-		if (mimeclass != None):
+		if (_id == "mp-entry" or _id.startswith("mp-entry-")): _return = MpEntry.load_cds_id(_id, client_user_agent, cds, deleted)
+		else:
 		#
-			if (mimeclass == "directory"): entry_class_name = "dNG.pas.data.upnp.resources.MpEntry"
-			else:
-			#
-				camel_case_mimeclass = "".join([word.capitalize() for word in re.split("\\W", mimeclass.split("/")[0])])
-				entry_class_name = "dNG.pas.data.upnp.resources.MpEntry{0}".format(camel_case_mimeclass)
+			resource = Resource.load_cds_id(_id, client_user_agent, cds, deleted)
+			mimeclass = (None if (resource is None) else resource.get_mimeclass())
 
-				if (not NamedLoader.is_defined(entry_class_name)): entry_class_name = "dNG.pas.data.upnp.resources.MpEntry"
+			if (mimeclass is not None):
 			#
+				if (mimeclass == "directory"): entry_class_name = "dNG.pas.data.upnp.resources.MpEntry"
+				else:
+				#
+					camel_case_mimeclass = "".join([word.capitalize() for word in re.split("\\W", mimeclass.split("/")[0])])
+					entry_class_name = "dNG.pas.data.upnp.resources.MpEntry{0}".format(camel_case_mimeclass)
 
-			_return = NamedLoader.get_instance(entry_class_name, False)
-			if (_return != None and (not _return.init_cds_id(_id, client_user_agent, deleted))): _return = None
+					if (not NamedLoader.is_defined(entry_class_name)): entry_class_name = "dNG.pas.data.upnp.resources.MpEntry"
+				#
+
+				_return = NamedLoader.get_instance(entry_class_name, False)
+				if (_return is not None and (not _return.init_cds_id(_id, client_user_agent, deleted))): _return = None
+			#
 		#
 
 		return _return
+	#
+
+	@staticmethod
+	def load_entries_list_with_condition(condition_definition, offset = 0, limit = -1, sort_definition = None):
+	#
+		"""
+Loads a list of MpEntry instances based on the given condition definition.
+
+:param condition_definition: ConditionDefinition instance
+:param offset: SQLAlchemy query offset
+:param limit: SQLAlchemy query limit
+:param sort_definition: SortDefinition instance
+
+:return: (list) List of MpEntry instances on success
+:since:  v0.1.00
+		"""
+
+		return MpEntry._load_entries_list_with_condition(_DbMpUpnpResource, condition_definition, offset, limit, sort_definition)
+	#
+
+	@staticmethod
+	def load_resource(resource, client_user_agent = None, cds = None, deleted = False):
+	#
+		"""
+Loads the matching MpEntry for the given UPnP resource.
+
+:param resource: UPnP resource
+:param client_user_agent: Client user agent
+:param cds: UPnP CDS
+:param deleted: True to include deleted resources
+
+:return: (object) Resource object; None on error
+:since:  v0.1.02
+		"""
+
+		if (resource is None): raise NothingMatchedException("UPnP resource is invalid")
+
+		with Connection.get_instance() as connection:
+		#
+			db_instance = (connection.query(_DbMpUpnpResource)
+			               .filter(_DbMpUpnpResource.resource == resource)
+			               .first()
+			              )
+		#
+
+		if (db_instance is None): raise NothingMatchedException("UPnP resource '{0}' is invalid".format(resource))
+		return MpEntry(db_instance)
 	#
 
 	@staticmethod
@@ -1103,7 +1257,7 @@ Loads a list of UPnP root container MpEntry instances.
 			if (offset > 0): db_query = db_query.offset(offset)
 			if (limit > 0): db_query = db_query.limit(limit)
 
-			return ([ ] if (result == None) else MpEntry.buffered_iterator(_DbMpUpnpResource, result, MpEntry))
+			return ([ ] if (result is None) else MpEntry.buffered_iterator(_DbMpUpnpResource, result))
 		#
 	#
 #

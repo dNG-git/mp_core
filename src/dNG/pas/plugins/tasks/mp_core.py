@@ -34,7 +34,6 @@ https://www.direct-netware.de/redirect?licenses;gpl
 # pylint: disable=unused-argument
 
 from dNG.pas.data.tasks.memory import Memory as MemoryTasks
-from dNG.pas.data.upnp.resources.mp_entry import MpEntry
 from dNG.pas.plugins.hook import Hook
 from dNG.pas.tasks.mp.resource_scanner import ResourceScanner
 from dNG.pas.tasks.mp.root_container_deleter import RootContainerDeleter
@@ -50,7 +49,7 @@ Called for "dNG.pas.upnp.Resource.onRootContainerAdded"
 :since: v0.1.00
 	"""
 
-	if (last_return == None): _return = True
+	if (last_return is None): _return = True
 	else: _return = last_return
 
 	if (_return and "container_id" in params):
@@ -75,10 +74,16 @@ Called for "dNG.pas.upnp.Resource.onRootContainerDeleted"
 :since: v0.1.00
 	"""
 
-	if (last_return == None): _return = True
+	if (last_return is None): _return = True
 	else: _return = last_return
 
-	if (_return and "container_id" in params): RootContainerDeleter(params['container_id']).run()
+	if (_return and "container_id" in params):
+	#
+		MemoryTasks.get_instance().add("dNG.pas.tasks.mp.RootContainerDeleter.{0}".format(params['container_id']),
+		                               RootContainerDeleter(params['container_id']),
+		                               0
+		                              )
+	#
 
 	return _return
 #

@@ -31,12 +31,15 @@ https://www.direct-netware.de/redirect?licenses;gpl
 #echo(__FILEPATH__)#
 """
 
+from os import path
+
+from dNG.pas.data.settings import Settings
 from dNG.pas.data.upnp.client import Client
 #from dNG.pas.data.upnp.services.av_transport import AvTransport
 from dNG.pas.data.upnp.services.connection_manager import ConnectionManager
 from dNG.pas.data.upnp.services.content_directory import ContentDirectory
-#from dNG.pas.data.upnp.services.scheduled_recording import ScheduledRecording
 from dNG.pas.data.upnp.services.xms_media_receiver_registrar import XMSMediaReceiverRegistrar
+from dNG.pas.module.named_loader import NamedLoader
 from .abstract_device import AbstractDevice
 
 class MediaServer(AbstractDevice):
@@ -63,9 +66,21 @@ Constructor __init__(MediaServer)
 
 		AbstractDevice.__init__(self)
 
+		icon_file_path_name = Settings.get("mp_media_server_icon_file_path_name")
+
+		if (icon_file_path_name is None):
+		#
+			icon_file_path_name = path.join(Settings.get("path_data"),
+			                               "upnp",
+			                               "mp_media_server_logo.png"
+			                              )
+		#
+		else: icon_file_path_name = path.normpath(icon_file_path_name)
+
+		self.icon_file_path_name = icon_file_path_name
 		self.type = "MediaServer"
 		self.upnp_domain = "schemas-upnp-org"
-		self.version = "1"
+		self.version = "4"
 	#
 
 	def init_device(self, control_point, udn = None, configid = None):
@@ -74,19 +89,17 @@ Constructor __init__(MediaServer)
 Initialize a host device.
 
 :return: (bool) Returns true if initialization was successful.
-:since: v0.1.00
+:since:  v0.1.00
 		"""
 
 		AbstractDevice.init_device(self, control_point, udn, configid)
 
 		self.device_model = "UPnP media server"
 		self.device_model_desc = "Python based UPnP media server"
-		self.device_model_url = "https://www.direct-netware.de/redirect?pas;upnp"
+		self.device_model_url = "https://www.direct-netware.de/redirect?mp;core"
 		self.device_model_version = "#echo(mpCoreVersion)#"
 		self.manufacturer = "direct Netware Group"
 		self.manufacturer_url = "http://www.direct-netware.de"
-		self.spec_major = 1
-		self.spec_minor = 1
 
 		#service = AvTransport()
 		#if (service.init_host(self, configid = self.configid)): self.add_service(service)
@@ -97,8 +110,8 @@ Initialize a host device.
 		service = ContentDirectory()
 		if (service.init_host(self, configid = self.configid)): self.add_service(service)
 
-		#service = ScheduledRecording()
-		#if (service.init_host(self, configid = self.configid)): self.add_service(service)
+		service = NamedLoader.get_instance("dNG.pas.data.upnp.services.ScheduledRecording", False)
+		if (service is not None and service.init_host(self, configid = self.configid)): self.add_service(service)
 
 		service = XMSMediaReceiverRegistrar()
 		if (service.init_host(self, configid = self.configid)): self.add_service(service)
@@ -124,20 +137,45 @@ Returns the UPnP device description for encoding.
 
 		xml_resource = AbstractDevice._get_xml(self, xml_resource)
 
-		xml_resource.add_node("root device dlna:X_DLNADOC", "DMS-1.50", { "xmlns:dlna": "urn:schemas-dlna-org:device-1-0" })
-		# TODO: if (client.get("upnp_xml_dlnacap_supported", True)): xml_resource.add_node("root device dlna:X_DLNACAP", "audio-upload,av-upload,image-upload", { "xmlns:dlna": "urn:schemas-dlna-org:device-1-0" }) # TODO: upload
+		value = client.get("upnp_xml_namespaces_support_standard_compliant", True)
+
+		if (value):
+		#
+			xml_device_attributes = xml_resource.get_node_attributes("root device")
+			xml_device_attributes['xmlns:dlna'] = "urn:schemas-dlna-org:device-1-0"
+			xml_resource.change_node_attributes("root device", xml_device_attributes)
+
+			xml_dlnadoc_attributes = { }
+		#
+		else: xml_dlnadoc_attributes = { "xmlns:dlna": "urn:schemas-dlna-org:device-1-0" }
+
+		xml_resource.add_node("root device dlna:X_DLNADOC", "DMS-1.51", xml_dlnadoc_attributes)
+		xml_resource.add_node("root device dlna:X_DLNADOC", "+RUISRC+/DMS-1.51", xml_dlnadoc_attributes)
+		xml_resource.add_node("root device dlna:X_DLNADOC", "+RUIHSRC+/DMS-1.51", xml_dlnadoc_attributes)
+		# TODO: if (client.get("upnp_xml_dlnacap_supported", True)): xml_resource.add_node("root device dlna:X_DLNACAP", "audio-upload,av-upload,image-upload", { "xmlns:dlna": "urn:schemas-dlna-org:device-1-0" })
+
+		value = client.get("upnp_spec_versioning_supported", True)
+
+		if (not value):
+		#
+			xml_resource.add_node("root device dlna:X_DLNADOC", "DMS-1.00", xml_dlnadoc_attributes)
+			xml_resource.add_node("root device dlna:X_DLNADOC", "DMS-1.50", xml_dlnadoc_attributes)
+
+			quirks_device_version = "urn:{0}:device:{1}:1".format(self.get_upnp_domain(), self.get_type())
+			xml_resource.change_node_value("root device deviceType", quirks_device_version)
+		#
 
 		value = client.get("mp_media_server_device_model")
-		if (value != None):  xml_resource.change_node_value("root device modelName", value)
+		if (value is not None): xml_resource.change_node_value("root device modelName", value)
 
 		value = client.get("mp_media_server_device_model_desc")
-		if (value != None): xml_resource.change_node_value("root device modelDescription", value)
+		if (value is not None): xml_resource.change_node_value("root device modelDescription", value)
 
 		value = client.get("mp_media_server_device_model_version")
-		if (value != None): xml_resource.change_node_value("root device modelNumber", value)
+		if (value is not None): xml_resource.change_node_value("root device modelNumber", value)
 
 		value = client.get("mp_media_server_manufacturer")
-		if (value != None): xml_resource.change_node_value("root device manufacturer", value)
+		if (value is not None): xml_resource.change_node_value("root device manufacturer", value)
 
 		return xml_resource
 	#

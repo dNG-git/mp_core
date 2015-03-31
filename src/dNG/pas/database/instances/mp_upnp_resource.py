@@ -140,7 +140,7 @@ Constructor __init__(MpUpnpResource)
 
 		DataLinker.__init__(self, *args, **kwargs)
 
-		if (self.cds_type == None): self.cds_type = MpUpnpResource.CDS_TYPE_ITEM
+		if (self.cds_type is None): self.cds_type = MpUpnpResource.CDS_TYPE_ITEM
 	#
 #
 

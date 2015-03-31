@@ -48,7 +48,8 @@ from dNG.pas.runtime.thread_lock import ThreadLock
 from dNG.pas.tasks.abstract_lrt_hook import AbstractLrtHook
 from dNG.pas.vfs.abstract_watcher import AbstractWatcher
 from dNG.pas.vfs.file.watcher import Watcher
-from .resource_refresh_metadata import ResourceRefreshMetadata
+from .resource_id_deleter import ResourceIdDeleter
+from .resource_metadata_refresh import ResourceMetadataRefresh
 
 class ResourceScanner(AbstractLrtHook):
 #
@@ -75,7 +76,7 @@ Thread safety lock
 Watcher instance
 	"""
 
-	def __init__(self, resource_id):
+	def __init__(self, _id):
 	#
 		"""
 Constructor __init__(ResourceScanner)
@@ -105,23 +106,33 @@ Refresh time
 
 		with Connection.get_instance():
 		#
-			resource = MpEntry.load_encapsulating_entry(resource_id)
-			if (isinstance(resource, MpEntry)): entry_data = resource.get_data_attributes("resource")
+			is_auto_maintained = False
+			resource = MpEntry.load_encapsulating_entry(_id)
 
-			if (entry_data != None):
+			if (isinstance(resource, MpEntry)):
+			#
+				entry_data = resource.get_data_attributes("resource")
+				is_auto_maintained = resource.is_supported("auto_maintenance")
+			#
+
+			if (is_auto_maintained):
+			#
+				if (self.log_handler is not None): self.log_handler.debug("mp.ResourceScanner ignores auto maintained resource ID '{0}'", _id, context = "mp_server")
+			#
+			elif (entry_data is not None):
 			#
 				encapsulated_resource = resource.load_encapsulated_resource(deleted = True)
 
 				if (isinstance(encapsulated_resource, Resource)):
 				#
-					self.encapsulating_id = resource.get_id()
-					self.encapsulated_id = encapsulated_resource.get_id()
+					self.encapsulating_id = resource.get_resource_id()
+					self.encapsulated_id = encapsulated_resource.get_resource_id()
 
-					if (ResourceScanner._watcher_instance == None):
+					if (ResourceScanner._watcher_instance is None):
 					# Thread safety
 						with ResourceScanner._lock:
 						#
-							if (ResourceScanner._watcher_instance == None):
+							if (ResourceScanner._watcher_instance is None):
 							#
 								ResourceScanner._watcher_instance = Watcher()
 								Hook.register("dNG.pas.upnp.ControlPoint.onShutdown", ResourceScanner.stop)
@@ -142,13 +153,9 @@ Refresh time
 
 					if (not is_watched): self.refresh_time = Settings.get("mp_core_entry_scanner_refresh_time", 300)
 				#
-				elif (self.log_handler != None): self.log_handler.warning("mp.ResourceScanner failed to initialize the resource for '{0}'", entry_data['resource'], context = "mp_server")
+				elif (self.log_handler is not None): self.log_handler.warning("mp.ResourceScanner failed to initialize the resource for ID '{0}'", _id, context = "mp_server")
 			#
-			elif (self.log_handler != None):
-			#
-				if (resource == None): self.log_handler.warning("mp.ResourceScanner refused to scan an invalid resource", context = "mp_server")
-				else: self.log_handler.warning("mp.ResourceScanner refused to scan '{0}'", resource.get_id(), context = "mp_server")
-			#
+			elif (self.log_handler is not None): self.log_handler.warning("mp.ResourceScanner refused to scan '{0}'", _id, context = "mp_server")
 		#
 	#
 
@@ -160,18 +167,18 @@ Hook execution
 :since: v0.1.01
 		"""
 
-		with Connection.get_instance() as connection:
+		with Connection.get_instance():
 		#
 			encapsulated_resource = Resource.load_cds_id(self.encapsulated_id)
 			encapsulating_entry = None
 
-			if (self.encapsulating_id != None and encapsulated_resource.get_type() & Resource.TYPE_CDS_CONTAINER == Resource.TYPE_CDS_CONTAINER):
+			if (self.encapsulating_id is not None and encapsulated_resource.get_type() & Resource.TYPE_CDS_CONTAINER == Resource.TYPE_CDS_CONTAINER):
 			#
-				if (self.log_handler != None): self.log_handler.info("mp.ResourceScanner scans the content of '{0}'", self.encapsulated_id, context = "mp_server")
+				if (self.log_handler is not None): self.log_handler.info("mp.ResourceScanner scans the content of '{0}'", self.encapsulated_id, context = "mp_server")
 
 				content_list = { }
 
-				for child in encapsulated_resource.get_content_list(): content_list[child.get_id()] = child.get_timestamp()
+				for child in encapsulated_resource.get_content_list(): content_list[child.get_resource_id()] = child.get_timestamp()
 
 				content_added = [ ]
 				content_modified = [ ]
@@ -180,7 +187,7 @@ Hook execution
 
 				encapsulating_entry = Resource.load_cds_id(self.encapsulating_id, deleted = True)
 
-				if (encapsulating_entry != None):
+				if (encapsulating_entry is not None):
 				#
 					for child in encapsulating_entry.get_content_list():
 					#
@@ -190,21 +197,21 @@ Hook execution
 						#
 							child_id = child.get_encapsulated_id()
 
-							if (encapsulating_entry.get_type() & Resource.TYPE_CDS_CONTAINER == Resource.TYPE_CDS_CONTAINER):
-							#
-								MemoryTasks.get_instance().add("dNG.pas.tasks.mp.ResourceScanner.{0}".format(child_id),
-								                               ResourceScanner(child_id),
-								                               0
-								                              )
-							#
-
 							if (child_id in content_list):
 							#
 								child_data = child.get_data_attributes("time_sortable", "refreshable")
-								child_updated = (child_data['time_sortable'] == None or child_data['time_sortable'] < content_list[child_id] or child_data['refreshable'])
+								child_updated = (child_data['time_sortable'] is None or child_data['time_sortable'] < content_list[child_id] or child_data['refreshable'])
+
+								if (child.get_type() & Resource.TYPE_CDS_CONTAINER == Resource.TYPE_CDS_CONTAINER):
+								#
+									memory_tasks.add("dNG.pas.tasks.mp.ResourceScanner.{0}".format(child_id),
+									                 ResourceScanner(child_id),
+									                 0
+									                )
+								#
 							#
 						#
-						else: child_id = child.get_id()
+						else: child_id = child.get_resource_id()
 
 						if (child_id not in content_list): content_deleted.append(child_id)
 						else:
@@ -228,20 +235,20 @@ Hook execution
 
 							encapsulating_child = MpEntry.load_encapsulating_entry(child_id)
 
-							if (encapsulating_child != None and encapsulating_entry.add_content(encapsulating_child)):
+							if (encapsulating_child is not None and encapsulating_entry.add_content(encapsulating_child)):
 							#
 								encapsulating_child.set_data_attributes(refreshable = True)
 								encapsulating_child.save()
 								is_added = True
 
-								if (self.log_handler != None): self.log_handler.info("mp.ResourceScanner added entry '{0}'", child_id, context = "mp_server")
+								if (self.log_handler is not None): self.log_handler.info("mp.ResourceScanner added entry '{0}'", child_id, context = "mp_server")
 							#
-							elif (self.log_handler != None): self.log_handler.warning("mp.ResourceScanner failed to add entry '{0}'", child_id, context = "mp_server")
+							elif (self.log_handler is not None): self.log_handler.warning("mp.ResourceScanner failed to add entry '{0}'", child_id, context = "mp_server")
 
 							if (is_added):
 							#
 								memory_tasks.add("dNG.pas.tasks.mp.ResourceScanner.{0}".format(child_id), ResourceScanner(child_id), 0)
-								memory_tasks.add("dNG.pas.tasks.mp.ResourceRefreshMetadata.{0}".format(child_id), ResourceRefreshMetadata(child_id), 0)
+								memory_tasks.add("dNG.pas.tasks.mp.ResourceMetadataRefresh.{0}".format(child_id), ResourceMetadataRefresh(child_id), 0)
 							#
 						#
 					#
@@ -249,32 +256,29 @@ Hook execution
 
 				if (len(content_deleted) > 0):
 				#
-					with TransactionContext():
+					for child_id in content_deleted:
 					#
-						for child_id in content_deleted:
+						encapsulating_child = MpEntry.load_encapsulating_entry(child_id, deleted = True)
+
+						if (encapsulating_child is not None):
 						#
-							encapsulating_child = MpEntry.load_encapsulating_entry(child_id, deleted = True)
+							encapsulating_child_db_id = encapsulating_child.get_id()
 
-							if (encapsulating_child != None and encapsulating_entry.remove_content(encapsulating_child) and encapsulating_child.delete()):
-							#
-								if (self.log_handler != None): self.log_handler.info("mp.ResourceScanner deleted entry '{0}'", child_id, context = "mp_server")
+							memory_tasks.add("dNG.pas.tasks.mp.ResourceIdDeleter.{0}".format(encapsulating_child_db_id),
+							                 ResourceIdDeleter(encapsulating_child_db_id),
+							                 0
+							                )
 
-								connection.optimize_random(MpEntry)
-
-								if (encapsulating_child.get_type() & Resource.TYPE_CDS_CONTAINER == Resource.TYPE_CDS_CONTAINER):
-								#
-									memory_tasks.remove("dNG.pas.tasks.mp.ResourceScanner.{0}".format(encapsulating_child.get_encapsulated_id()))
-								#
-							#
-							elif (self.log_handler != None): self.log_handler.warning("mp.ResourceScanner failed to delete entry '{0}'", child_id, context = "mp_server")
+							memory_tasks.remove("dNG.pas.tasks.mp.ResourceScanner.{0}".format(child_id))
+							memory_tasks.remove("dNG.pas.tasks.mp.ResourceMetadataRefresh.{0}".format(child_id))
 						#
 					#
 				#
 
-				for child_id in content_modified: memory_tasks.add("dNG.pas.tasks.mp.ResourceRefreshMetadata.{0}".format(child_id), ResourceRefreshMetadata(child_id), 0)
+				for child_id in content_modified: memory_tasks.add("dNG.pas.tasks.mp.ResourceMetadataRefresh.{0}".format(child_id), ResourceMetadataRefresh(child_id), 0)
 			#
 
-			if (encapsulating_entry != None and self.refresh_time != None):
+			if (encapsulating_entry is not None and self.refresh_time is not None):
 			#
 				memory_tasks.add("dNG.pas.tasks.mp.ResourceScanner.{0}".format(self.encapsulating_id),
 				                 ResourceScanner(self.encapsulating_id),
@@ -297,25 +301,25 @@ Schedules metadata refreshes for a changed file or directory.
 :since: v0.1.01
 		"""
 
-		if (changed_value != None):
+		if (changed_value is not None):
 		#
 			if (event_type == AbstractWatcher.EVENT_TYPE_CREATED):
 			#
-				child_id = url + "/" + changed_value
+				child_id = url + "/" + quote(changed_value)
 				encapsulating_child = None
 				is_added = False
 
 				with TransactionContext():
 				#
 					encapsulating_entry = MpEntry.load_encapsulating_entry(url)
-					if (encapsulating_entry != None): encapsulating_child = MpEntry.load_encapsulating_entry(child_id)
+					if (encapsulating_entry is not None): encapsulating_child = MpEntry.load_encapsulating_entry(child_id)
 
 					encapsulated_resource = (None
-					                         if (encapsulating_child == None) else
+					                         if (encapsulating_child is None) else
 					                         encapsulating_entry.load_encapsulated_resource()
 					                        )
 
-					if (encapsulated_resource != None and encapsulating_entry.add_content(encapsulating_child)):
+					if (encapsulated_resource is not None and encapsulating_entry.add_content(encapsulating_child)):
 					#
 						encapsulating_child.set_data_attributes(time_sortable = encapsulated_resource.get_timestamp())
 						encapsulating_child.save()
@@ -331,54 +335,61 @@ Schedules metadata refreshes for a changed file or directory.
 				#
 					memory_tasks = MemoryTasks.get_instance()
 					memory_tasks.add("dNG.pas.tasks.mp.ResourceScanner.{0}".format(child_id), ResourceScanner(child_id), 0)
-					memory_tasks.add("dNG.pas.tasks.mp.ResourceRefreshMetadata.{0}".format(child_id), ResourceRefreshMetadata(child_id), 0)
+					memory_tasks.add("dNG.pas.tasks.mp.ResourceMetadataRefresh.{0}".format(child_id), ResourceMetadataRefresh(child_id), 0)
 				#
 			#
 			elif (event_type == AbstractWatcher.EVENT_TYPE_DELETED):
 			#
-				child_id = url + "/" + changed_value
+				child_id = url + "/" + quote(changed_value)
 
-				with Connection.get_instance() as connection:
+				with Connection.get_instance():
 				#
 					encapsulating_child = MpEntry.load_encapsulating_entry(child_id, deleted = True)
-					encapsulating_entry = (None if (encapsulating_child == None) else encapsulating_child.load_parent())
 
-					if (encapsulating_entry != None and encapsulating_entry.remove_content(encapsulating_child) and encapsulating_child.delete()):
+					if (encapsulating_child is not None):
 					#
-						LogLine.info("mp.ResourceScanner deleted entry '{0}'", child_id, context = "mp_server")
+						encapsulating_child_db_id = encapsulating_child.get_id()
+						memory_tasks = MemoryTasks.get_instance()
 
-						connection.optimize_random(MpEntry)
-						MemoryTasks.get_instance().remove("dNG.pas.tasks.mp.ResourceScanner.{0}".format(encapsulating_child.get_encapsulated_id()))
+						memory_tasks.add("dNG.pas.tasks.mp.ResourceIdDeleter.{0}".format(encapsulating_child_db_id),
+						                 ResourceIdDeleter(encapsulating_child_db_id),
+						                 0
+						                )
+
+						memory_tasks.remove("dNG.pas.tasks.mp.ResourceScanner.{0}".format(child_id))
+						memory_tasks.remove("dNG.pas.tasks.mp.ResourceMetadataRefresh.{0}".format(child_id))
 					#
-					else: LogLine.warning("mp.ResourceScanner failed to delete entry '{0}'", child_id, context = "mp_server")
 				#
 			#
 			elif (event_type == AbstractWatcher.EVENT_TYPE_MODIFIED):
 			#
-				child_id = url + "/" + changed_value
-				MemoryTasks.get_instance().add("dNG.pas.tasks.mp.ResourceRefreshMetadata.{0}".format(child_id), ResourceRefreshMetadata(child_id), 0)
+				child_id = url + "/" + quote(changed_value)
+				MemoryTasks.get_instance().add("dNG.pas.tasks.mp.ResourceMetadataRefresh.{0}".format(child_id), ResourceMetadataRefresh(child_id), 0)
 			#
 		#
 		elif (event_type == AbstractWatcher.EVENT_TYPE_DELETED):
 		#
-			with Connection.get_instance() as connection:
+			with Connection.get_instance():
 			#
 				encapsulating_child = MpEntry.load_encapsulating_entry(url, deleted = True)
-				encapsulating_entry = (None if (encapsulating_child == None) else encapsulating_child.load_parent())
 
-				if (encapsulating_entry != None and encapsulating_entry.remove_content(encapsulating_child) and encapsulating_child.delete()):
+				if (encapsulating_child is not None):
 				#
-					LogLine.info("mp.ResourceScanner deleted entry '{0}'", child_id, context = "mp_server")
+					encapsulating_child_db_id = encapsulating_child.get_id()
+					memory_tasks = MemoryTasks.get_instance()
 
-					connection.optimize_random(MpEntry)
-					MemoryTasks.get_instance().remove("dNG.pas.tasks.mp.ResourceScanner.{0}".format(encapsulating_child.get_encapsulated_id()))
-				#
-				else: LogLine.warning("mp.ResourceScanner failed to delete entry '{0}'", url, context = "mp_server")
+					memory_tasks.add("dNG.pas.tasks.mp.ResourceIdDeleter.{0}".format(encapsulating_child_db_id),
+					                 ResourceIdDeleter(encapsulating_child_db_id),
+					                 0
+					                )
+
+					memory_tasks.remove("dNG.pas.tasks.mp.ResourceScanner.{0}".format(child_id))
+					memory_tasks.remove("dNG.pas.tasks.mp.ResourceMetadataRefresh.{0}".format(child_id))				#
 			#
 		#
 		elif (event_type == AbstractWatcher.EVENT_TYPE_MODIFIED):
 		#
-			MemoryTasks.get_instance().add("dNG.pas.tasks.mp.ResourceRefreshMetadata.{0}".format(url), ResourceRefreshMetadata(url), 0)
+			MemoryTasks.get_instance().add("dNG.pas.tasks.mp.ResourceMetadataRefresh.{0}".format(url), ResourceMetadataRefresh(url), 0)
 		#
 	#
 
@@ -395,11 +406,11 @@ Called for "dNG.pas.upnp.ControlPoint.onShutdown"
 :since:  v0.1.01
 		"""
 
-		if (ResourceScanner._watcher_instance != None):
+		if (ResourceScanner._watcher_instance is not None):
 		# Thread safety
 			with ResourceScanner._lock:
 			#
-				if (ResourceScanner._watcher_instance != None): ResourceScanner._watcher_instance.disable()
+				if (ResourceScanner._watcher_instance is not None): ResourceScanner._watcher_instance.disable()
 			#
 		#
 

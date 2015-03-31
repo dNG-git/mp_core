@@ -31,11 +31,19 @@ https://www.direct-netware.de/redirect?licenses;gpl
 #echo(__FILEPATH__)#
 """
 
+import re
+
+try: from urllib.parse import quote
+except ImportError: from urllib import quote
+
 from dNG.pas.data.binary import Binary
+from dNG.pas.data.settings import Settings
 from dNG.pas.data.media.image import Image
 from dNG.pas.data.media.image_metadata import ImageMetadata
+from dNG.pas.data.upnp.client import Client
 from dNG.pas.data.upnp.resources.abstract_stream import AbstractStream
 from dNG.pas.database.instances.mp_upnp_image_resource import MpUpnpImageResource as _DbMpUpnpImageResource
+from dNG.pas.module.named_loader import NamedLoader
 from dNG.pas.runtime.not_implemented_class import NotImplementedClass
 from .mp_entry import MpEntry
 
@@ -67,13 +75,13 @@ Uses the given XML resource to add the DIDL metadata of this UPnP resource.
 
 		MpEntry._add_metadata_to_didl_xml_node(self, xml_resource, xml_node_path, parent_id)
 
-		if (self.get_type() & MpEntryImage.TYPE_CDS_ITEM == MpEntryImage.TYPE_CDS_ITEM and xml_resource.get_node(xml_node_path) != None):
+		if (self.get_type() & MpEntryImage.TYPE_CDS_ITEM == MpEntryImage.TYPE_CDS_ITEM and xml_resource.get_node(xml_node_path) is not None):
 		#
 			entry_data = self.get_data_attributes("artist", "description", "creator")
 
-			if (entry_data['artist'] != None): xml_resource.add_node("{0} upnp:artist".format(xml_node_path), entry_data['artist'])
-			if (entry_data['creator'] != None): xml_resource.add_node("{0} dc:creator".format(xml_node_path), entry_data['creator'])
-			if (entry_data['description'] != None): xml_resource.add_node("{0} dc:description".format(xml_node_path), entry_data['description'])
+			if (entry_data['artist'] is not None): xml_resource.add_node("{0} upnp:artist".format(xml_node_path), entry_data['artist'])
+			if (entry_data['creator'] is not None): xml_resource.add_node("{0} dc:creator".format(xml_node_path), entry_data['creator'])
+			if (entry_data['description'] is not None): xml_resource.add_node("{0} dc:description".format(xml_node_path), entry_data['description'])
 		#
 	#
 
@@ -94,14 +102,14 @@ Appends audio metadata to the given stream resource.
 			entry_data = self.get_data_attributes("width", "height", "bpp")
 			data = { }
 
-			if (entry_data['width'] != None and entry_data['height'] != None):
+			if (entry_data['width'] is not None and entry_data['height'] is not None):
 			#
 				data['resolution'] = "{0:d}x{1:d}".format(entry_data['width'],
 				                                          entry_data['height']
 				                                         )
 			#
 
-			if (entry_data['bpp'] != None): data['colorDepth'] = entry_data['bpp']
+			if (entry_data['bpp'] is not None): data['colorDepth'] = entry_data['bpp']
 
 			if (len(data) > 0): resource.set_metadata(**data)
 		#
@@ -119,7 +127,12 @@ Returns the UPnP content resource at the given position.
 		"""
 
 		_return = MpEntry.get_content(self, position)
-		if (self.type & MpEntry.TYPE_CDS_ITEM == MpEntry.TYPE_CDS_ITEM): self._append_stream_content_metadata(_return)
+
+		if (self.type & MpEntryImage.TYPE_CDS_ITEM == MpEntryImage.TYPE_CDS_ITEM):
+		#
+			encapsulated_id = self.get_encapsulated_id()
+			if (encapsulated_id == _return.get_resource_id()): self._append_stream_content_metadata(_return)
+		#
 
 		return _return
 	#
@@ -135,9 +148,14 @@ Returns the UPnP content resources between offset and limit.
 
 		_return = MpEntry.get_content_list(self)
 
-		if (self.type & MpEntry.TYPE_CDS_ITEM == MpEntry.TYPE_CDS_ITEM):
+		if (self.type & MpEntryImage.TYPE_CDS_ITEM == MpEntryImage.TYPE_CDS_ITEM):
 		#
-			for resource in _return: self._append_stream_content_metadata(resource)
+			encapsulated_id = self.get_encapsulated_id()
+
+			for resource in _return:
+			#
+				if (encapsulated_id == resource.get_resource_id()): self._append_stream_content_metadata(resource)
+			#
 		#
 
 		return _return
@@ -157,7 +175,7 @@ offset and limit.
 
 		_return = MpEntry.get_content_list_of_type(self, _type)
 
-		if (self.type & MpEntry.TYPE_CDS_ITEM == MpEntry.TYPE_CDS_ITEM):
+		if (self.type & MpEntryImage.TYPE_CDS_ITEM == MpEntryImage.TYPE_CDS_ITEM):
 		#
 			for resource in _return: self._append_stream_content_metadata(resource)
 		#
@@ -180,7 +198,7 @@ client.
 
 		MpEntry._filter_metadata_of_didl_xml_node(self, xml_resource, xml_node_path)
 
-		if (self.get_type() & MpEntryImage.TYPE_CDS_ITEM == MpEntryImage.TYPE_CDS_ITEM and xml_resource.get_node(xml_node_path) != None):
+		if (self.get_type() & MpEntryImage.TYPE_CDS_ITEM == MpEntryImage.TYPE_CDS_ITEM and xml_resource.get_node(xml_node_path) is not None):
 		#
 			didl_fields = self.get_didl_fields()
 
@@ -205,6 +223,63 @@ Initialize an new encapsulated UPnP resource.
 		MpEntry._init_encapsulated_resource(self)
 	#
 
+	def _init_item_content(self):
+	#
+		"""
+Initializes the content of an UPnP CDS item entry.
+
+:return: (bool) True if successful
+:since:  v0.1.00
+		"""
+
+		_return = False
+
+		client = Client.load_user_agent(self.client_user_agent)
+		encapsulated_resource = self.load_encapsulated_resource()
+
+		if (Settings.get("mp_core_transform_images_on_server", True)
+		    and client.get("upnp_stream_image_resized", False)
+		    and encapsulated_resource.is_filesystem_resource()
+		    and Image().is_supported("transformation")
+		   ):
+		#
+			entry_data = self.get_data_attributes("width", "height")
+
+			transformed_image_type = client.get("upnp_stream_image_resized_type")
+			transformed_image_width = client.get("upnp_stream_image_resized_width")
+			transformed_image_height = client.get("upnp_stream_image_resized_height")
+
+			if (transformed_image_type is not None
+			    and transformed_image_width is not None
+			    and transformed_image_height is not None
+			    and ((entry_data['width'] is None or transformed_image_width < entry_data['width'])
+			         or (entry_data['height'] is None or transformed_image_height < entry_data['height'])
+			        )
+			   ):
+			#
+				camel_case_type = "".join([word.capitalize() for word in re.split("\\W", transformed_image_type.split("/")[0])])
+				transformed_image_class_name = "dNG.pas.data.upnp.resources.TransformedImage{0}Stream".format(camel_case_type)
+
+				transformed_image_resource = NamedLoader.get_instance(transformed_image_class_name, False)
+
+				if (transformed_image_resource is not None):
+				#
+					transformed_image_resource.set_transformed_source_path(encapsulated_resource.get_path())
+					transformed_image_resource.set_transformed_image_width(transformed_image_width)
+					transformed_image_resource.set_transformed_image_height(transformed_image_height)
+					transformed_image_resource.init_cds_id("upnp-transformed-image:///{0}".format(quote(encapsulated_resource.get_resource_id())))
+
+					self.content = [ transformed_image_resource ]
+					_return = True
+				#
+			#
+		#
+
+		if (not _return): _return = MpEntry._init_item_content(self)
+
+		return _return
+	#
+
 	def refresh_metadata(self):
 	#
 		"""
@@ -213,32 +288,43 @@ Refresh metadata associated with this MpEntryImage.
 :since: v0.1.00
 		"""
 
-		MpEntry.refresh_metadata(self)
-
-		encapsulated_resource = self.load_encapsulated_resource()
-
-		if ((not issubclass(Image, NotImplementedClass))
-		    and encapsulated_resource != None
-		    and encapsulated_resource.is_filesystem_resource()
-		    and encapsulated_resource.get_path() != None
-		   ):
+		with self:
 		#
-			image = Image()
-			metadata = (image.get_metadata() if (image.open_url(encapsulated_resource.get_id())) else None)
+			MpEntry.refresh_metadata(self)
 
-			if (isinstance(metadata, ImageMetadata)):
-			#
-				self.set_data_attributes(metadata = metadata.get_json(),
-				                         artist = metadata.get_artist(),
-				                         description = metadata.get_description(),
-				                         width = metadata.get_width(),
-				                         height = metadata.get_height(),
-				                         bpp = metadata.get_bpp(),
-				                         creator = metadata.get_producer()
-				                        )
+			encapsulated_resource = self.load_encapsulated_resource()
 
-				self.save()
-			#
+			if ((not issubclass(Image, NotImplementedClass))
+			    and encapsulated_resource is not None
+			    and encapsulated_resource.is_filesystem_resource()
+			    and encapsulated_resource.get_path() is not None
+			   ): self._refresh_image_metadata(encapsulated_resource.get_resource_id())
+		#
+	#
+
+	def _refresh_image_metadata(self, resource_url):
+	#
+		"""
+Refresh metadata associated with this MpEntryAudio.
+
+:since: v0.1.00
+		"""
+
+		image = Image()
+		metadata = (image.get_metadata() if (image.open_url(resource_url)) else None)
+
+		if (isinstance(metadata, ImageMetadata)):
+		#
+			self.set_data_attributes(metadata = metadata.get_json(),
+			                         artist = metadata.get_artist(),
+			                         description = metadata.get_description(),
+			                         width = metadata.get_width(),
+			                         height = metadata.get_height(),
+			                         bpp = metadata.get_bpp(),
+			                         creator = metadata.get_producer()
+			                        )
+
+			self.save()
 		#
 	#
 

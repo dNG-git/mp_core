@@ -31,63 +31,105 @@ https://www.direct-netware.de/redirect?licenses;gpl
 #echo(__FILEPATH__)#
 """
 
+# pylint: disable=import-error,no-name-in-module
+
+from math import ceil
+
+from dNG.pas.data.settings import Settings
+from dNG.pas.data.logging.log_line import LogLine
 from dNG.pas.data.upnp.resources.mp_entry import MpEntry
+from dNG.pas.database.condition_definition import ConditionDefinition
 from dNG.pas.database.transaction_context import TransactionContext
+from dNG.pas.runtime.value_exception import ValueException
 from dNG.pas.tasks.abstract_lrt_hook import AbstractLrtHook
 
-class ResourceRefreshMetadata(AbstractLrtHook):
+class ResourceDeleter(AbstractLrtHook):
 #
 	"""
-"ResourceRefreshMetadata" is responsible of refreshing the resource's
-metadata.
+"ResourceDeleter" deletes all database entries recursively for the given
+resource.
 
 :author:     direct Netware Group
 :copyright:  direct Netware Group - All rights reserved
 :package:    mp
 :subpackage: core
-:since:      v0.1.00
+:since:      v0.1.02
 :license:    https://www.direct-netware.de/redirect?licenses;gpl
              GNU General Public License 2
 	"""
 
-	def __init__(self, _id):
+	def __init__(self, resource = None):
 	#
 		"""
-Constructor __init__(ResourceRefreshMetadata)
+Constructor __init__(ResourceDeleter)
 
-:since: v0.1.00
+:param resource: UPnP resource
+
+:since: v0.1.02
 		"""
 
 		AbstractLrtHook.__init__(self)
 
-		self.encapsulating_id = _id
+		self.resource = resource
 		"""
-UPnP resource
+UPnP resource ID
 		"""
 
-		self.context_id = "dNG.pas.tasks.mp.ResourceRefreshMetadata"
+		self.context_id = "dNG.pas.tasks.mp.ResourceDeleter"
 	#
 
-	def _run_hook(self):
+	def _get_condition_definition(self):
+	#
+		"""
+Returns the condition definition instance used for identifying the root UPnP
+resource to be deleted.
+
+:return: (object) ConditionDefinition instance
+:since:  v0.1.02
+		"""
+
+		if (self.resource is None): raise ValueException("UPnP resource is invalid")
+
+		_return = ConditionDefinition()
+		_return.add_exact_match_condition("resource", self.resource)
+
+		return _return
+	#
+
+	def _run_hook(self, **kwargs):
 	#
 		"""
 Hook execution
 
-:since: v0.1.00
+:return: (mixed) Task result
+:since:  v0.1.02
 		"""
 
-		with TransactionContext():
-		#
-			encapsulating_resource = MpEntry.load_encapsulating_entry(self.encapsulating_id)
+		condition_definition = self._get_condition_definition()
+		_return = MpEntry.get_entries_count_with_condition(condition_definition)
 
-			if (encapsulating_resource != None):
-			#
-				encapsulating_resource.refresh_metadata()
-				encapsulating_resource.save()
+		limit = Settings.get("pas_database_delete_iterator_limit", 50)
+		entry_iterator_count = ceil(_return / limit)
 
-				if (self.log_handler != None): self.log_handler.info("mp.ResourceRefreshMetadata refreshed entry '{0}'", self.encapsulating_id, context = "mp_server")
+		LogLine.info("{0!r} removes {1:d} matches", self, _return, context = "mp_server")
+
+		for _ in range(0, entry_iterator_count):
+		#
+			with TransactionContext():
+			#
+				entries = MpEntry.load_entries_list_with_condition(condition_definition, limit = limit)
+
+				for entry in entries:
+				#
+					parent_entry = entry.load_parent()
+
+					if (isinstance(parent_entry, MpEntry)): parent_entry.remove_content(entry)
+					entry.delete()
+				#
 			#
 		#
+
+		return _return
 	#
 #
 

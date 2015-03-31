@@ -31,19 +31,25 @@ https://www.direct-netware.de/redirect?licenses;gpl
 #echo(__FILEPATH__)#
 """
 
+from time import time
+
+from dNG.pas.data.tasks.memory import Memory as MemoryTasks
+from dNG.pas.data.upnp.client import Client
 from dNG.pas.data.upnp.gena_event import GenaEvent
 from dNG.pas.data.upnp.resource import Resource
 from dNG.pas.data.upnp.update_id_registry import UpdateIdRegistry
 from dNG.pas.data.upnp.upnp_exception import UpnpException
 from dNG.pas.plugins.hook import Hook
+from dNG.pas.runtime.thread_lock import ThreadLock
 from .abstract_service import AbstractService
+from .feature_list_mixin import FeatureListMixin
 
 _py_filter = filter
 """
 Remapped filter builtin
 """
 
-class ContentDirectory(AbstractService):
+class ContentDirectory(FeatureListMixin, AbstractService):
 #
 	"""
 Implementation for "urn:schemas-upnp-org:service:ContentDirectory:1".
@@ -59,19 +65,33 @@ Implementation for "urn:schemas-upnp-org:service:ContentDirectory:1".
 
 	# pylint: disable=redefined-builtin,unused-argument
 
+	GENA_EVENT_MODERATED_DELTA = 0.2
+	"""
+Time between two GENA events
+	"""
+
 	def __init__(self):
 	#
 		"""
 Constructor __init__(ContentDirectory)
 
-:since: v0.1.03
+:since: v0.1.02
 		"""
 
 		AbstractService.__init__(self)
+		FeatureListMixin.__init__(self)
 
 		self.container_update_ids = { }
 		"""
 Container update IDs
+		"""
+		self.gena_moderated_timestamp = 0
+		"""
+Last UNIX timestamp of the moderated GENA event
+		"""
+		self._lock = ThreadLock()
+		"""
+Thread safety lock
 		"""
 	#
 
@@ -84,18 +104,18 @@ Returns the current UPnP SystemUpdateID value.
 :since:  v0.1.00
 		"""
 
-		if (self.log_handler != None): self.log_handler.debug("#echo(__FILEPATH__)# -{0!r}.browse({1}, {2}, {3}, {4:d}, {5:d}, {6})- (#echo(__LINE__)#)", self, object_id, browse_flag, filter, starting_index, requested_count, sort_criteria, context = "mp_server")
+		if (self.log_handler is not None): self.log_handler.debug("#echo(__FILEPATH__)# -{0!r}.browse({1}, {2}, {3}, {4:d}, {5:d}, {6})- (#echo(__LINE__)#)", self, object_id, browse_flag, filter, starting_index, requested_count, sort_criteria, context = "mp_server")
 		_return = UpnpException("pas_http_core_404", 701)
 
 		if (browse_flag == "BrowseDirectChildren"):
 		#
 			result = self._browse_tree(object_id, filter, starting_index, requested_count = requested_count, sort_criteria = sort_criteria)
-			if (result != None): _return = result
+			if (result is not None): _return = result
 		#
 		elif (browse_flag == "BrowseMetadata"):
 		#
 			result = self._get_metadata(object_id, filter)
-			if (result != None): _return = result
+			if (result is not None): _return = result
 		#
 
 		return _return
@@ -114,7 +134,7 @@ Returns the current UPnP SystemUpdateID value.
 
 		resource = Resource.load_cds_id(object_id, self.client_user_agent, self)
 
-		if (resource != None):
+		if (resource is not None):
 		#
 			if (_filter != "" and _filter != "*"):
 			#
@@ -143,11 +163,24 @@ Returns the current UPnP SystemUpdateID value.
 Returns the CSV list of UPnP ContainerUpdateIDs.
 
 :return: (str) CSV list of UPnP ContainerUpdateIDs
-:since:  v0.1.03
+:since:  v0.1.02
 		"""
 
 		ids = self.container_update_ids.copy()
 		return ",".join([ "{0},{1}".format(container_id, ids[container_id]) for container_id in ids ])
+	#
+
+	def get_feature_list(self):
+	#
+		"""
+Returns the list of supported UPnP ContentDirectory features.
+
+:return: (str) FeatureList XML document
+:since:  v0.1.02
+		"""
+
+		if (self.log_handler is not None): self.log_handler.debug("#echo(__FILEPATH__)# -{0!r}.get_feature_list()- (#echo(__LINE__)#)", self, context = "mp_server")
+		return self._get_feature_list("dNG.pas.upnp.service.ContentDirectory")
 	#
 
 	def _get_metadata(self, object_id, _filter = "*"):
@@ -163,7 +196,7 @@ Returns the current UPnP SystemUpdateID value.
 
 		resource = Resource.load_cds_id(object_id, self.client_user_agent, self)
 
-		if (resource != None):
+		if (resource is not None):
 		#
 			if (_filter != "" and _filter != "*"):
 			#
@@ -187,13 +220,26 @@ Returns the system-wide UPnP search capabilities available.
 :since:  v0.1.00
 		"""
 
-		if (self.log_handler != None): self.log_handler.debug("#echo(__FILEPATH__)# -{0!r}.get_search_capabilities()- (#echo(__LINE__)#)", self, context = "mp_server")
+		if (self.log_handler is not None): self.log_handler.debug("#echo(__FILEPATH__)# -{0!r}.get_search_capabilities()- (#echo(__LINE__)#)", self, context = "mp_server")
 		_return = UpnpException("pas_http_core_404", 701)
 
 		resource = Resource.load_cds_id("0", self.client_user_agent, self)
-		if (resource != None): _return = resource.get_search_capabilities()
+		if (resource is not None): _return = resource.get_search_capabilities()
 
 		return _return
+	#
+
+	def get_service_reset_token(self):
+	#
+		"""
+Returns the UPnP ServiceResetToken value.
+
+:return: (str) UPnP ServiceResetToken value
+:since:  v0.1.02
+		"""
+
+		if (self.log_handler is not None): self.log_handler.debug("#echo(__FILEPATH__)# -{0!r}.get_service_reset_token()- (#echo(__LINE__)#)", self, context = "mp_server")
+		return "0"
 	#
 
 	def get_sort_capabilities(self):
@@ -205,11 +251,11 @@ Returns the system-wide UPnP sort capabilities available.
 :since:  v0.1.00
 		"""
 
-		if (self.log_handler != None): self.log_handler.debug("#echo(__FILEPATH__)# -{0!r}.get_sort_capabilities()- (#echo(__LINE__)#)", self, context = "mp_server")
+		if (self.log_handler is not None): self.log_handler.debug("#echo(__FILEPATH__)# -{0!r}.get_sort_capabilities()- (#echo(__LINE__)#)", self, context = "mp_server")
 		_return = UpnpException("pas_http_core_404", 701)
 
 		resource = Resource.load_cds_id("0", self.client_user_agent, self)
-		if (resource != None): _return = resource.get_sort_capabilities()
+		if (resource is not None): _return = resource.get_sort_capabilities()
 
 		return _return
 	#
@@ -223,7 +269,22 @@ Returns the current UPnP SystemUpdateID value.
 :since:  v0.1.00
 		"""
 
-		return UpdateIdRegistry.get("upnp://{0}/system_update_id".format(self.get_udn()))
+		return UpdateIdRegistry.get("upnp://ContentDirectory-0/system_update_id")
+	#
+
+	def get_version(self):
+	#
+		"""
+Returns the UPnP service type version.
+
+:return: (str) Service type version
+:since:  v0.1.00
+		"""
+
+		client = Client.load_user_agent(self.client_user_agent)
+		is_versioning_supported = client.get("upnp_spec_versioning_supported", True)
+
+		return (AbstractService.get_version(self) if (is_versioning_supported) else 1)
 	#
 
 	def _handle_gena_registration(self, sid):
@@ -233,7 +294,7 @@ Handles the registration of an UPnP device at GENA with the given SID.
 
 :param sid: UPnP SID
 
-:since: v0.1.03
+:since: v0.1.02
 		"""
 
 		event = GenaEvent(GenaEvent.TYPE_PROPCHANGE)
@@ -260,14 +321,13 @@ Initializes a host service.
 :since:  v0.1.00
 		"""
 
-		self.spec_major = 1
-		self.spec_minor = 1
 		self.type = "ContentDirectory"
 		self.upnp_domain = "schemas-upnp-org"
-		self.version = "1"
+		self.version = "4"
 
-		if (service_id == None): service_id = "ContentDirectory"
+		if (service_id is None): service_id = "ContentDirectory"
 
+		Hook.register_weakref("dNG.mp.upnp.services.ContentDirectory.onSystemUpdateIdChanged", self._on_updated_id)
 		Hook.register_weakref("dNG.pas.upnp.Resource.onUpdateIdChanged", self._on_updated_id)
 
 		return AbstractService.init_host(self, device, service_id, configid)
@@ -358,33 +418,28 @@ Initializes the dict of host service variables.
 
 		self.variables = { "SearchCapabilities": { "is_sending_events": False,
 		                                           "is_multicasting_events": False,
-		                                           "type": "string",
-		                                           "value": ""
+		                                           "type": "string"
 		                                         },
 		                   "SortCapabilities": { "is_sending_events": False,
 		                                         "is_multicasting_events": False,
-		                                         "type": "string",
-		                                         "value": ""
+		                                         "type": "string"
 		                                       },
 		                   "SystemUpdateID": { "is_sending_events": True,
 		                                       "is_multicasting_events": False,
-		                                       "type": "ui4",
-		                                       "value": self.get_system_update_id()
+		                                       "type": "ui4"
 		                                     },
 		                   "ContainerUpdateIDs": { "is_sending_events": True,
 		                                           "is_multicasting_events": False,
 		                                           "type": "string",
-		                                           "value": self._get_container_update_ids()
+		                                           "value": ""
 		                                         },
 		                   "ServiceResetToken": { "is_sending_events": False,
 		                                          "is_multicasting_events": False,
-		                                          "type": "string",
-		                                          "value": ""
+		                                          "type": "string"
 		                                        },
 		                   "FeatureList": { "is_sending_events": False,
 		                                    "is_multicasting_events": False,
-		                                    "type": "string",
-		                                    "value": ""
+		                                    "type": "string"
 		                                  },
 		                   "A_ARG_TYPE_ObjectID": { "is_sending_events": False,
 		                                            "is_multicasting_events": False,
@@ -429,33 +484,103 @@ Initializes the dict of host service variables.
 	def _on_updated_id(self, params, last_return = None):
 	#
 		"""
-Called after an UPnP UpdateID value has been changed.
+Called for "dNG.mp.upnp.services.ContentDirectory.onSystemUpdateIdChanged"
+and "dNG.pas.upnp.Resource.onUpdateIdChanged"
+
+:param params: Parameter specified
+:param last_return: The return value from the last hook called.
 
 :return: (mixed) Return value
-:since:  v0.1.03
+:since:  v0.1.02
 		"""
 
 		if ("id" in params and "value" in params):
 		#
-			_id = "upnp://{0}/system_update_id".format(self.get_udn())
+			container_update_ids = ""
+			is_deliverable = False
+			moderated_time_delta = (self.gena_moderated_timestamp + ContentDirectory.GENA_EVENT_MODERATED_DELTA) - time()
 
-			if (params['id'] != _id):
+			if (moderated_time_delta <= 0):
+			# Thread safety
+				with self._lock:
+				#
+					moderated_time_delta = (self.gena_moderated_timestamp + ContentDirectory.GENA_EVENT_MODERATED_DELTA) - time()
+
+					is_deliverable = (moderated_time_delta <= 0)
+					if (is_deliverable): self.gena_moderated_timestamp = time()
+				#
 			#
-				self.container_update_ids[params['id']] = params['value']
-				UpdateIdRegistry.set(_id, "++")
+
+			if (params['id'] != "upnp://ContentDirectory-0/system_update_id"
+			    and isinstance(params.get("resource"), Resource)
+			    and params['resource'].get_type() & Resource.TYPE_CDS_CONTAINER == Resource.TYPE_CDS_CONTAINER
+			   ):
+			#
+				with self._lock:
+				#
+					self.container_update_ids[params['id']] = params['value']
+					UpdateIdRegistry.set("upnp://ContentDirectory-0/system_update_id", "++")
+
+					if (is_deliverable):
+					#
+						container_update_ids = self._get_container_update_ids()
+						self.container_update_ids.clear()
+					#
+				#
 			#
 
-			event = GenaEvent(GenaEvent.TYPE_PROPCHANGE)
+			if (is_deliverable):
+			#
+				event = GenaEvent(GenaEvent.TYPE_PROPCHANGE)
 
-			event.set_variables(ContainerUpdateIDs = self._get_container_update_ids(),
-			                    SystemUpdateID = self.get_system_update_id()
-			                   )
+				event.set_variables(ContainerUpdateIDs = container_update_ids,
+				                    SystemUpdateID = self.get_system_update_id()
+				                   )
 
-			event.set_usn(self.get_usn())
-			event.schedule()
+				event.set_usn(self.get_usn())
+				event.schedule()
+			#
+			else:
+			#
+				with self._lock:
+				#
+					memory_tasks = MemoryTasks.get_instance()
+
+					memory_tasks.remove("dNG.mp.upnp.services.ContentDirectory.onSystemUpdateIdChanged")
+
+					memory_tasks.add("dNG.mp.upnp.services.ContentDirectory.onSystemUpdateIdChanged",
+					                 "dNG.mp.upnp.services.ContentDirectory.onSystemUpdateIdChanged",
+					                 moderated_time_delta,
+					                 id = "upnp://ContentDirectory-0/system_update_id",
+					                 value = self.get_system_update_id()
+					                )
+				#
+			#
 		#
 
 		return last_return
+	#
+
+	def query_state_variable(self, var_name):
+	#
+		"""
+UPnP call for "QueryStateVariable".
+
+:param var_name: Variable to be returned
+
+:return: (mixed) Variable value
+:since:  v0.1.03
+		"""
+
+		_return = None
+
+		if (var_name == "ContainerUpdateIDs"): _return = self._get_container_update_ids()
+		elif (var_name == "SearchCapabilities"): _return = self.get_search_capabilities()
+		elif (var_name == "SortCapabilities"): _return = self.get_sort_capabilities()
+		elif (var_name == "SystemUpdateID"): _return = "{0:d}".format(self.get_system_update_id())
+
+		if (_return == None): raise UpnpException("pas_http_core_404", 404)
+		return _return
 	#
 
 	def search(self, container_id, search_criteria = "", filter = "*", starting_index = 0, requested_count = 0, sort_criteria = ""):
@@ -467,11 +592,11 @@ Returns the current UPnP SystemUpdateID value.
 :since:  v0.1.00
 		"""
 
-		if (self.log_handler != None): self.log_handler.debug("#echo(__FILEPATH__)# -{0!r}.search({1}, {2}, {3}, {4:d}, {5:d}, {6})- (#echo(__LINE__)#)", self, container_id, search_criteria, filter, starting_index, requested_count, sort_criteria, context = "mp_server")
+		if (self.log_handler is not None): self.log_handler.debug("#echo(__FILEPATH__)# -{0!r}.search({1}, {2}, {3}, {4:d}, {5:d}, {6})- (#echo(__LINE__)#)", self, container_id, search_criteria, filter, starting_index, requested_count, sort_criteria, context = "mp_server")
 
 		resource = Resource.load_cds_id(container_id, self.client_user_agent, self)
 
-		if (resource == None): _return = UpnpException("pas_http_core_404", 701)
+		if (resource is None): _return = UpnpException("pas_http_core_404", 701)
 		elif (not resource.is_supported("search_content")): _return = UpnpException("pas_http_core_501", 720)
 		else:
 		#

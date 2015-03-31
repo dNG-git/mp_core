@@ -3,8 +3,18 @@
 
  "upnp_custom_mimetypes": {
   "video/mp2t": "video/mpeg",
+  "video/x-matroska": "video/x-mkv",
   "video/x-msvideo": "video/avi"
  },
 
- "upnp_stream_url_use_filter": true
+ "upnp_didl_cds2_container_classes_supported": false,
+ "upnp_didl_title_mp_entry_pvr_recording_format": "[if:upnp:seriesTitle !=][rewrite]upnp:seriesTitle[/rewrite] - [/if][rewrite]dc:title[/rewrite]",
+
+ "upnp_pvr_scheduled_recording_supported": false,
+ "upnp_spec_versioning_supported": false,
+
+ "upnp_stream_image_resized": true,
+ "upnp_stream_image_resized_type": "jpeg",
+ "upnp_stream_image_resized_width": 1920,
+ "upnp_stream_image_resized_height": 1080
 }

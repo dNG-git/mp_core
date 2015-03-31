@@ -138,9 +138,9 @@ Action for "delete"
 		L10n.init("mp_core")
 
 		session = self.request.get_session()
-		user_profile = (None if (session == None) else session.get_user_profile())
+		user_profile = (None if (session is None) else session.get_user_profile())
 
-		if (user_profile == None
+		if (user_profile is None
 		    or (not user_profile.is_type("ad"))
 		   ): raise TranslatableError("core_access_denied", 403)
 
@@ -150,7 +150,7 @@ Action for "delete"
 		if (self.response.is_supported("html_css_files")): self.response.add_theme_css_file("mini_default_sprite.min.css")
 
 		Link.set_store("servicemenu",
-		               Link.TYPE_RELATIVE,
+		               Link.TYPE_RELATIVE_URL,
 		               L10n.get("core_back"),
 		               { "__query__": re.sub("\\_\\_\\w+\\_\\_", "", source_iline) },
 		               icon = "mini-default-back",
@@ -198,9 +198,9 @@ Action for "edit"
 		L10n.init("mp_core")
 
 		session = self.request.get_session()
-		user_profile = (None if (session == None) else session.get_user_profile())
+		user_profile = (None if (session is None) else session.get_user_profile())
 
-		if (user_profile == None
+		if (user_profile is None
 		    or (not user_profile.is_type("ad"))
 		   ): raise TranslatableError("core_access_denied", 403)
 
@@ -210,7 +210,7 @@ Action for "edit"
 		if (self.response.is_supported("html_css_files")): self.response.add_theme_css_file("mini_default_sprite.min.css")
 
 		Link.set_store("servicemenu",
-		               Link.TYPE_RELATIVE,
+		               Link.TYPE_RELATIVE_URL,
 		               L10n.get("core_back"),
 		               { "__query__": re.sub("\\_\\_\\w+\\_\\_", "", source_iline) },
 		               icon = "mini-default-back",
@@ -317,16 +317,16 @@ Action for "new"
 		L10n.init("mp_core")
 
 		session = self.request.get_session()
-		user_profile = (None if (session == None) else session.get_user_profile())
+		user_profile = (None if (session is None) else session.get_user_profile())
 
-		if (user_profile == None
+		if (user_profile is None
 		    or (not user_profile.is_type("ad"))
 		   ): raise TranslatableError("core_access_denied", 403)
 
 		if (self.response.is_supported("html_css_files")): self.response.add_theme_css_file("mini_default_sprite.min.css")
 
 		Link.set_store("servicemenu",
-		               Link.TYPE_RELATIVE,
+		               Link.TYPE_RELATIVE_URL,
 		               L10n.get("core_back"),
 		               { "__query__": re.sub("\\_\\_\\w+\\_\\_", "", source_iline) },
 		               icon = "mini-default-back",
@@ -381,8 +381,8 @@ Action for "new"
 			resource_filepath = path.abspath(InputFilter.filter_control_chars(form.get_value("mresource_filepath")))
 			resource_url = "{0}{1}".format(protocol, quote(resource_filepath))
 
-			mp_entry = MpEntry.load_encapsulating_entry(resource_url)
-			if (mp_entry == None): raise TranslatableError("core_unknown_error")
+			mp_entry = MpEntry.load_resource(resource_url)
+			if (mp_entry is None): raise TranslatableException("core_unknown_error")
 
 			mp_entry_resource_type = InputFilter.filter_control_chars(form.get_value("mresource_type"))
 			mp_entry_mimetype = "text/directory"
@@ -390,8 +390,6 @@ Action for "new"
 			if (mp_entry_resource_type == "audio"): mp_entry_mimetype = "text/x-directory-upnp-audio"
 			elif (mp_entry_resource_type == "image"): mp_entry_mimetype = "text/x-directory-upnp-image"
 			elif (mp_entry_resource_type == "video"): mp_entry_mimetype = "text/x-directory-upnp-video"
-
-			cid_d = None
 
 			mp_entry_data = { "time_sortable": time(),
 			                  "title": mp_entry_title,

@@ -12,14 +12,14 @@ hr {
 
 small { font-size: 0.75em }
 
-.pagecontent_box { overflow: inherit; border-radius: 0.2em }
+.pagecontent_box { overflow: auto; border-radius: 3px }
 
 .pagecontent_box_infoblock {
-	display: inline-block; clear: right; float: right; margin: 0 0 0.2em 0.2em;
+	display: inline-block; clear: right; float: right; margin: 0 0 3px 3px;
 	white-space: nowrap;
 
 	div {
-		display: inline-block; padding: 0.4em; background-color: $lighter_grey; border: 1px solid $darker_grey;
+		display: inline-block; padding: 6px; background-color: $lighter_grey; border: 1px solid $darker_grey; border-radius: 3px;
 		background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, rgba(#{$neon_rgba}, 0.1)), color-stop(1, rgba(#{$lighter_grey_rgba}, 0.5)));
 		background-image: -o-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
 		background-image: -moz-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
@@ -36,12 +36,12 @@ small { font-size: 0.75em }
 }
 
 .pagecontent_datalinker_parent_box {
-	clear: both; padding: 0.4em; background-color: $light_grey; border: 1px solid $dark_grey;
+	clear: both; padding: 6px; background-color: $light_grey; border: 1px solid $dark_grey;
 	font-weight: bold
 }
 
 .pagecontent_datalinker_sub_entries_box {
-	clear: right; float: right; width: 35%; padding: 0.4em; background-color: $lighter_grey; border: 1px solid $darker_grey;
+	clear: right; float: right; width: 35%; padding: 6px; background-color: $lighter_grey; border: 1px solid $darker_grey;
 	background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, rgba(#{$neon_rgba}, 0.1)), color-stop(1, rgba(#{$lighter_grey_rgba}, 0.5)));
 	background-image: -o-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
 	background-image: -moz-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
@@ -50,7 +50,7 @@ small { font-size: 0.75em }
 	background-image: linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
 
 	h1 {
-		margin: 1em inherit; border-bottom: 1px $darker_grey solid;
+		margin: 14px inherit; border-bottom: 1px $darker_grey solid;
 		font-size: 1em
 	}
 }
@@ -63,7 +63,7 @@ small { font-size: 0.75em }
 }
 
 .pagecontent_highlight_box {
-	padding: 0.4em; background-color: $light_neon; border: 1px solid $darker_grey;
+	padding: 6px; background-color: $light_neon; border: 1px solid $darker_grey;
 	background-image: -webkit-gradient(linear, left top, right bottom,
 		color-stop(0.25, rgba(#{$white_rgba}, 0.2)), color-stop(0.25, transparent),
 		color-stop(0.5, transparent), color-stop(0.5, rgba(#{$white_rgba}, 0.2)),
@@ -90,10 +90,10 @@ small { font-size: 0.75em }
 }
 
 .pagecontent_list_entry {
-	margin: 0.75em 0; padding: 0.4em; border: 1px solid $darker_grey;
+	margin: 11px 0; padding: 6px; border: 1px solid $darker_grey;
 
 	h1, h2, h3, h4, h5, h6 {
-		margin: 1em inherit;
+		margin: 14px inherit;
 		font-size: 1em
 	}
 }
@@ -104,7 +104,7 @@ small { font-size: 0.75em }
 }
 
 .pagecontent_page_navigation {
-	clear: both; padding: 0.4em; background-color: $light_grey; border: 1px solid $dark_grey;
+	clear: both; padding: 6px; background-color: $light_grey; border: 1px solid $dark_grey;
 
 	section & { font-size: 0.75em }
 
@@ -113,13 +113,13 @@ small { font-size: 0.75em }
 		vertical-align: middle; white-space: nowrap
 	}
 
-	li:not(:last-child)::after { margin: 0 0.3em; content: "•" }
+	li:not(:last-child)::after { margin: 0 4px; content: "•" }
 
 	ul { display: inline-block; margin: 0; padding: 0; list-style: none }
 }
 
 .pagecontent_quote_box {
-	position: relative; padding: 0.4em 0.4em 0.4em 1.4em; background-color: $light_grey; border: 1px solid $dark_grey;
+	position: relative; padding: 6px 6px 6px 20px; background-color: $light_grey; border: 1px solid $dark_grey;
 
 	&::before, &::after {
 		position: absolute; top: 0; left: 0.4em; margin-left: 9px; border: 9px solid transparent;
@@ -131,7 +131,7 @@ small { font-size: 0.75em }
 }
 
 .pagecontent_user_above_wrote {
-	padding: 0.4em; background-color: $grey; border: 1px solid $dark_grey;
+	padding: 6px; background-color: $grey; border: 1px solid $dark_grey;
 
 	&::before, &::after {
 		position: absolute; top: 0; left: 0.4em; margin-left: 9px; border: 9px solid transparent;
@@ -146,10 +146,10 @@ small { font-size: 0.75em }
 }
 
 .pagecontent_user_bar {
-	clear: left; margin: 1em 0;
+	clear: left; margin: 14px 0;
 
 	& > div {
-		display: inline-block; min-width: 25%; padding: 0.4em; background-color: $lighter_grey; border: 1px solid $dark_grey;
+		display: inline-block; min-width: 25%; padding: 6px; background-color: $lighter_grey; border: 1px solid $dark_grey; border-radius: 3px;
 		background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, rgba(#{$neon_rgba}, 0.1)), color-stop(1, rgba(#{$lighter_grey_rgba}, 0.5)));
 		background-image: -o-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
 		background-image: -moz-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
@@ -160,45 +160,43 @@ small { font-size: 0.75em }
 }
 
 .pagecontent_user_quote {
-	margin: 1em 0; position: relative;
+	margin: 14px 0; position: relative;
 
 	h1, h2, h3, h4, h5, h6 {
-		margin: 1em inherit;
+		margin: 14px inherit;
 		font-size: 1em
 	}
 }
 
-.pageform_button, .pageoptionsbar_button { padding: 0.4em; background-color: $lighter_grey; border: 1px solid $darker_grey; border-radius: 0.2em }
+.pageform_button, .pageoptionsbar_button { padding: 6px; background-color: $lighter_grey; border: 1px solid $darker_grey; border-radius: 3px }
 
 .pageform_button {
-	margin: 0.75em;
+	margin: 11px;
 	font-size: 1.2em
 }
 
 .pageform_element { overflow: auto; border-bottom: 1px solid $grey; box-shadow: 0 2px 5px -5px rgba(0, 0, 0, 0.2) }
 .pageform_element .pageform_error { display: inline-block; margin-top: 10px }
 
-.pageform_element_radio .pageform_label { padding: 0.6% 0.4% }
-
-.pageform_error { clear: both; padding: 0.25%; background-color: $light_red; border: 1px solid $red; border-radius: 0.2em }
+.pageform_error { clear: both; padding: 3px; background-color: $light_red; border: 1px solid $red; border-radius: 3px }
 
 .pageform_field {
-	display: inline-block; width: 73%; margin: 0; padding: 0.75em 0.3%;
+	display: inline-block; float: right; width: 74%; margin: 0; padding: 11px 0;
 	text-align: center;
 
 	& > :first-child { margin-top: 0 }
 	& > :last-child { margin-bottom: 0 }
 
 	article {
-		border: 1px solid $light_grey; border-radius: 0.2em;
+		border: 1px solid $light_grey; border-radius: 3px;
 		text-align: left
 	}
 }
 
-.pageform_input_focused { background-color: $lighter_grey; border-color: $neon !important; box-shadow: 0 0 0.2em 0.2em $light_neon }
+.pageform_input_focused { background-color: $lighter_grey; border-color: $neon !important; box-shadow: 0 0 3px 3px $light_neon }
 
 .pageform_label {
-	display: inline-block; width: 25%; margin: 0; padding: 0.75em 0.4%; font-weight: bold;
+	display: inline-block; width: 25%; margin: 0; padding: 11px 0; font-weight: bold;
 	vertical-align: top; text-align: right
 }
 
@@ -210,17 +208,17 @@ small { font-size: 0.75em }
 .pageform_radio_label { vertical-align: middle }
 
 .pageform_textnpassword {
-	padding: 0.4%; background-color: $lighter_grey; border: 1px solid $dark_grey; border-bottom-color: $darkest_grey; border-radius: 0.2em;
+	padding: 0.4em; background-color: $lighter_grey; border: 1px solid $dark_grey; border-bottom-color: $darkest_grey; border-radius: 3px;
 	font-size: 1em
 }
 
 .pageform_select {
-	margin: 0.2%; padding: 0.2%; background-color: $lighter_grey; border: 1px solid $dark_grey; border-radius: 0.2em;
+	margin: 3px; padding: 0.2em; background-color: $lighter_grey; border: 1px solid $dark_grey; border-radius: 3px;
 	font-size: 1em
 }
 
 .pagemainmenu {
-	margin: 0 5%; padding: 0.75em; background-color: $mainmenu_dark_grey; border-left: 1px solid $neon; border-right: 1px solid $neon; border-bottom: 1px solid $neon; box-shadow: 0 1.2em 1em -1em rgba(#{$neon_rgba}, 0.8);
+	margin: 0 14px; padding: 7px; background-color: $mainmenu_dark_grey; border-left: 1px solid $neon; border-right: 1px solid $neon; border-bottom: 1px solid $neon; box-shadow: 0 16px 14px -14px rgba(#{$neon_rgba}, 0.8);
 	font-size: 1.1em; font-weight: bold; color: $light_grey;
 
 	a {
@@ -237,21 +235,21 @@ small { font-size: 0.75em }
 		vertical-align: middle; white-space: nowrap
 	}
 
-	li:not(:last-child)::after { margin: 0 0.3em; content: "•" }
+	li:not(:last-child)::after { margin: 0 4px; content: "•" }
 
 	ul { margin: 0; padding: 0; list-style: none }
 }
 
-.pagenavbox { padding: 0.4%; border: 1px solid $light_steel }
+.pagenavbox { padding: 5px; border: 1px solid $light_steel }
 
 .pagenavtask { text-align: center; font-weight: bold }
 
-.pagenotification_error { padding: 0.4%; background-color: $light_red; border: 1px solid $red; border-radius: 0.2em }
-.pagenotification_info { padding: 0.4%; background-color: $light_green; border: 1px solid $green; border-radius: 0.2em }
+.pagenotification_error { padding: 5px; background-color: $light_red; border: 1px solid $red; border-radius: 3px }
+.pagenotification_info { padding: 5px; background-color: $light_green; border: 1px solid $green; border-radius: 3px }
 
 .pageoptionsbar {
 	a {
-		padding: 0.25em; background-color: $lighter_grey; border: 1px solid $grey; border-radius: 0.2em;
+		padding: 4px; background-color: $lighter_grey; border: 1px solid $grey; border-radius: 3px;
 		font-size: 1em;
 
 		&:link, &:active, &:visited, &:hover, &:focus { text-decoration: none }
@@ -262,10 +260,10 @@ small { font-size: 0.75em }
 		vertical-align: top
 	}
 
-	li > a, .pageoptionsbar li > span { display: block; margin: 0.25em }
+	li > a, .pageoptionsbar li > span { display: block; margin: 4px }
 
 	ul {
-		z-index: 124; margin: 0; padding: 0.25em; background-color: $grey; border: 1px solid $darker_grey; border-radius: 0.2em;
+		z-index: 124; margin: 0; padding: 4px; background-color: $grey; border: 1px solid $darker_grey; border-radius: 3px;
 		list-style: none inside none
 	}
 }
@@ -273,15 +271,15 @@ small { font-size: 0.75em }
 .pageoptionsbar_button { z-index: 123 }
 .pageoptionsbar_button:link, .pageoptionsbar_button:active, .pageoptionsbar_button:visited, .pageoptionsbar_button:hover, .pageoptionsbar_button:focus { text-decoration: none }
 
-.pageoptionsbar_left { display: inline-block; float: left; margin-right: 0.25em }
-.pageoptionsbar_right { display: inline-block; float: right; margin-left: 0.25em }
+.pageoptionsbar_left { display: inline-block; float: left; margin-right: 4px }
+.pageoptionsbar_right { display: inline-block; float: right; margin-left: 4px }
 .pageoptionsbar_widget li { display: block }
 
 .pageoptionsblock {
 	a:first-line { font-weight: bold; text-decoration: underline }
 
 	img {
-		margin: 0 1em 1em 0;
+		margin: 0 14px 14px 0;
 		float: left
 	}
 
@@ -291,7 +289,7 @@ small { font-size: 0.75em }
 	}
 
 	li > a, li > span {
-		display: block; margin: 0.3em; padding: 0.4em; border: 1px solid $lighter_grey; border-radius: 0.5em;
+		display: block; margin: 4px; padding: 6px; border: 1px solid $lighter_grey; border-radius: 7px;
 		overflow: auto; text-decoration: none
 	}
 
@@ -299,7 +297,7 @@ small { font-size: 0.75em }
 }
 
 .pageservicemenu {
-	clear: both; margin: 1% 0; border: 1px solid $dark_grey; border-radius: 0.2em;
+	clear: both; margin: 10px 0; border: 1px solid $dark_grey; border-radius: 3px;
 
 	a {
 		display: inline-block;
@@ -309,7 +307,7 @@ small { font-size: 0.75em }
 	}
 
 	img {
-		margin: 0 0.2em 0.2em 0;
+		margin: 0 3px 3px 0;
 		vertical-align: middle
 	}
 
@@ -318,30 +316,35 @@ small { font-size: 0.75em }
 		vertical-align: top
 	}
 
-	li:not(:last-child)::after { margin-right: 0.3em; content: ", " }
+	li:not(:last-child)::after { margin-right: 4px; content: ", " }
 
 	ul { position: relative; margin: 0; padding: 0; list-style: none inside none }
 }
 
 .pageservicemenu_p {
-	padding: 0.2em 0.2em 0 0.2em;
+	padding: 3px 3px 0 3px;
 	text-align: left
 }
 
 .pageservicemenu_s {
-	clear: both; padding: 0.2em;
+	clear: both; padding: 3px;
 	text-align: right; font-size: 0.8em
 }
 
 .pagetable {
-	clear: both; border-radius: 0.2em;
+	clear: both; border-radius: 3px;
 
-	td, th { padding: 0.4em; text-align: left; vertical-align: top }
+	tbody {
+		& > :first-child { border-top-width: 6px }
+		& > :last-child { border-bottom-width: 6px }
+	}
+
+	td, th { padding: 6px; text-align: left; vertical-align: top }
 	td > :first-child, th > :first-child { margin-top: 0 }
 	td > :last-child, th > :last-child { margin-bottom: 0 }
 
 	td > h1, td > h2, td > h3, td > h4, td > h5, td > h6 {
-		margin: 1em inherit;
+		margin: 14px inherit;
 		font-size: 1.1em
 	}
 
@@ -357,16 +360,13 @@ small { font-size: 0.75em }
 	}
 
 	thead, tr, tfoot { border: 1px solid $darker_grey }
-	thead { border-bottom-width: 0.4em }
-
-	tfoot { border-top-width: 0.4em }
 }
 
 .pageurl_requirements_unsupported { color: $darker_grey }
 
 @media only screen and (max-width: 46em) {
 	.pagecontent_box_infoblock {
-		display: block; clear: both; float: none; margin: 0.2em 0; padding: 0.2em; background-color: $lighter_grey; border: 1px solid $darker_grey; border-radius: 0.2em;
+		display: block; clear: both; float: initial; margin: 3px 0; padding: 3px; background-color: $lighter_grey; border: 1px solid $darker_grey; border-radius: 3px;
 		background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, rgba(#{$neon_rgba}, 0.1)), color-stop(1, rgba(#{$lighter_grey_rgba}, 0.5)));
 		background-image: -o-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
 		background-image: -moz-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
@@ -378,10 +378,10 @@ small { font-size: 0.75em }
 		div { background-color: $lighter_grey; background-image: none }
 	}
 
-	.pageform_element { padding: 2% 0 }
+	.pageform_element { padding: 6px 0 }
 
 	.pageform_field {
-		display: block; width: inherit;
+		display: block; float: initial; width: inherit;
 		text-align: left
 	}
 
@@ -410,35 +410,39 @@ small { font-size: 0.75em }
 	}
 
 	.pagetable_responsive {
-		margin: 0.4em 0;
+		margin: 6px 0;
 
-		tr { border-top: 1px solid $darker_grey; border-bottom: 1px solid $darker_grey }
+		tbody > tr {
+			border-top: 1px solid $darker_grey; border-bottom: 1px solid $darker_grey;
 
-		th { display: none }
+			& > td {
+				display: block; width: inherit;
+				-webkit-column-span: all;
+				column-span: all;
+				text-align: left !important;
 
-		td {
-			display: block; width: inherit;
-			text-align: left !important;
-
-			&::before {
-				display: block; margin: 0 -0.3em 0.2em -0.3em; padding: 0 0.3em 0.1em 0.3em; border-bottom: 1px solid $neon;
-				background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, rgba(#{$grey_rgba}, 0)), color-stop(1, $light_neon));
-				background-image: -o-linear-gradient(rgba(#{$grey_rgba}, 0) 0%, $light_neon 100%);
-				background-image: -moz-linear-gradient(rgba(#{$grey_rgba}, 0) 0%, $light_neon 100%);
-				background-image: -webkit-linear-gradient(rgba(#{$grey_rgba}, 0) 0%, $light_neon 100%);
-				background-image: -ms-linear-gradient(rgba(#{$grey_rgba}, 0) 0%, $light_neon 100%);
-				background-image: linear-gradient(rgba(#{$grey_rgba}, 0) 0%, $light_neon 100%);
-				font-weight: bold; font-size: 1.1em; content: attr(data-th) ": "
+				&::before {
+					display: block; margin: 0 -4px 3px -4px; padding: 0 4px 1px 4px; border-bottom: 1px solid $neon;
+					background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, rgba(#{$grey_rgba}, 0)), color-stop(1, $light_neon));
+					background-image: -o-linear-gradient(rgba(#{$grey_rgba}, 0) 0%, $light_neon 100%);
+					background-image: -moz-linear-gradient(rgba(#{$grey_rgba}, 0) 0%, $light_neon 100%);
+					background-image: -webkit-linear-gradient(rgba(#{$grey_rgba}, 0) 0%, $light_neon 100%);
+					background-image: -ms-linear-gradient(rgba(#{$grey_rgba}, 0) 0%, $light_neon 100%);
+					background-image: linear-gradient(rgba(#{$grey_rgba}, 0) 0%, $light_neon 100%);
+					font-weight: bold; font-size: 1.1em; content: attr(data-th) ": "
+				}
 			}
 		}
+
+		.pagetable_header_row { display: none }
 	}
 }
 
 @media only screen and (min-width: 46em) and (max-width: 62em) {
-	.pageform_element { padding: 1% 0 }
+	.pageform_element { padding: 3px 0 }
 
 	.pageform_field {
-		display: block; width: inherit;
+		display: block; float: initial; width: inherit;
 		text-align: left
 	}
 
@@ -450,12 +454,12 @@ small { font-size: 0.75em }
 	.pageoptionsblock li { width: 50%; margin: 0; padding: 0 }
 
 	.pageservicemenu_p {
-		padding: 0.1em 0.1em 0 0.1em;
+		padding: 1px 1px 0 1px;
 		text-align: center
 	}
 
 	.pageservicemenu_s {
-		padding: 0.1em;
+		padding: 1px;
 		text-align: center
 	}
 }

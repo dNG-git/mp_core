@@ -31,9 +31,9 @@ https://www.direct-netware.de/redirect?licenses;gpl
 #echo(__FILEPATH__)#
 """
 
-from .abstract_dlna_http_stream import AbstractDlnaHttpStream
+from .abstract_thumbnail import AbstractThumbnail
 
-class ImageJpegThumbnail(AbstractDlnaHttpStream):
+class ImageJpegThumbnail(AbstractThumbnail):
 #
 	"""
 "ImageJpegThumbnail" represents an UPnP thumbnail object with the mime type
@@ -48,7 +48,33 @@ class ImageJpegThumbnail(AbstractDlnaHttpStream):
              GNU General Public License 2
 	"""
 
-	pass
+	def __init__(self):
+	#
+		"""
+Constructor __init__(ImageJpegThumbnail)
+
+:since: v0.1.00
+		"""
+
+		AbstractThumbnail.__init__(self)
+
+		self.mimetype = "image/jpeg"
+
+		self.transformed_image_height = 160
+		self.transformed_image_width = 160
+	#
+
+	def get_dlna_org_pn(self):
+	#
+		"""
+Returns the DLNA "ORG_PN" value of the transformed image.
+
+:return: (str) DLNA "ORG_PN" value
+:since:  v0.1.02
+		"""
+
+		return "JPEG_TN"
+	#
 #
 
 ##j## EOF

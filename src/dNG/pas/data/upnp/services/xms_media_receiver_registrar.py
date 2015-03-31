@@ -31,9 +31,12 @@ https://www.direct-netware.de/redirect?licenses;gpl
 #echo(__FILEPATH__)#
 """
 
+import socket
+
 from dNG.pas.controller.abstract_request import AbstractRequest
+from dNG.pas.data.upnp.gena_event import GenaEvent
 from dNG.pas.data.upnp.upnp_exception import UpnpException
-from dNG.pas.module.named_loader import NamedLoader
+from dNG.pas.net.upnp.control_point import ControlPoint
 from .abstract_service import AbstractService
 
 class XMSMediaReceiverRegistrar(AbstractService):
@@ -52,6 +55,29 @@ Implementation for "urn:microsoft.com:service:X_MS_MediaReceiverRegistrar:1".
 
 	# pylint: disable=unused-argument
 
+	def _handle_gena_registration(self, sid):
+	#
+		"""
+Handles the registration of an UPnP device at GENA with the given SID.
+
+:param sid: UPnP SID
+
+:since: v0.1.02
+		"""
+
+		event = GenaEvent(GenaEvent.TYPE_PROPCHANGE)
+
+		event.set_variables(AuthorizationDeniedUpdateID = 1,
+		                    AuthorizationGrantedUpdateID = 1,
+		                    ValidationRevokedUpdateID = 1,
+		                    ValidationSucceededUpdateID = 1
+		                   )
+
+		event.set_sid(sid)
+		event.set_usn(self.get_usn())
+		event.schedule()
+	#
+
 	def init_host(self, device, service_id = None, configid = None):
 	#
 		"""
@@ -65,13 +91,11 @@ Initializes a host service.
 :since:  v0.1.00
 		"""
 
-		self.spec_major = 1
-		self.spec_minor = 1
 		self.type = "X_MS_MediaReceiverRegistrar"
 		self.upnp_domain = "microsoft.com"
 		self.version = "1"
 
-		if (service_id == None): service_id = "X_MS_MediaReceiverRegistrar"
+		if (service_id is None): service_id = "X_MS_MediaReceiverRegistrar"
 		return AbstractService.init_host(self, device, service_id, configid)
 	#
 
@@ -154,25 +178,41 @@ Initializes the dict of host service variables.
 	def is_authorized(self, device_id = ""):
 	#
 		"""
-Returns true for all devices previously processed.
+Returns true for all allowed devices or if the given device ID is matched.
 
-:return: (int) True if the device is known
+:return: (mixed) True if the device is known; UpnpException if the source
+         can not be identified
 :since:  v0.1.00
 		"""
 
-		if (self.log_handler != None): self.log_handler.debug("#echo(__FILEPATH__)# -{0!r}.is_authorized({1})- (#echo(__LINE__)#)", self, device_id, context = "mp_server")
+		if (self.log_handler is not None): self.log_handler.debug("#echo(__FILEPATH__)# -{0!r}.is_authorized({1})- (#echo(__LINE__)#)", self, device_id, context = "mp_server")
 		_return = UpnpException("pas_http_core_403", 801)
 
-		upnp_control_point = NamedLoader.get_singleton("dNG.pas.net.upnp.ControlPoint")
+		upnp_control_point = ControlPoint.get_instance()
 
 		if (device_id == ""):
 		#
 			request = AbstractRequest.get_instance()
-			client_host = (None if (request == None) else request.get_client_host())
+			client_host = (None if (request is None) else request.get_client_host())
 
-			if (client_host != None): _return = (upnp_control_point.get_rootdevice_for_host(client_host) != None)
+			if (client_host is not None):
+			#
+				_return = False
+				ip_address_list = socket.getaddrinfo(client_host, None, socket.AF_UNSPEC, 0, socket.IPPROTO_TCP)
+
+				for ip_address_data in ip_address_list:
+				#
+					ip = ip_address_data[4][0]
+
+					if (upnp_control_point.is_ip_allowed(ip)):
+					#
+						_return = True
+						break
+					#
+				#
+			#
 		#
-		else: _return = (upnp_control_point.get_rootdevice(XMSMediaReceiverRegistrar.get_identifier(device_id)) != None)
+		else: _return = (upnp_control_point.get_rootdevice(XMSMediaReceiverRegistrar.get_identifier(device_id)) is not None)
 
 		return _return
 	#
@@ -186,7 +226,7 @@ Returns true for all devices previously processed.
 :since:  v0.1.00
 		"""
 
-		if (self.log_handler != None): self.log_handler.debug("#echo(__FILEPATH__)# -{0!r}.is_validated({1})- (#echo(__LINE__)#)", self, device_id, context = "mp_server")
+		if (self.log_handler is not None): self.log_handler.debug("#echo(__FILEPATH__)# -{0!r}.is_validated({1})- (#echo(__LINE__)#)", self, device_id, context = "mp_server")
 		return (False if (self.is_authorized(device_id)) else UpnpException("pas_http_core_403", 801))
 	#
 
@@ -199,8 +239,29 @@ Returns true for all devices previously processed.
 :since:  v0.1.00
 		"""
 
-		if (self.log_handler != None): self.log_handler.debug("#echo(__FILEPATH__)# -{0!r}.register_device()- (#echo(__LINE__)#)", self, context = "mp_server")
+		if (self.log_handler is not None): self.log_handler.debug("#echo(__FILEPATH__)# -{0!r}.register_device()- (#echo(__LINE__)#)", self, context = "mp_server")
 		return UpnpException("pas_http_core_500", 501)
+	#
+
+	def query_state_variable(self, var_name):
+	#
+		"""
+UPnP call for "QueryStateVariable".
+
+:param var_name: Variable to be returned
+
+:return: (mixed) Variable value
+:since:  v0.1.03
+		"""
+
+		if (var_name not in ( "AuthorizationGrantedUpdateID",
+		                      "AuthorizationDeniedUpdateID",
+		                      "ValidationRevokedUpdateID",
+		                      "ValidationSucceededUpdateID"
+		                    )
+		   ): raise UpnpException("pas_http_core_404", 404)
+
+		return "1"
 	#
 #
 

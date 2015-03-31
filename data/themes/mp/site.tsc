@@ -60,7 +60,7 @@ td:last-child, th:last-child { border-right: none }
 
 .designcopyright a, .designcopyright a:link, .designcopyright a:active, .designcopyright a:visited, .designcopyright a:hover, .designcopyright a:focus { color: #1de1bd }
 
-.designheadercontent { margin: 1em 0 }
+.designheadercontent { margin: 14px 0 }
 .designheadercontent aside { display: inline }
 
 .designheaderlogo { width: 156px; height: 150px; float: right; background-image: url([rewrite:settings]http_path_mmedia_versioned[/rewrite]/themes/mp/design_01.png) }
@@ -68,7 +68,7 @@ td:last-child, th:last-child { border-right: none }
 .designheadertitle { font-size: 1.3em }
 
 .designpage {
-	margin: 0 5%; padding: 1%; background-color: #cacaca; border-left: 1px solid #1de1bd; border-right: 1px solid #1de1bd; border-bottom: 1px solid #1de1bd; border-bottom-left-radius: 0.2em; border-bottom-right-radius: 0.2em; box-shadow: 0 1.2em 1em -1em rgba(17, 225, 189, 0.8);
+	margin: 0 14px; padding: 10px; background-color: #cacaca; border-left: 1px solid #1de1bd; border-right: 1px solid #1de1bd; border-bottom: 1px solid #1de1bd; border-bottom-left-radius: 3px; border-bottom-right-radius: 3px; box-shadow: 0 16px 14px -14px rgba(17, 225, 189, 0.8);
 	background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #cacaca), color-stop(1, #c0c0c0));
 	background-image: -o-linear-gradient(#cacaca 0%, #c0c0c0 100%);
 	background-image: -moz-linear-gradient(#cacaca 0%, #c0c0c0 100%);
@@ -77,8 +77,8 @@ td:last-child, th:last-child { border-right: none }
 	background-image: linear-gradient(#cacaca 0%, #c0c0c0 100%)
 }
 
-.designpage > :first-child { margin-top: 0.5% }
-.designpage > :last-child { margin-bottom: 0.5% }
+.designpage > :first-child { margin-top: 5px }
+.designpage > :last-child { margin-bottom: 5px }
 ]]></style>
 [each:content:css_files:file]
 <link href="[rewrite:settings]http_path_mmedia_versioned[/rewrite]/[rewrite:content]css_files.file.name[/rewrite]" rel="stylesheet" type="text/css" />

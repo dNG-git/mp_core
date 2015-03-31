@@ -31,6 +31,7 @@ https://www.direct-netware.de/redirect?licenses;gpl
 #echo(__FILEPATH__)#
 """
 
+from dNG.pas.data.upnp.client import Client
 from .abstract_service import AbstractService
 
 class ConnectionManager(AbstractService):
@@ -47,20 +48,32 @@ Implementation for "urn:schemas-upnp-org:service:ConnectionManager:1".
              GNU General Public License 2
 	"""
 
-	def call_hook(self, hook, json_arguments):
+	def get_feature_list(self):
 	#
 		"""
-Calls the given hook and returns the result.
+Returns the list of supported UPnP ContentDirectory features.
 
-:return: (mixed) Data returned by the called hook
+:return: (str) FeatureList XML document
+:since:  v0.1.02
+		"""
+
+		if (self.log_handler is not None): self.log_handler.debug("#echo(__FILEPATH__)# -{0!r}.get_feature_list()- (#echo(__LINE__)#)", self, context = "mp_server")
+		return self._get_feature_list("dNG.pas.upnp.service.ConnectionManager")
+	#
+
+	def get_version(self):
+	#
+		"""
+Returns the UPnP service type version.
+
+:return: (str) Service type version
 :since:  v0.1.00
 		"""
 
-		json_parser = direct_json_parser()
-		arguments = ({ } if (json_arguments.strip() == "") else json_parser.json_to_data(json_arguments))
+		client = Client.load_user_agent(self.client_user_agent)
+		is_versioning_supported = client.get("upnp_spec_versioning_supported", True)
 
-		result = direct_hooks.call(hook, **arguments)
-		return json_parser.data_to_json(result)
+		return (AbstractService.get_version(self) if (is_versioning_supported) else 1)
 	#
 
 	def init_host(self, device, service_id = None, configid = None):
@@ -76,13 +89,11 @@ Initializes a host service.
 :since:  v0.1.00
 		"""
 
-		self.spec_major = 1
-		self.spec_minor = 1
 		self.type = "ConnectionManager"
 		self.upnp_domain = "schemas-upnp-org"
-		self.version = "1"
+		self.version = "3"
 
-		if (service_id == None): service_id = "ConnectionManager"
+		if (service_id is None): service_id = "ConnectionManager"
 		return AbstractService.init_host(self, device, service_id, configid)
 	#
 
@@ -117,9 +128,15 @@ Initializes the dict of host service actions.
 		                                                    ]
 		                              }
 
+		get_feature_list = { "argument_variables": [ ],
+		                     "return_variable": { "name": "FeatureList", "variable": "FeatureList" },
+		                     "result_variables": [ ]
+		                   }
+
 		self.actions = { "GetProtocolInfo": get_protocol_info,
 		                 "GetCurrentConnectionIDs": get_current_connection_ids,
-		                 "GetCurrentConnectionInfo": get_current_connection_info
+		                 "GetCurrentConnectionInfo": get_current_connection_info,
+		                 "GetFeatureList": get_feature_list
 		               }
 	#
 
@@ -135,19 +152,20 @@ Initializes the dict of host service variables.
 
 		self.variables = { "SourceProtocolInfo": { "is_sending_events": True,
 		                                           "is_multicasting_events": False,
-		                                           "type": "string",
-		                                           "value": ""
+		                                           "type": "string"
 		                                         },
 		                   "SinkProtocolInfo": { "is_sending_events": True,
 		                                         "is_multicasting_events": False,
-		                                         "type": "string",
-		                                         "value": ""
+		                                         "type": "string"
 		                                       },
 		                   "CurrentConnectionIDs": { "is_sending_events": True,
 		                                             "is_multicasting_events": False,
-		                                             "type": "string",
-		                                             "value": ""
+		                                             "type": "string"
 		                                           },
+		                   "FeatureList": { "is_sending_events": False,
+		                                    "is_multicasting_events": False,
+		                                    "type": "string"
+		                                  },
 		                   "A_ARG_TYPE_ConnectionStatus": { "is_sending_events": False,
 		                                                    "is_multicasting_events": False,
 		                                                    "type": "string",
@@ -160,8 +178,7 @@ Initializes the dict of host service variables.
 		                                                  },
 		                   "A_ARG_TYPE_ConnectionManager": { "is_sending_events": False,
 		                                                     "is_multicasting_events": False,
-		                                                     "type": "string",
-		                                                     "value": ""
+		                                                     "type": "string"
 		                                                   },
 		                   "A_ARG_TYPE_Direction": { "is_sending_events": False,
 		                                             "is_multicasting_events": False,
