@@ -324,15 +324,14 @@ Schedules metadata refreshes for a changed file or directory.
 						encapsulating_child.set_data_attributes(time_sortable = encapsulated_resource.get_timestamp())
 						encapsulating_child.save()
 						is_added = True
-
-						ResourceScanner(child_id)
-						LogLine.info("mp.ResourceScanner added entry '{0}'", child_id, context = "mp_server")
 					#
 					else: LogLine.warning("mp.ResourceScanner failed to add entry '{0}'", child_id, context = "mp_server")
 				#
 
 				if (is_added):
 				#
+					LogLine.info("mp.ResourceScanner added entry '{0}'", child_id, context = "mp_server")
+
 					memory_tasks = MemoryTasks.get_instance()
 					memory_tasks.add("dNG.pas.tasks.mp.ResourceScanner.{0}".format(child_id), ResourceScanner(child_id), 0)
 					memory_tasks.add("dNG.pas.tasks.mp.ResourceMetadataRefresh.{0}".format(child_id), ResourceMetadataRefresh(child_id), 0)

@@ -4,5 +4,5 @@ __py*
 nbproject
 /_extras
 /build
-/mp_core.*
 /make*.py*
+/mp_core.*
