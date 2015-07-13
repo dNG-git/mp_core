@@ -19,13 +19,13 @@ small { font-size: 0.75em }
 	white-space: nowrap;
 
 	div {
-		display: inline-block; padding: 6px; background-color: $lighter_grey; border: 1px solid $darker_grey; border-radius: 3px;
-		background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, rgba(#{$neon_rgba}, 0.1)), color-stop(1, rgba(#{$lighter_grey_rgba}, 0.5)));
-		background-image: -o-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
-		background-image: -moz-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
-		background-image: -webkit-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
-		background-image: -ms-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
-		background-image: linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
+		display: inline-block; padding: 6px; background-color: rgba(#{$lighter_grey_rgba}, 0.5); border: 1px solid $darker_grey; border-radius: 3px;
+		background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, rgba(#{$neon_rgba}, 0.1)), color-stop(1, rgba(#{$white_rgba}, 0.5)));
+		background-image: -o-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$white_rgba}, 0.5) 100%);
+		background-image: -moz-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$white_rgba}, 0.5) 100%);
+		background-image: -webkit-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$white_rgba}, 0.5) 100%);
+		background-image: -ms-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$white_rgba}, 0.5) 100%);
+		background-image: linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$white_rgba}, 0.5) 100%);
 		font-size: 1.1em; text-align: center;
 
 		em {
@@ -36,18 +36,18 @@ small { font-size: 0.75em }
 }
 
 .pagecontent_datalinker_parent_box {
-	clear: both; padding: 6px; background-color: $light_grey; border: 1px solid $dark_grey;
+	clear: both; padding: 6px; background-color: $lightest_grey; border: 1px solid $dark_grey;
 	font-weight: bold
 }
 
 .pagecontent_datalinker_sub_entries_box {
-	clear: right; float: right; width: 35%; padding: 6px; background-color: $lighter_grey; border: 1px solid $darker_grey;
-	background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, rgba(#{$neon_rgba}, 0.1)), color-stop(1, rgba(#{$lighter_grey_rgba}, 0.5)));
-	background-image: -o-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
-	background-image: -moz-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
-	background-image: -webkit-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
-	background-image: -ms-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
-	background-image: linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
+	clear: right; float: right; width: 35%; padding: 6px; background-color: rgba(#{$lighter_grey_rgba}, 0.5); border: 1px solid $darker_grey;
+	background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, rgba(#{$neon_rgba}, 0.1)), color-stop(1, rgba(#{$white_rgba}, 0.5)));
+	background-image: -o-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$white_rgba}, 0.5) 100%);
+	background-image: -moz-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$white_rgba}, 0.5) 100%);
+	background-image: -webkit-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$white_rgba}, 0.5) 100%);
+	background-image: -ms-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$white_rgba}, 0.5) 100%);
+	background-image: linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$white_rgba}, 0.5) 100%);
 
 	h1 {
 		margin: 14px inherit; border-bottom: 1px $darker_grey solid;
@@ -104,7 +104,7 @@ small { font-size: 0.75em }
 }
 
 .pagecontent_page_navigation {
-	clear: both; padding: 6px; background-color: $light_grey; border: 1px solid $dark_grey;
+	clear: both; padding: 6px; background-color: rgba(#{$lighter_grey_rgba}, 0.5); border: 1px solid $dark_grey;
 
 	section & { font-size: 0.75em }
 
@@ -122,7 +122,7 @@ small { font-size: 0.75em }
 	position: relative; padding: 6px 6px 6px 20px; background-color: $light_grey; border: 1px solid $dark_grey;
 
 	&::before, &::after {
-		position: absolute; top: 0; left: 0.4em; margin-left: 9px; border: 9px solid transparent;
+		position: absolute; top: 0; left: 6px; margin-left: 9px; border: 9px solid transparent;
 		content: " "
 	}
 
@@ -131,15 +131,15 @@ small { font-size: 0.75em }
 }
 
 .pagecontent_user_above_wrote {
-	padding: 6px; background-color: $grey; border: 1px solid $dark_grey;
+	padding: 6px; background-color: rgba(#{$lighter_grey_rgba}, 0.5); border: 1px solid $grey;
 
 	&::before, &::after {
-		position: absolute; top: 0; left: 0.4em; margin-left: 9px; border: 9px solid transparent;
+		position: absolute; top: 0; left: 6px; margin-left: 9px; border: 9px solid transparent;
 		content: " "
 	}
 
-	&::before { margin-top: -18px; border-bottom-color: $dark_grey }
-	&::after { margin-top: -17px; border-bottom-color: $grey }
+	&::before { margin-top: -18px; border-bottom-color: $grey }
+	&::after { margin-top: -17px; border-bottom-color: $light_neon }
 
 	& > :first-child { margin-top: 0 }
 	& > :last-child { margin-bottom: 0 }
@@ -149,18 +149,18 @@ small { font-size: 0.75em }
 	clear: left; margin: 14px 0;
 
 	& > div {
-		display: inline-block; min-width: 25%; padding: 6px; background-color: $lighter_grey; border: 1px solid $dark_grey; border-radius: 3px;
-		background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, rgba(#{$neon_rgba}, 0.1)), color-stop(1, rgba(#{$lighter_grey_rgba}, 0.5)));
-		background-image: -o-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
-		background-image: -moz-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
-		background-image: -webkit-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
-		background-image: -ms-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
-		background-image: linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%)
+		display: inline-block; min-width: 25%; padding: 6px; background-color: rgba(#{$lighter_grey_rgba}, 0.5); border: 1px solid $dark_grey; border-radius: 3px;
+		background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, rgba(#{$neon_rgba}, 0.1)), color-stop(1, rgba(#{$white_rgba}, 0.5)));
+		background-image: -o-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$white_rgba}, 0.5) 100%);
+		background-image: -moz-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$white_rgba}, 0.5) 100%);
+		background-image: -webkit-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$white_rgba}, 0.5) 100%);
+		background-image: -ms-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$white_rgba}, 0.5) 100%);
+		background-image: linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$white_rgba}, 0.5) 100%)
 	}
 }
 
 .pagecontent_user_quote {
-	margin: 14px 0; position: relative;
+	z-index: 64; position: relative; margin: 14px 0;
 
 	h1, h2, h3, h4, h5, h6 {
 		margin: 14px inherit;
@@ -168,15 +168,18 @@ small { font-size: 0.75em }
 	}
 }
 
-.pageform_button, .pageoptionsbar_button { padding: 6px; background-color: $lighter_grey; border: 1px solid $darker_grey; border-radius: 3px }
+.pageform_button, .pageoptionsbar_button { padding: 6px; background-color: $lightest_grey; border: 1px solid $darker_grey; border-radius: 3px }
 
 .pageform_button {
 	margin: 11px;
 	font-size: 1.2em
 }
 
-.pageform_element { overflow: auto; border-bottom: 1px solid $grey; box-shadow: 0 2px 5px -5px rgba(0, 0, 0, 0.2) }
-.pageform_element .pageform_error { display: inline-block; margin-top: 10px }
+.pageform_element {
+	overflow: auto; border-bottom: 1px solid $grey; box-shadow: 0 2px 5px -5px rgba(0, 0, 0, 0.2);
+
+	.pageform_error { display: inline-block; margin-top: 10px }
+}
 
 .pageform_error { clear: both; padding: 3px; background-color: $light_red; border: 1px solid $red; border-radius: 3px }
 
@@ -193,7 +196,7 @@ small { font-size: 0.75em }
 	}
 }
 
-.pageform_input_focused { background-color: $lighter_grey; border-color: $neon !important; box-shadow: 0 0 3px 3px $light_neon }
+.pageform_input_focused { border-color: $neon !important; box-shadow: 0 0 3px 3px $light_neon }
 
 .pageform_label {
 	display: inline-block; width: 25%; margin: 0; padding: 11px 0; font-weight: bold;
@@ -208,23 +211,23 @@ small { font-size: 0.75em }
 .pageform_radio_label { vertical-align: middle }
 
 .pageform_textnpassword {
-	padding: 0.4em; background-color: $lighter_grey; border: 1px solid $dark_grey; border-bottom-color: $darkest_grey; border-radius: 3px;
+	padding: 6px; background-color: $lightest_grey; border: 1px solid $dark_grey; border-bottom-color: $darkest_grey; border-radius: 3px;
 	font-size: 1em
 }
 
 .pageform_select {
-	margin: 3px; padding: 0.2em; background-color: $lighter_grey; border: 1px solid $dark_grey; border-radius: 3px;
+	margin: 3px; padding: 3px; background-color: $lightest_grey; border: 1px solid $dark_grey; border-radius: 3px;
 	font-size: 1em
 }
 
 .pagemainmenu {
-	margin: 0 14px; padding: 7px; background-color: $mainmenu_dark_grey; border-left: 1px solid $neon; border-right: 1px solid $neon; border-bottom: 1px solid $neon; box-shadow: 0 16px 14px -14px rgba(#{$neon_rgba}, 0.8);
-	font-size: 1.1em; font-weight: bold; color: $light_grey;
+	z-index: 128; margin: 0 -10px; padding: 7px 17px; background-color: $darker_grey; border-bottom: 1px solid $neon; box-shadow: 0 16px 14px -14px rgba(#{$neon_rgba}, 0.8);
+	font-size: 1.1em; font-weight: bold; color: $pine_green;
 
 	a {
 		display: inline-block;
 
-		&:link { color: $grey }
+		&:link { color: $light_grey }
 		&:visited { color: $light_grey }
 		&:link, &:visited { text-decoration: none }
 		&:active, &:hover, &:focus { color: $lighter_grey; text-decoration: underline }
@@ -240,7 +243,9 @@ small { font-size: 0.75em }
 	ul { margin: 0; padding: 0; list-style: none }
 }
 
-.pagenavbox { padding: 5px; border: 1px solid $light_steel }
+.pagemainmenu_box_fixed { z-index: 255 }
+
+.pagenavbox { padding: 5px; border: 1px solid $lighter_grey }
 
 .pagenavtask { text-align: center; font-weight: bold }
 
@@ -263,7 +268,7 @@ small { font-size: 0.75em }
 	li > a, .pageoptionsbar li > span { display: block; margin: 4px }
 
 	ul {
-		z-index: 124; margin: 0; padding: 4px; background-color: $grey; border: 1px solid $darker_grey; border-radius: 3px;
+		z-index: 124; margin: 0; padding: 4px; background-color: rgba(#{$darker_grey_rgba}, 0.2); border: 1px solid $darker_grey; border-radius: 3px;
 		list-style: none inside none
 	}
 }
@@ -289,21 +294,24 @@ small { font-size: 0.75em }
 	}
 
 	li > a, li > span {
-		display: block; margin: 4px; padding: 6px; border: 1px solid $lighter_grey; border-radius: 7px;
+		display: block; margin: 4px; padding: 6px; background-color: rgba(#{$darker_grey_rgba}, 0.2); border: 1px solid $neon; border-radius: 7px;
 		overflow: auto; text-decoration: none
 	}
 
-	ul { position: relative; margin: 0; padding: 0; list-style: none inside none }
+	ul {
+		margin: 0; padding: 0;
+		list-style: none inside none
+	}
 }
 
 .pageservicemenu {
-	clear: both; margin: 10px 0; border: 1px solid $dark_grey; border-radius: 3px;
+	clear: both; margin: 10px 0; background-color: rgba(#{$darker_grey_rgba}, 0.2); border: 1px solid $dark_grey; border-radius: 3px;
 
 	a {
 		display: inline-block;
 
 		&:link, &:visited { color: $darkest_grey; text-decoration: none }
-		&:active, &:hover, &:focus { color: $black; text-decoration: none }
+		&:active, &:hover, &:focus { color: $dark_neon; text-decoration: none }
 	}
 
 	img {
@@ -318,7 +326,10 @@ small { font-size: 0.75em }
 
 	li:not(:last-child)::after { margin-right: 4px; content: ", " }
 
-	ul { position: relative; margin: 0; padding: 0; list-style: none inside none }
+	ul {
+		margin: 0; padding: 0;
+		list-style: none inside none
+	}
 }
 
 .pageservicemenu_p {
@@ -349,13 +360,13 @@ small { font-size: 0.75em }
 	}
 
 	th {
-		background-color: $lighter_grey;
-		background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, rgba(#{$neon_rgba}, 0.1)), color-stop(1, rgba(#{$lighter_grey_rgba}, 0.5)));
-		background-image: -o-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
-		background-image: -moz-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
-		background-image: -webkit-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
-		background-image: -ms-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
-		background-image: linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
+		background-color: rgba(#{$lighter_grey_rgba}, 0.5);
+		background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, rgba(#{$neon_rgba}, 0.1)), color-stop(1, rgba(#{$white_rgba}, 0.5)));
+		background-image: -o-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$white_rgba}, 0.5) 100%);
+		background-image: -moz-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$white_rgba}, 0.5) 100%);
+		background-image: -webkit-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$white_rgba}, 0.5) 100%);
+		background-image: -ms-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$white_rgba}, 0.5) 100%);
+		background-image: linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$white_rgba}, 0.5) 100%);
 		font-weight: bold; font-size: 1.1em
 	}
 
@@ -364,22 +375,43 @@ small { font-size: 0.75em }
 
 .pageurl_requirements_unsupported { color: $darker_grey }
 
-@media only screen and (max-width: 46em) {
+@media only screen and (max-width: 352px) {
 	.pagecontent_box_infoblock {
-		display: block; clear: both; float: initial; margin: 3px 0; padding: 3px; background-color: $lighter_grey; border: 1px solid $darker_grey; border-radius: 3px;
-		background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, rgba(#{$neon_rgba}, 0.1)), color-stop(1, rgba(#{$lighter_grey_rgba}, 0.5)));
-		background-image: -o-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
-		background-image: -moz-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
-		background-image: -webkit-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
-		background-image: -ms-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
-		background-image: linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$lighter_grey_rgba}, 0.5) 100%);
+		display: block; clear: both; float: initial; margin: 3px 0; padding: 3px; background-color: rgba(#{$lighter_grey_rgba}, 0.5); border: 1px solid $darker_grey; border-radius: 3px;
+		background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, rgba(#{$neon_rgba}, 0.1)), color-stop(1, rgba(#{$white_rgba}, 0.5)));
+		background-image: -o-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$white_rgba}, 0.5) 100%);
+		background-image: -moz-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$white_rgba}, 0.5) 100%);
+		background-image: -webkit-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$white_rgba}, 0.5) 100%);
+		background-image: -ms-linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$white_rgba}, 0.5) 100%);
+		background-image: linear-gradient(rgba(#{$neon_rgba}, 0.1) 0%, rgba(#{$white_rgba}, 0.5) 100%);
 		text-align: center;
 
 		div { background-color: $lighter_grey; background-image: none }
 	}
 
-	.pageform_element { padding: 6px 0 }
+	.pageform_element { padding: 3px 0 }
 
+	.pageservicemenu img { margin-bottom: 0 }
+
+	.pageservicemenu_p {
+		padding: 0;
+		text-align: center
+	}
+
+	.pageservicemenu_s {
+		padding: 0;
+		text-align: center
+	}
+
+}
+
+@media only screen and (min-width: 352px) and (max-width: 672px) {
+	.pageform_element { padding: 6px 0 }
+	.pageservicemenu_p { padding: 1px 1px 0 1px }
+	.pageservicemenu_s { padding: 1px }
+}
+
+@media only screen and (max-width: 672px) {
 	.pageform_field {
 		display: block; float: initial; width: inherit;
 		text-align: left
@@ -396,18 +428,6 @@ small { font-size: 0.75em }
 	}
 
 	.pageoptionsblock li { width: 100%; margin: 0; padding: 0 }
-
-	.pageservicemenu img { margin-bottom: 0 }
-
-	.pageservicemenu_p {
-		padding: 0;
-		text-align: center
-	}
-
-	.pageservicemenu_s {
-		padding: 0;
-		text-align: center
-	}
 
 	.pagetable_responsive {
 		margin: 6px 0;
@@ -438,32 +458,6 @@ small { font-size: 0.75em }
 	}
 }
 
-@media only screen and (min-width: 46em) and (max-width: 62em) {
-	.pageform_element { padding: 3px 0 }
-
-	.pageform_field {
-		display: block; float: initial; width: inherit;
-		text-align: left
-	}
-
-	.pageform_label {
-		display: block; width: inherit;
-		text-align: left
-	}
-
-	.pageoptionsblock li { width: 50%; margin: 0; padding: 0 }
-
-	.pageservicemenu_p {
-		padding: 1px 1px 0 1px;
-		text-align: center
-	}
-
-	.pageservicemenu_s {
-		padding: 1px;
-		text-align: center
-	}
-}
-
-@media only screen and (min-width: 62em) and (max-width: 126em) {
+@media only screen and (min-width: 352px) and (max-width: 1632px) {
 	.pageoptionsblock li { width: 50% }
 }
