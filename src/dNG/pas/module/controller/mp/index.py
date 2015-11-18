@@ -98,7 +98,7 @@ Action for "list_root_containers"
 		          }
 
 		self.response.init()
-		self.response.set_title(L10n.get("mp_core_root_container_list"))
+		self.response.set_title(content['title'])
 		self.response.add_oset_content("mp.container", content)
 	#
 #

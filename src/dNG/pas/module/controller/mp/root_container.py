@@ -278,7 +278,7 @@ Action for "edit"
 			                  }
 
 			self.response.init()
-			self.response.set_title(L10n.get("mp_core_root_container_edit"))
+			self.response.set_title(content['title'])
 			self.response.add_oset_content("core.form", content)
 		#
 	#
@@ -433,7 +433,7 @@ Action for "new"
 			                  }
 
 			self.response.init()
-			self.response.set_title(L10n.get("mp_core_root_container_new"))
+			self.response.set_title(content['title'])
 			self.response.add_oset_content("core.form", content)
 		#
 	#
