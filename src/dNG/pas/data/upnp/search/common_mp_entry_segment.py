@@ -34,6 +34,7 @@ https://www.direct-netware.de/redirect?licenses;gpl
 from dNG.pas.data.upnp.resources.mp_entry import MpEntry
 from dNG.pas.database.condition_definition import ConditionDefinition
 from dNG.pas.database.connection import Connection
+from dNG.pas.database.sort_definition import SortDefinition
 from dNG.pas.plugins.hook import Hook
 from dNG.pas.runtime.value_exception import ValueException
 from .abstract_segment import AbstractSegment
@@ -115,15 +116,31 @@ Returns the list of UPnP resource search segment results as defined by
 :since:  v0.1.02
 		"""
 
+		_return = [ ]
+
 		self._ensure_condition_definition()
 
-		kwargs = { }
-		#if (sort_definition)
+		sort_definition = SortDefinition()
 
-		return ([ ]
-		        if (self.pre_condition_failed) else
-		        list(MpEntry.load_entries_list_with_condition(self.condition_definition, self.offset, self.limit, **kwargs))
-		       )
+		# @TODO: if (len(self.sort_tuples) > 0): MpEntry._db_append_didl_field_sort_definition
+		sort_definition.append("title", SortDefinition.ASCENDING)
+
+		if (not self.pre_condition_failed):
+		#
+			entries = MpEntry.load_entries_list_with_condition(self.condition_definition,
+		                                                       self.offset,
+		                                                       self.limit,
+		                                                       sort_definition
+		                                                      )
+
+			for entry in entries:
+			#
+				if (self.client_user_agent is not None): entry.set_client_user_agent(self.client_user_agent)
+				_return.append(entry)
+			#
+		#
+
+		return _return
 	#
 
 	def _get_property_attribute_name(self, _property):
