@@ -136,7 +136,7 @@ mp_upnp_video_resource.encoder
 	__mapper_args__ = { "polymorphic_identity": "MpUpnpVideoResource" }
 	"""
 sqlalchemy.org: Other options are passed to mapper() using the
-                __mapper_args__ class variable.
+__mapper_args__ class variable.
 	"""
 
 	@classmethod

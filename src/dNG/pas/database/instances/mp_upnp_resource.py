@@ -118,7 +118,7 @@ mp_upnp_resource.size
 	__mapper_args__ = { "polymorphic_identity": "MpUpnpResource" }
 	"""
 sqlalchemy.org: Other options are passed to mapper() using the
-                __mapper_args__ class variable.
+__mapper_args__ class variable.
 	"""
 
 	rel_mp_upnp_resource_children = relationship("MpUpnpResource", lazy = "dynamic", primaryjoin = (foreign(DataLinker.id) == remote(DataLinker.id_parent)), uselist = True, viewonly = True)

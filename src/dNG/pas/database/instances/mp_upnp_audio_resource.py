@@ -124,7 +124,7 @@ mp_upnp_audio_resource.encoder
 	__mapper_args__ = { "polymorphic_identity": "MpUpnpAudioResource" }
 	"""
 sqlalchemy.org: Other options are passed to mapper() using the
-                __mapper_args__ class variable.
+__mapper_args__ class variable.
 	"""
 
 	@classmethod

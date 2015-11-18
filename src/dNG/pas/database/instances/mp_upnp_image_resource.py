@@ -96,7 +96,7 @@ mp_upnp_image_resource.creator
 	__mapper_args__ = { "polymorphic_identity": "MpUpnpImageResource" }
 	"""
 sqlalchemy.org: Other options are passed to mapper() using the
-                __mapper_args__ class variable.
+__mapper_args__ class variable.
 	"""
 
 	@classmethod
