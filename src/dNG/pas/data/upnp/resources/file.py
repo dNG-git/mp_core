@@ -47,7 +47,6 @@ except ImportError:
 
 from dNG.pas.data.binary import Binary
 from dNG.pas.data.mime_type import MimeType
-from dNG.pas.data.upnp.client import Client
 from dNG.pas.data.upnp.resource import Resource
 from .abstract_stream import AbstractStream
 from .thumbnail_resource_mixin import ThumbnailResourceMixin
@@ -242,9 +241,9 @@ Returns the UPnP resource type class.
 
 		if (_type is not None):
 		#
-			client = Client.load_user_agent(self.client_user_agent)
-			is_cds1_container_supported = client.get("upnp_didl_cds1_container_classes_supported", True)
-			is_cds1_object_supported = client.get("upnp_didl_cds1_object_classes_supported", True)
+			client_settings = self.get_client_settings()
+			is_cds1_container_supported = client_settings.get("upnp_didl_cds1_container_classes_supported", True)
+			is_cds1_object_supported = client_settings.get("upnp_didl_cds1_object_classes_supported", True)
 		#
 
 		if (is_cds1_container_supported

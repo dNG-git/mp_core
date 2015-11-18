@@ -31,7 +31,6 @@ https://www.direct-netware.de/redirect?licenses;gpl
 #echo(__FILEPATH__)#
 """
 
-from dNG.pas.data.upnp.client import Client
 from .abstract_service import AbstractService
 
 class ConnectionManager(AbstractService):
@@ -70,8 +69,8 @@ Returns the UPnP service type version.
 :since:  v0.1.00
 		"""
 
-		client = Client.load_user_agent(self.client_user_agent)
-		is_versioning_supported = client.get("upnp_spec_versioning_supported", True)
+		client_settings = self.get_client_settings()
+		is_versioning_supported = client_settings.get("upnp_spec_versioning_supported", True)
 
 		return (AbstractService.get_version(self) if (is_versioning_supported) else 1)
 	#

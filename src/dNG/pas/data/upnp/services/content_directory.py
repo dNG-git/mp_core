@@ -34,7 +34,6 @@ https://www.direct-netware.de/redirect?licenses;gpl
 from time import time
 
 from dNG.pas.data.tasks.memory import Memory as MemoryTasks
-from dNG.pas.data.upnp.client import Client
 from dNG.pas.data.upnp.gena_event import GenaEvent
 from dNG.pas.data.upnp.resource import Resource
 from dNG.pas.data.upnp.update_id_registry import UpdateIdRegistry
@@ -281,8 +280,8 @@ Returns the UPnP service type version.
 :since:  v0.1.00
 		"""
 
-		client = Client.load_user_agent(self.client_user_agent)
-		is_versioning_supported = client.get("upnp_spec_versioning_supported", True)
+		client_settings = self.get_client_settings()
+		is_versioning_supported = client_settings.get("upnp_spec_versioning_supported", True)
 
 		return (AbstractService.get_version(self) if (is_versioning_supported) else 1)
 	#

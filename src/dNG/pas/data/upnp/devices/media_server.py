@@ -34,7 +34,6 @@ https://www.direct-netware.de/redirect?licenses;gpl
 from os import path
 
 from dNG.pas.data.settings import Settings
-from dNG.pas.data.upnp.client import Client
 #from dNG.pas.data.upnp.services.av_transport import AvTransport
 from dNG.pas.data.upnp.services.connection_manager import ConnectionManager
 from dNG.pas.data.upnp.services.content_directory import ContentDirectory
@@ -133,11 +132,11 @@ Returns the UPnP device description for encoding.
 		# pylint: disable=maybe-no-member,no-member
 		# pylint 1.2.1 gets crazy here and thinks that xml_resource is the same as self
 
-		client = Client.load_user_agent(self.client_user_agent)
+		client_settings = self.get_client_settings()
 
 		xml_resource = AbstractDevice._get_xml(self, xml_resource)
 
-		value = client.get("upnp_xml_namespaces_support_standard_compliant", True)
+		value = client_settings.get("upnp_xml_namespaces_support_standard_compliant", True)
 
 		if (value):
 		#
@@ -152,9 +151,9 @@ Returns the UPnP device description for encoding.
 		xml_resource.add_node("root device dlna:X_DLNADOC", "DMS-1.51", xml_dlnadoc_attributes)
 		xml_resource.add_node("root device dlna:X_DLNADOC", "+RUISRC+/DMS-1.51", xml_dlnadoc_attributes)
 		xml_resource.add_node("root device dlna:X_DLNADOC", "+RUIHSRC+/DMS-1.51", xml_dlnadoc_attributes)
-		# TODO: if (client.get("upnp_xml_dlnacap_supported", True)): xml_resource.add_node("root device dlna:X_DLNACAP", "audio-upload,av-upload,image-upload", { "xmlns:dlna": "urn:schemas-dlna-org:device-1-0" })
+		# TODO: if (client_settings.get("upnp_xml_dlnacap_supported", True)): xml_resource.add_node("root device dlna:X_DLNACAP", "audio-upload,av-upload,image-upload", { "xmlns:dlna": "urn:schemas-dlna-org:device-1-0" })
 
-		value = client.get("upnp_spec_versioning_supported", True)
+		value = client_settings.get("upnp_spec_versioning_supported", True)
 
 		if (not value):
 		#
@@ -165,16 +164,16 @@ Returns the UPnP device description for encoding.
 			xml_resource.change_node_value("root device deviceType", quirks_device_version)
 		#
 
-		value = client.get("mp_media_server_device_model")
+		value = client_settings.get("mp_media_server_device_model")
 		if (value is not None): xml_resource.change_node_value("root device modelName", value)
 
-		value = client.get("mp_media_server_device_model_desc")
+		value = client_settings.get("mp_media_server_device_model_desc")
 		if (value is not None): xml_resource.change_node_value("root device modelDescription", value)
 
-		value = client.get("mp_media_server_device_model_version")
+		value = client_settings.get("mp_media_server_device_model_version")
 		if (value is not None): xml_resource.change_node_value("root device modelNumber", value)
 
-		value = client.get("mp_media_server_manufacturer")
+		value = client_settings.get("mp_media_server_manufacturer")
 		if (value is not None): xml_resource.change_node_value("root device manufacturer", value)
 
 		return xml_resource
