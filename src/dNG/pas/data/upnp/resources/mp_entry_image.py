@@ -40,7 +40,6 @@ from dNG.pas.data.binary import Binary
 from dNG.pas.data.settings import Settings
 from dNG.pas.data.media.image import Image
 from dNG.pas.data.media.image_metadata import ImageMetadata
-from dNG.pas.data.upnp.client import Client
 from dNG.pas.data.upnp.resources.abstract_stream import AbstractStream
 from dNG.pas.database.instances.mp_upnp_image_resource import MpUpnpImageResource as _DbMpUpnpImageResource
 from dNG.pas.module.named_loader import NamedLoader
@@ -59,6 +58,11 @@ class MpEntryImage(MpEntry):
 :since:      v0.1.00
 :license:    https://www.direct-netware.de/redirect?licenses;gpl
              GNU General Public License 2
+	"""
+
+	_DB_INSTANCE_CLASS = _DbMpUpnpImageResource
+	"""
+SQLAlchemy database instance class to initialize for new instances.
 	"""
 
 	def _add_metadata_to_didl_xml_node(self, xml_resource, xml_node_path, parent_id = None):
@@ -211,18 +215,6 @@ client.
 		#
 	#
 
-	def _init_encapsulated_resource(self):
-	#
-		"""
-Initialize an new encapsulated UPnP resource.
-
-:since: v0.1.00
-		"""
-
-		self._ensure_thread_local_instance(_DbMpUpnpImageResource)
-		MpEntry._init_encapsulated_resource(self)
-	#
-
 	def _init_item_content(self):
 	#
 		"""
@@ -234,20 +226,20 @@ Initializes the content of an UPnP CDS item entry.
 
 		_return = False
 
-		client = Client.load_user_agent(self.client_user_agent)
+		client_settings = self.get_client_settings()
 		encapsulated_resource = self.load_encapsulated_resource()
 
 		if (Settings.get("mp_core_transform_images_on_server", True)
-		    and client.get("upnp_stream_image_resized", False)
+		    and client_settings.get("upnp_stream_image_resized", False)
 		    and encapsulated_resource.is_filesystem_resource()
 		    and Image().is_supported("transformation")
 		   ):
 		#
 			entry_data = self.get_data_attributes("width", "height")
 
-			transformed_image_type = client.get("upnp_stream_image_resized_type")
-			transformed_image_width = client.get("upnp_stream_image_resized_width")
-			transformed_image_height = client.get("upnp_stream_image_resized_height")
+			transformed_image_type = client_settings.get("upnp_stream_image_resized_type")
+			transformed_image_width = client_settings.get("upnp_stream_image_resized_width")
+			transformed_image_height = client_settings.get("upnp_stream_image_resized_height")
 
 			if (transformed_image_type is not None
 			    and transformed_image_width is not None
@@ -335,8 +327,6 @@ Sets values given as keyword arguments to this method.
 
 :since: v0.1.00
 		"""
-
-		self._ensure_thread_local_instance(_DbMpUpnpImageResource)
 
 		with self:
 		#
