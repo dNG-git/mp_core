@@ -227,7 +227,7 @@ Returns true for all devices previously processed.
 		"""
 
 		if (self.log_handler is not None): self.log_handler.debug("#echo(__FILEPATH__)# -{0!r}.is_validated({1})- (#echo(__LINE__)#)", self, device_id, context = "mp_server")
-		return (False if (self.is_authorized(device_id)) else UpnpException("pas_http_core_403", 801))
+		return (True if (self.is_authorized(device_id)) else UpnpException("pas_http_core_403", 801))
 	#
 
 	def register_device(self, register_input):
