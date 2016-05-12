@@ -137,7 +137,7 @@ Action for "delete"
 
 		L10n.init("mp_core")
 
-		session = self.request.get_session()
+		session = (self.request.get_session() if (self.request.is_supported("session")) else None)
 		user_profile = (None if (session is None) else session.get_user_profile())
 
 		if (user_profile is None
@@ -197,7 +197,7 @@ Action for "edit"
 
 		L10n.init("mp_core")
 
-		session = self.request.get_session()
+		session = (self.request.get_session() if (self.request.is_supported("session")) else None)
 		user_profile = (None if (session is None) else session.get_user_profile())
 
 		if (user_profile is None
@@ -316,7 +316,7 @@ Action for "new"
 		L10n.init("pas_http_core_form")
 		L10n.init("mp_core")
 
-		session = self.request.get_session()
+		session = (self.request.get_session() if (self.request.is_supported("session")) else None)
 		user_profile = (None if (session is None) else session.get_user_profile())
 
 		if (user_profile is None
@@ -391,8 +391,7 @@ Action for "new"
 			elif (mp_entry_resource_type == "image"): mp_entry_mimetype = "text/x-directory-upnp-image"
 			elif (mp_entry_resource_type == "video"): mp_entry_mimetype = "text/x-directory-upnp-video"
 
-			mp_entry_data = { "time_sortable": time(),
-			                  "title": mp_entry_title,
+			mp_entry_data = { "title": mp_entry_title,
 			                  "cds_type": MpEntry.DB_CDS_TYPE_ROOT,
 			                  "mimeclass": "directory",
 			                  "mimetype": mp_entry_mimetype,
