@@ -75,7 +75,7 @@ Action for "list_root_containers"
 
 		L10n.init("mp_core")
 
-		session = self.request.get_session()
+		session = (self.request.get_session() if (self.request.is_supported("session")) else None)
 		user_profile = (None if (session is None) else session.get_user_profile())
 
 		if (user_profile is None
