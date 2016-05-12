@@ -34,6 +34,7 @@ https://www.direct-netware.de/redirect?licenses;gpl
 from math import ceil
 
 from dNG.pas.data.text.l10n import L10n
+from dNG.pas.data.http.translatable_error import TranslatableError
 from dNG.pas.data.upnp.resources.mp_entry import MpEntry
 from dNG.pas.data.xhtml.link import Link
 from dNG.pas.data.xhtml.page_links_renderer import PageLinksRenderer
@@ -61,6 +62,8 @@ Action for "render"
 
 :since: v0.1.00
 		"""
+
+		if (self._is_primary_action()): raise TranslatableError("core_access_denied", 403)
 
 		root_containers_count = MpEntry.get_root_containers_count()
 
