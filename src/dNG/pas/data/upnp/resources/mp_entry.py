@@ -85,6 +85,10 @@ Database item entry
 	"""
 Database root container entry
 	"""
+	_DB_INSTANCE_CLASS = _DbMpUpnpResource
+	"""
+SQLAlchemy database instance class to initialize for new instances.
+	"""
 
 	def __init__(self, db_instance = None, user_agent = None, didl_fields = None):
 	#
@@ -262,7 +266,7 @@ Returns the UPnP content resources between offset and limit.
 					if (child_first > 0): db_query = db_query.offset(child_first)
 					if (child_first <= child_last): db_query = db_query.limit(child_last - child_first)
 
-					_return = MpEntry.buffered_iterator(_DbMpUpnpResource, self.local.connection.execute(db_query), self.client_user_agent, self.didl_fields)
+					_return = MpEntry.iterator(_DbMpUpnpResource, self.local.connection.execute(db_query), self.client_user_agent, self.didl_fields)
 				#
 			#
 		#
@@ -319,7 +323,7 @@ offset and limit.
 					if (child_first > 0): db_query = db_query.offset(child_first)
 					if (child_first <= child_last): db_query = db_query.limit(1 + child_last - child_first)
 
-					_return = MpEntry.buffered_iterator(_DbMpUpnpResource, self.local.connection.execute(db_query), self.client_user_agent, self.didl_fields)
+					_return = MpEntry.iterator(_DbMpUpnpResource, self.local.connection.execute(db_query), self.client_user_agent, self.didl_fields)
 				#
 			#
 		#
@@ -580,7 +584,7 @@ Initialize a UPnP resource by CDS ID.
 
 		if (_return):
 		#
-			with Connection.get_instance() as connection:
+			with Connection.get_instance():
 			#
 				url_elements = urlsplit(self.resource_id)
 
@@ -588,7 +592,7 @@ Initialize a UPnP resource by CDS ID.
 				#
 					if (self.local.db_instance is None):
 					#
-						self.local.db_instance = (connection.query(_DbMpUpnpResource)
+						self.local.db_instance = (DataLinker.get_db_class_query(self.__class__)
 						                          .filter(_DbMpUpnpResource.id == url_elements.path[1:])
 						                          .first()
 						                         )
@@ -608,7 +612,7 @@ Initialize a UPnP resource by CDS ID.
 
 						if (self.local.db_instance is None):
 						#
-							self.local.db_instance = (connection.query(_DbMpUpnpResource)
+							self.local.db_instance = (DataLinker.get_db_class_query(self.__class__)
 							                          .filter(_DbMpUpnpResource.resource == self.encapsulated_id)
 							                          .first()
 							                         )
@@ -681,7 +685,7 @@ Initialize an new encapsulated UPnP resource.
 		"""
 
 		if (self.encapsulated_resource is None): raise ValueException("Encapsulated resource not accessible")
-		self._ensure_thread_local_instance(_DbMpUpnpResource)
+		self._ensure_thread_local_instance()
 
 		self.resource_id = self.encapsulated_resource.get_resource_id()
 		self.name = self.encapsulated_resource.get_name()
@@ -942,6 +946,21 @@ used for "init_cds_id()" will be cleared.
 		#
 	#
 
+	def search_content_didl_xml(self, search_criteria):
+	#
+		"""
+Returns an UPnP DIDL result of generated XML for all UPnP content resources
+matching the given UPnP search criteria.
+
+:return: (dict) Result dict containting "result" as generated XML,
+         "number_returned" as the number of DIDL nodes, "total_matches" of
+         all DIDL nodes and the current UPnP update ID.
+:since:  v0.1.01
+		"""
+
+		with self: return Resource.search_content_didl_xml(self, search_criteria)
+	#
+
 	def _set_cds_resource_type(self):
 	#
 		"""
@@ -968,8 +987,6 @@ Sets values given as keyword arguments to this method.
 
 :since: v0.1.00
 		"""
-
-		self._ensure_thread_local_instance(_DbMpUpnpResource)
 
 		with self, self.local.connection.no_autoflush:
 		#
@@ -1003,9 +1020,9 @@ Sets values given as keyword arguments to this method.
 	def set_sort_criteria(self, sort_criteria):
 	#
 		"""
-Sets the DIDL fields to be returned.
+Sets the UPnP sort criteria.
 
-:param fields: DIDL fields list
+:param sort_criteria: UPnP sort criteria
 
 :since: v0.1.01
 		"""
@@ -1127,21 +1144,6 @@ Returns the count of root container MpEntry entries.
 	#
 
 	@staticmethod
-	def get_entries_count_with_condition(condition_definition):
-	#
-		"""
-Returns the count of MpEntry entries based on the given condition definition.
-
-:param condition_definition: ConditionDefinition instance
-
-:return: (int) Number of MpEntry entries
-:since:  v0.1.00
-		"""
-
-		return MpEntry._get_entries_count_with_condition(_DbMpUpnpResource, condition_definition)
-	#
-
-	@staticmethod
 	def load_encapsulating_entry(_id, client_user_agent = None, cds = None, deleted = False):
 	#
 		"""
@@ -1184,30 +1186,13 @@ Loads a matching MpEntry for the given UPnP CDS ID.
 		return _return
 	#
 
-	@staticmethod
-	def load_entries_list_with_condition(condition_definition, offset = 0, limit = -1, sort_definition = None):
-	#
-		"""
-Loads a list of MpEntry instances based on the given condition definition.
-
-:param condition_definition: ConditionDefinition instance
-:param offset: SQLAlchemy query offset
-:param limit: SQLAlchemy query limit
-:param sort_definition: SortDefinition instance
-
-:return: (list) List of MpEntry instances on success
-:since:  v0.1.00
-		"""
-
-		return MpEntry._load_entries_list_with_condition(_DbMpUpnpResource, condition_definition, offset, limit, sort_definition)
-	#
-
-	@staticmethod
-	def load_resource(resource, client_user_agent = None, cds = None, deleted = False):
+	@classmethod
+	def load_resource(cls, resource, client_user_agent = None, cds = None, deleted = False):
 	#
 		"""
 Loads the matching MpEntry for the given UPnP resource.
 
+:param cls: Expected encapsulating database instance class
 :param resource: UPnP resource
 :param client_user_agent: Client user agent
 :param cds: UPnP CDS
@@ -1219,16 +1204,18 @@ Loads the matching MpEntry for the given UPnP resource.
 
 		if (resource is None): raise NothingMatchedException("UPnP resource is invalid")
 
-		with Connection.get_instance() as connection:
+		with Connection.get_instance():
 		#
-			db_instance = (connection.query(_DbMpUpnpResource)
+			db_instance = (DataLinker.get_db_class_query(cls)
 			               .filter(_DbMpUpnpResource.resource == resource)
 			               .first()
 			              )
-		#
 
-		if (db_instance is None): raise NothingMatchedException("UPnP resource '{0}' is invalid".format(resource))
-		return MpEntry(db_instance)
+			if (db_instance is None): raise NothingMatchedException("UPnP resource '{0}' is invalid".format(resource))
+			DataLinker._ensure_db_class(cls, db_instance)
+
+			return MpEntry(db_instance)
+		#
 	#
 
 	@staticmethod
