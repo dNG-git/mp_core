@@ -68,7 +68,7 @@ Called for "dNG.pas.upnp.Resource.getRootResourceContent"
 
 		with Connection.get_instance():
 		#
-			for resource in MpEntry.load_root_containers(client_user_agent):
+			for resource in MpEntry.load_root_containers():
 			#
 				resource.set_client_user_agent(client_user_agent)
 				resource.set_didl_fields(params['container'].get_didl_fields())
