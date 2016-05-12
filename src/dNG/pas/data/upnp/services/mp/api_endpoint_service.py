@@ -48,7 +48,7 @@ Implementation for "urn:schemas-mediaprovider-net:service:ApiEndpointService:1".
              GNU General Public License 2
 	"""
 
-	def get_configuration(self, hook, api_version):
+	def get_app_configuration(self, hook, api_version):
 	#
 		"""
 Returns ApiEndpoint settings based on the given API version.
@@ -94,12 +94,12 @@ Initializes the dict of host service actions.
 :since: v0.1.02
 		"""
 
-		get_configuration = { "argument_variables": [ { "name": "ApiVersion", "variable": "A_ARG_TYPE_ApiVersion" } ],
-		                      "return_variable": { "name": "EndpointData", "variable": "A_ARG_TYPE_Json" },
-		                      "result_variables": [ ]
-		                    }
+		get_app_configuration = { "argument_variables": [ { "name": "ApiVersion", "variable": "A_ARG_TYPE_ApiVersion" } ],
+		                          "return_variable": { "name": "EndpointData", "variable": "A_ARG_TYPE_Json" },
+		                          "result_variables": [ ]
+		                        }
 
-		self.actions = { "GetConfiguration": get_configuration }
+		self.actions = { "GetAppConfiguration": get_app_configuration }
 	#
 
 	def _init_host_variables(self, device):
