@@ -54,6 +54,11 @@ class MpEntryAudio(MpEntry):
              GNU General Public License 2
 	"""
 
+	_DB_INSTANCE_CLASS = _DbMpUpnpAudioResource
+	"""
+SQLAlchemy database instance class to initialize for new instances.
+	"""
+
 	def _add_metadata_to_didl_xml_node(self, xml_resource, xml_node_path, parent_id = None):
 	#
 		"""
@@ -226,18 +231,6 @@ offset and limit.
 		return _return
 	#
 
-	def _init_encapsulated_resource(self):
-	#
-		"""
-Initialize an new encapsulated UPnP resource.
-
-:since: v0.1.00
-		"""
-
-		self._ensure_thread_local_instance(_DbMpUpnpAudioResource)
-		MpEntry._init_encapsulated_resource(self)
-	#
-
 	def refresh_metadata(self):
 	#
 		"""
@@ -301,8 +294,6 @@ Sets values given as keyword arguments to this method.
 
 :since: v0.1.00
 		"""
-
-		self._ensure_thread_local_instance(_DbMpUpnpAudioResource)
 
 		with self:
 		#
