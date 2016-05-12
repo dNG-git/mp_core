@@ -202,7 +202,9 @@ Hook execution
 								child_data = child.get_data_attributes("time_sortable", "refreshable")
 								child_updated = (child_data['time_sortable'] is None or child_data['time_sortable'] < content_list[child_id] or child_data['refreshable'])
 
-								if (child.get_type() & Resource.TYPE_CDS_CONTAINER == Resource.TYPE_CDS_CONTAINER):
+								if ((not child_updated)
+								    and child.get_type() & Resource.TYPE_CDS_CONTAINER == Resource.TYPE_CDS_CONTAINER
+								   ):
 								#
 									memory_tasks.add("dNG.pas.tasks.mp.ResourceScanner.{0}".format(child_id),
 									                 ResourceScanner(child_id),
@@ -383,7 +385,8 @@ Schedules metadata refreshes for a changed file or directory.
 					                )
 
 					memory_tasks.remove("dNG.pas.tasks.mp.ResourceScanner.{0}".format(child_id))
-					memory_tasks.remove("dNG.pas.tasks.mp.ResourceMetadataRefresh.{0}".format(child_id))				#
+					memory_tasks.remove("dNG.pas.tasks.mp.ResourceMetadataRefresh.{0}".format(child_id))
+				#
 			#
 		#
 		elif (event_type == AbstractWatcher.EVENT_TYPE_MODIFIED):
