@@ -127,16 +127,19 @@ Returns the list of UPnP resource search segment results as defined by
 
 		if (not self.pre_condition_failed):
 		#
-			entries = MpEntry.load_entries_list_with_condition(self.condition_definition,
-		                                                       self.offset,
-		                                                       self.limit,
-		                                                       sort_definition
-		                                                      )
-
-			for entry in entries:
+			with Connection.get_instance():
 			#
-				if (self.client_user_agent is not None): entry.set_client_user_agent(self.client_user_agent)
-				_return.append(entry)
+				entries = MpEntry.load_entries_list_with_condition(self.condition_definition,
+				                                                   self.offset,
+				                                                   self.limit,
+				                                                   sort_definition
+				                                                  )
+
+				for entry in entries:
+				#
+					if (self.client_user_agent is not None): entry.set_client_user_agent(self.client_user_agent)
+					_return.append(entry)
+				#
 			#
 		#
 
@@ -248,17 +251,27 @@ definition.
 
 				criteria_value = criteria['value'].lower().strip()
 
-				old_conditions_count = _return.get_conditions_count()
+				condition_definition = (_return
+				                        if (_return.get_concatenation() == ConditionDefinition.OR) else
+				                        ConditionDefinition()
+				                       )
+
+				old_conditions_count = condition_definition.get_conditions_count()
 
 				Hook.call("dNG.mp.upnp.MpResource.applyValueDerivedDbCondition",
-				          condition_definition = _return,
+				          condition_definition = condition_definition,
 				          value = criteria_value
 				         )
 
-				if (old_conditions_count == _return.get_conditions_count()):
+				if (old_conditions_count == condition_definition.get_conditions_count()):
 				#
 					self.pre_condition_failed = True
 					break
+				#
+
+				if (_return.get_concatenation() == ConditionDefinition.AND):
+				#
+					_return.add_sub_condition(condition_definition)
 				#
 			#
 			elif (criteria_type == CriteriaDefinition.TYPE_EXACT_MATCH):
@@ -370,10 +383,7 @@ Called for "dNG.mp.upnp.MpResource.applyValueDerivedDbCondition"
 
 		if (is_generic_container or is_audio_container or is_image_container or is_video_container):
 		#
-			and_condition_definition = (condition_definition
-			                            if (condition_definition.get_concatenation() == ConditionDefinition.AND) else
-			                            ConditionDefinition(ConditionDefinition.AND)
-			                           )
+			and_condition_definition = ConditionDefinition(ConditionDefinition.AND)
 
 			and_condition_definition.add_exact_match_condition("cds_type", MpEntry.DB_CDS_TYPE_CONTAINER)
 			and_condition_definition.add_exact_match_condition("identity", "MpUpnpResource")
@@ -391,10 +401,7 @@ Called for "dNG.mp.upnp.MpResource.applyValueDerivedDbCondition"
 				and_condition_definition.add_exact_match_condition("mimetype", "text/x-directory-upnp-video")
 			#
 
-			if (condition_definition.get_concatenation() == ConditionDefinition.OR):
-			#
-				condition_definition.add_sub_condition(and_condition_definition)
-			#
+			condition_definition.add_sub_condition(and_condition_definition)
 		#
 
 		if ("object.item.audioitem.".startswith(value)): condition_definition.add_exact_match_condition("identity", "MpUpnpAudioResource")
