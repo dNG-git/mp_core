@@ -73,7 +73,7 @@ SQLAlchemy table name
 	"""
 Encapsulating SQLAlchemy database instance class name
 	"""
-	db_schema_version = 1
+	db_schema_version = 2
 	"""
 Database schema version
 	"""
@@ -82,7 +82,7 @@ Database schema version
 	"""
 mp_upnp_resource.id
 	"""
-	cds_type = Column(INT, server_default = "1", nullable = False)
+	cds_type = Column(INT, index = True, server_default = "1", nullable = False)
 	"""
 mp_upnp_resource.cds_type
 	"""
@@ -94,15 +94,15 @@ mp_upnp_resource.mimeclass
 	"""
 mp_upnp_resource.mimetype
 	"""
-	resource_type = Column(VARCHAR(100), server_default = "", index = True, nullable = False)
+	resource_type = Column(VARCHAR(100), index = True, server_default = "", nullable = False)
 	"""
 mp_upnp_resource.resource_type
 	"""
-	resource_title = Column(VARCHAR(255), server_default = "", index = True, nullable = False)
+	resource_title = Column(VARCHAR(255), index = True, server_default = "", nullable = False)
 	"""
 mp_upnp_resource.resource_title
 	"""
-	resource = Column(TEXT, server_default = "", nullable = False, unique = True)
+	resource = Column(TEXT, index = True, server_default = "", nullable = False, unique = True)
 	"""
 mp_upnp_resource.resource
 	"""
