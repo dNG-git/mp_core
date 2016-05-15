@@ -5,8 +5,7 @@
     { "name": "themes/mp/site.min.css" }
    ],
    "js_files": [
-    { "name": "requirejs/pas.config.tsc.min.js" },
-    { "name": "requirejs/require-2.1.17.min.js" }
+    { "name": "requirejs/require.min.js" }
    ],
    "l10n_inits": [
     "theme_mp"

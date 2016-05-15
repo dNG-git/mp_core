@@ -12,7 +12,15 @@ hr {
 
 small { font-size: 0.75em }
 
-.pagecontent_box { overflow: auto; border-radius: 3px }
+.pagecontent_box { overflow: auto; overflow-y: hidden; border-radius: 3px }
+.pagecontent_box_bordered { margin: 6px 0px; padding: 6px; border: 1px solid $lightest_grey }
+.pagecontent_box_both_cleared { clear: both }
+.pagecontent_box_left { float: left }
+.pagecontent_box_left_cleared { clear: left }
+.pagecontent_box_left_padded { margin-left: 6px }
+.pagecontent_box_right { float: right }
+.pagecontent_box_right_cleared { clear: right }
+.pagecontent_box_right_padded { margin-right: 6px }
 
 .pagecontent_box_infoblock {
 	display: inline-block; clear: right; float: right; margin: 0 0 3px 3px;
@@ -99,9 +107,12 @@ small { font-size: 0.75em }
 }
 
 .pagecontent_monospace_box {
-	overflow: auto;
+	overflow: auto; overflow-y: hidden;
 	font-family: "Nimbus Mono L", Monaco, "Lucida Sans Typewriter", "Lucida Console", "Bitstream Vera Sans Mono", "Courier New", Courier, monospace
 }
+
+.pagecontent_overlay_box { z-index: 228; padding: 9px; background-color: $white; border: 1px solid $dark_grey }
+.pagecontent_overlayed_box { opacity: 0.4 }
 
 .pagecontent_page_navigation {
 	clear: both; padding: 6px; background-color: rgba(#{$lighter_grey_rgba}, 0.5); border: 1px solid $dark_grey;
@@ -175,17 +186,19 @@ small { font-size: 0.75em }
 	font-size: 1.2em
 }
 
-.pageform_element {
-	overflow: auto; border-bottom: 1px solid $grey; box-shadow: 0 2px 5px -5px rgba(0, 0, 0, 0.2);
+.pageform_button_field { text-align: center }
 
-	.pageform_error { display: inline-block; margin-top: 10px }
+.pageform_element {
+	overflow: auto; overflow-y: hidden; border-bottom: 1px solid $grey; box-shadow: 0 2px 5px -5px rgba(0, 0, 0, 0.2);
+
+	span.pageform_error { display: inline-block }
 }
 
 .pageform_error { clear: both; padding: 3px; background-color: $light_red; border: 1px solid $red; border-radius: 3px }
 
 .pageform_field {
-	display: inline-block; float: right; width: 74%; margin: 0; padding: 11px 0;
-	text-align: center;
+	display: inline-block; float: right; width: 64%; margin: 0; padding: 11px 0;
+	text-align: left;
 
 	& > :first-child { margin-top: 0 }
 	& > :last-child { margin-bottom: 0 }
@@ -204,19 +217,28 @@ small { font-size: 0.75em }
 }
 
 .pageform_radio {
-	margin: 0; padding: 0; display: inline-block; list-style-type: none;
-	text-align: left
+	margin: 0; padding: 0; list-style-type: none;
+	text-align: left;
+
+	li { width: 80%; padding: 7px; border-bottom: 1px solid $grey }
 }
 
-.pageform_radio_label { vertical-align: middle }
+.pageform_radio_label { display: block }
 
-.pageform_textnpassword {
-	padding: 6px; background-color: $lightest_grey; border: 1px solid $dark_grey; border-bottom-color: $darkest_grey; border-radius: 3px;
-	font-size: 1em
+.pageform_section { margin: 11px 0; border-radius: 3px; box-shadow: 2px 2px 5px 1px $dark_grey }
+
+.pageform_section_title {
+	padding: 6px;
+	font-size: 1.25em; font-weight: bold
 }
 
 .pageform_select {
 	margin: 3px; padding: 3px; background-color: $lightest_grey; border: 1px solid $dark_grey; border-radius: 3px;
+	font-size: 1em
+}
+
+.pageform_textnpassword {
+	padding: 6px; background-color: $lightest_grey; border: 1px solid $dark_grey; border-bottom-color: $darkest_grey; border-radius: 3px;
 	font-size: 1em
 }
 
@@ -295,7 +317,7 @@ small { font-size: 0.75em }
 
 	li > a, li > span {
 		display: block; margin: 4px; padding: 6px; background-color: rgba(#{$darker_grey_rgba}, 0.2); border: 1px solid $neon; border-radius: 7px;
-		overflow: auto; text-decoration: none
+		overflow: auto; overflow-y: hidden; text-decoration: none
 	}
 
 	ul {
@@ -412,6 +434,13 @@ small { font-size: 0.75em }
 }
 
 @media only screen and (max-width: 672px) {
+	.pagecontent_box_left, .pagecontent_box_right {
+		float: inherit;
+		text-align: center
+	}
+
+	.pagecontent_box_right.pagecontent_box_left_padded, .pagecontent_box_left.pagecontent_box_right_padded { margin-left: inherit, margin-right: inherit }
+
 	.pageform_field {
 		display: block; float: initial; width: inherit;
 		text-align: left

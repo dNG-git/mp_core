@@ -40,7 +40,7 @@ h4 { font-size: 1.60em }
 h5 { font-size: 1.55em }
 h6, summary { font-size: 1.50em }
 
-header { position: relative; width: 100%; overflow: auto }
+header { position: relative; width: 100%; overflow: auto; overflow-y: hidden }
 header a, header a:link, header a:active, header a:visited, header a:hover, header a:focus { color: #010101 }
 
 img { border: none }
@@ -53,89 +53,91 @@ td:last-child, th:last-child { border-right: none }
 .designcontent > :first-child { margin-top: 20px }
 .designcontent > :last-child { margin-bottom: 20px }
 
-.designheaderlogo { width: 130px; height: 125px; float: left; background-image: url([rewrite:settings]http_path_mmedia_versioned[/rewrite]/themes/mp/design_logo_130px.png) }
+.designheaderlogo { width: 130px; height: 125px; float: left; background-image: url([rewrite:settings]x_pas_http_path_mmedia_versioned[/rewrite]/themes/mp/design_logo_130px.png) }
 
 .designheadertitle {
 	margin-top: 16px;
 	font-size: 2em; font-weight: bold
 }
 
-.designpage { margin: 0 14px; padding: 0 10px 10px 10px; background: #fefefe url([rewrite:settings]http_path_mmedia_versioned[/rewrite]/themes/mp/design_default_01_1173px.png) no-repeat top right; background-attachment: fixed; border: 1px solid #505050; border-left-width: 10px; box-shadow: 0 16px 14px -14px rgba(17, 225, 189, 0.8) }
+.designpage { margin: 0 14px; padding: 0 10px 10px 10px; background: #fefefe url([rewrite:settings]x_pas_http_path_mmedia_versioned[/rewrite]/themes/mp/design_default_01_1173px.png) no-repeat top right; background-attachment: fixed; border: 1px solid #505050; border-left-width: 10px; box-shadow: 0 16px 14px -14px rgba(17, 225, 189, 0.8) }
 
 @media only screen and (max-width: 352px) {
 	body { margin: 1px 0 }
 
-	.designpage { margin: 0 1px; background-image: url([rewrite:settings]http_path_mmedia_versioned[/rewrite]/themes/mp/design_default_01_212px.png) }
+	.designpage { margin: 0 1px; background-image: url([rewrite:settings]x_pas_http_path_mmedia_versioned[/rewrite]/themes/mp/design_default_01_212px.png) }
 }
 
 @media only screen and (min-width: 352px) and (max-width: 672px) {
 	body { margin: 2px 1px }
 
-	.designpage { margin: 0 4px; background-image: url([rewrite:settings]http_path_mmedia_versioned[/rewrite]/themes/mp/design_default_01_404px.png) }
+	.designpage { margin: 0 4px; background-image: url([rewrite:settings]x_pas_http_path_mmedia_versioned[/rewrite]/themes/mp/design_default_01_404px.png) }
 }
 
 @media only screen and (max-width: 672px) {
 	header { text-align: center }
 
-	.designheaderlogo { float: none; width: 64px; height: 62px; background-image: url([rewrite:settings]http_path_mmedia_versioned[/rewrite]/themes/mp/design_logo_64px.png) }
+	.designheaderlogo { float: none; width: 64px; height: 62px; background-image: url([rewrite:settings]x_pas_http_path_mmedia_versioned[/rewrite]/themes/mp/design_logo_64px.png) }
 	.designheadertitle { margin-top: initial }
 }
 
 @media only screen and (min-width: 672px) and (max-width: 992px) {
 	body { margin: 5px 2% }
 
-	.designpage { background-image: url([rewrite:settings]http_path_mmedia_versioned[/rewrite]/themes/mp/design_default_01_596px.png) }
+	.designpage { background-image: url([rewrite:settings]x_pas_http_path_mmedia_versioned[/rewrite]/themes/mp/design_default_01_596px.png) }
 }
 
 @media only screen and (min-width: 992px) and (max-width: 1312px) {
-	.designpage { background-image: url([rewrite:settings]http_path_mmedia_versioned[/rewrite]/themes/mp/design_default_01_788px.png) }
+	.designpage { background-image: url([rewrite:settings]x_pas_http_path_mmedia_versioned[/rewrite]/themes/mp/design_default_01_788px.png) }
 }
 
 @media only screen and (min-width: 672px) and (max-width: 1312px) {
-	.designheaderlogo { width: 96px; height: 92px; background-image: url([rewrite:settings]http_path_mmedia_versioned[/rewrite]/themes/mp/design_logo_96px.png) }
+	.designheaderlogo { width: 96px; height: 92px; background-image: url([rewrite:settings]x_pas_http_path_mmedia_versioned[/rewrite]/themes/mp/design_logo_96px.png) }
 	.designheadertitle { margin-top: 9px }
 }
 
 @media only screen and (min-width: 1312px) and (max-width: 1632px) {
-	.designpage { background-image: url([rewrite:settings]http_path_mmedia_versioned[/rewrite]/themes/mp/design_default_01_981px.png) }
+	.designpage { background-image: url([rewrite:settings]x_pas_http_path_mmedia_versioned[/rewrite]/themes/mp/design_default_01_981px.png) }
 }
 
 @media only screen and (min-width: 1952px) and (max-width: 2592px) {
-	.designpage { background-image: url([rewrite:settings]http_path_mmedia_versioned[/rewrite]/themes/mp/design_default_01_1173px.png) }
+	.designpage { background-image: url([rewrite:settings]x_pas_http_path_mmedia_versioned[/rewrite]/themes/mp/design_default_01_1173px.png) }
 }
 
 @media only screen and (min-width: 2592px) and (max-width: 3232px) {
-	.designpage { background-image: url([rewrite:settings]http_path_mmedia_versioned[/rewrite]/themes/mp/design_default_01_1557px.png) }
+	.designpage { background-image: url([rewrite:settings]x_pas_http_path_mmedia_versioned[/rewrite]/themes/mp/design_default_01_1557px.png) }
 }
 
 @media only screen and (min-width: 1952px) and (max-width: 3232px) {
-	.designheaderlogo { width: 154px; height: 148px; background-image: url([rewrite:settings]http_path_mmedia_versioned[/rewrite]/themes/mp/design_logo_154px.png) }
+	.designheaderlogo { width: 154px; height: 148px; background-image: url([rewrite:settings]x_pas_http_path_mmedia_versioned[/rewrite]/themes/mp/design_logo_154px.png) }
 	.designheadertitle { margin-top: 20px }
 }
 
 @media only screen and (min-width: 3232px) and (max-width: 3872px) {
-	.designheaderlogo { width: 186px; height: 179px; background-image: url([rewrite:settings]http_path_mmedia_versioned[/rewrite]/themes/mp/design_logo_186px.png) }
+	.designheaderlogo { width: 186px; height: 179px; background-image: url([rewrite:settings]x_pas_http_path_mmedia_versioned[/rewrite]/themes/mp/design_logo_186px.png) }
 	.designheadertitle { margin-top: 26px }
-	.designpage { background-image: url([rewrite:settings]http_path_mmedia_versioned[/rewrite]/themes/mp/design_default_01_1942px.png) }
+	.designpage { background-image: url([rewrite:settings]x_pas_http_path_mmedia_versioned[/rewrite]/themes/mp/design_default_01_1942px.png) }
 }
 ]]></style>
 [each:content:css_files:file]
-<link href="[rewrite:settings]http_path_mmedia_versioned[/rewrite]/[rewrite:content]css_files.file.name[/rewrite]" rel="stylesheet" type="text/css" />
-[/each][each:content:js_files:file]
-<script src="[rewrite:settings]http_path_mmedia_versioned[/rewrite]/[rewrite:content]js_files.file.name[/rewrite]" type="text/javascript"></script>
+<link href="[rewrite:settings]x_pas_http_path_mmedia_versioned[/rewrite]/[rewrite:content]css_files.file.name[/rewrite]" rel="stylesheet" type="text/css" />
+[/each]
+<script src="[rewrite:settings]x_pas_http_path_mmedia_versioned[/rewrite]/pas/config.tsc.min.js?lang=[rewrite:l10n]lang_code[/rewrite];theme=[rewrite:settings]x_pas_http_theme[/rewrite];uuid=[rewrite:settings]x_pas_http_session_uuid[/rewrite]" type="text/javascript"></script>
+[each:content:js_files:file]
+<script src="[rewrite:settings]x_pas_http_path_mmedia_versioned[/rewrite]/[rewrite:content]js_files.file.name[/rewrite]" type="text/javascript"></script>
 [/each]
 </head>
 
 <body>
 <div class='designpage'>
 <header>
-<img src="[rewrite:settings]http_path_mmedia_versioned[/rewrite]/spacer.png" title="[rewrite:settings]pas_http_site_title[/rewrite]" class="designheaderlogo" />
+<img src="[rewrite:settings]x_pas_http_path_mmedia_versioned[/rewrite]/spacer.png" alt="[rewrite:settings]pas_http_site_title[/rewrite]" class="designheaderlogo" />
 <div class='designheadertitle'>[rewrite:settings]pas_http_site_title_xhtml[/rewrite]</div>
 <aside>[rewrite:l10n]theme_mp_donation_1[/rewrite][rewrite:l10n]theme_mp_donation_2[/rewrite][rewrite:l10n]theme_mp_donation_3[/rewrite]</aside>
 </header>
 <div id='design_mainmenu'>[block:settings:pas_http_site_menu_main]output.menu.File.render[/block]</div>
 <script type="text/javascript"><![CDATA[
-require([ "djs/FixableBlock.min" ], function(FixableBlock) {
+require([ "djt/FixableBlock.min" ], function(FixableBlock) {
 	new FixableBlock({ id: "design_mainmenu", FixableBlock_fixed_class: "pagemainmenu_box_fixed" });
 });
 ]]></script>
