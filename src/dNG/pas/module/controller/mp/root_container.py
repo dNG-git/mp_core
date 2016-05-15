@@ -32,7 +32,6 @@ https://www.direct-netware.de/redirect?licenses;gpl
 """
 
 from os import path
-from time import time
 import re
 import os
 
@@ -250,9 +249,11 @@ Action for "edit"
 
 			mp_entry.save()
 
+			resource_id = mp_entry.get_resource_id()
+
 			database_tasks = DatabaseTasks.get_instance()
-			database_tasks.add("dNG.pas.upnp.Resource.onUpdated.{0}".format(cid), "dNG.pas.upnp.Resource.onUpdated", 1, container_id = cid)
-			database_tasks.add("dNG.pas.upnp.Resource.onRootContainerUpdated.{0}".format(cid), "dNG.pas.upnp.Resource.onRootContainerUpdated", 1, container_id = cid)
+			database_tasks.add("dNG.pas.upnp.Resource.onUpdated.{0}".format(cid), "dNG.pas.upnp.Resource.onUpdated", 1, resource_id = resource_id)
+			database_tasks.add("dNG.pas.upnp.Resource.onRootContainerUpdated.{0}".format(cid), "dNG.pas.upnp.Resource.onRootContainerUpdated", 1, container_id = resource_id)
 
 			target_iline = target_iline.replace("__id_d__", "{0}".format(cid))
 			target_iline = re.sub("\\_\\w+\\_\\_", "", target_iline)
@@ -381,7 +382,7 @@ Action for "new"
 			resource_filepath = path.abspath(InputFilter.filter_control_chars(form.get_value("mresource_filepath")))
 			resource_url = "{0}{1}".format(protocol, quote(resource_filepath))
 
-			mp_entry = MpEntry.load_resource(resource_url)
+			mp_entry = MpEntry.load_encapsulating_entry(resource_url)
 			if (mp_entry is None): raise TranslatableException("core_unknown_error")
 
 			mp_entry_resource_type = InputFilter.filter_control_chars(form.get_value("mresource_type"))
@@ -403,10 +404,11 @@ Action for "new"
 			mp_entry.save()
 
 			cid_d = mp_entry.get_id()
+			resource_id = mp_entry.get_resource_id()
 
 			database_tasks = DatabaseTasks.get_instance()
-			database_tasks.add("dNG.pas.upnp.Resource.onAdded.{0}".format(cid_d), "dNG.pas.upnp.Resource.onAdded", 1, container_id = cid_d)
-			database_tasks.add("dNG.pas.upnp.Resource.onRootContainerAdded.{0}".format(cid_d), "dNG.pas.upnp.Resource.onRootContainerAdded", 1, container_id = cid_d)
+			database_tasks.add("dNG.pas.upnp.Resource.onAdded.{0}".format(cid_d), "dNG.pas.upnp.Resource.onAdded", 1, resource_id = resource_id)
+			database_tasks.add("dNG.pas.upnp.Resource.onRootContainerAdded.{0}".format(cid_d), "dNG.pas.upnp.Resource.onRootContainerAdded", 1, container_id = resource_id)
 
 			target_iline = target_iline.replace("__id_d__", "{0}".format(cid_d))
 			target_iline = re.sub("\\_\\_\\w+\\_\\_", "", target_iline)
