@@ -33,6 +33,7 @@ https://www.direct-netware.de/redirect?licenses;gpl
 
 # pylint: disable=unused-argument
 
+from dNG.pas.data.http.virtual_config import VirtualConfig
 from dNG.pas.data.text.l10n import L10n
 from dNG.pas.plugins.hook import Hook
 
@@ -60,6 +61,25 @@ Register plugin hooks.
 	"""
 
 	Hook.register("dNG.pas.http.l10n.upnp.Control.init", init_control_l10n)
+	Hook.register("dNG.pas.http.Server.onStartup", on_startup)
+	Hook.register("dNG.pas.http.Wsgi.onStartup", on_startup)
+#
+
+def on_startup(params, last_return = None):
+#
+	"""
+Called for "dNG.pas.http.Server.onStartup" and "dNG.pas.http.Wsgi.onStartup"
+
+:param params: Parameter specified
+:param last_return: The return value from the last hook called.
+
+:return: (mixed) Return value
+:since:  v0.1.02
+	"""
+
+	VirtualConfig.set_virtual_path("/apis/mp/endpoint_configuration/", { "ohandler": "http_json", "m": "mp", "s": "app_endpoint", "a": "api_get_configuration", "path": "version" })
+
+	return last_return
 #
 
 def unregister_plugin():
@@ -71,6 +91,8 @@ Unregister plugin hooks.
 	"""
 
 	Hook.unregister("dNG.pas.http.l10n.upnp.Control.init", init_control_l10n)
+	Hook.unregister("dNG.pas.http.Server.onStartup", on_startup)
+	Hook.unregister("dNG.pas.http.Wsgi.onStartup", on_startup)
 #
 
 ##j## EOF
