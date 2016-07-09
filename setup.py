@@ -79,7 +79,7 @@ with TemporaryDirectory(dir = ".") as build_directory:
 	      platforms = [ "any" ],
 
 	      package_dir = { "": _build_path },
-	      packages = [ "dNG" ],
+	      packages = [ "dNG", "mp" ],
 
 	      data_files = [ ( "docs", [ "LICENSE", "README" ]) ],
 

@@ -1,0 +1,10 @@
+{
+ "upnp_cehtml_apps_supported": false,
+
+ "upnp_didl_cds2_container_classes_supported": false,
+ "upnp_pvr_scheduled_recording_supported": false,
+ "upnp_spec_versioning_supported": false,
+
+ "upnp_didl_title_default_item_format": "[if:dc:creator !=][rewrite]dc:creator[/rewrite] - [/if][rewrite]dc:title[/rewrite]",
+ "upnp_didl_title_mp_entry_pvr_recording_format": "[if:upnp:seriesTitle !=][rewrite]upnp:seriesTitle[/rewrite] - [/if][rewrite]dc:title[/rewrite]"
+}
