@@ -23,7 +23,7 @@ more details.
 
 You should have received a copy of the GNU General Public License along with
 this program; if not, write to the Free Software Foundation, Inc.,
-59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 ----------------------------------------------------------------------------
 https://www.direct-netware.de/redirect?licenses;gpl
 ----------------------------------------------------------------------------
@@ -72,12 +72,12 @@ Initialize a UPnP resource by CDS ID.
 		"""
 
 		_return = AbstractItemHttpResource.init_cds_id(self, _id, client_user_agent, deleted)
-		if (_return): self._init_dlna_content_features()
+		if (_return): self._refresh_dlna_information()
 
 		return _return
-#
+	#
 
-	def _init_dlna_content_features(self):
+	def _refresh_dlna_content_features(self):
 	#
 		"""
 Initializes the UPnP DLNA content features variable.
@@ -117,14 +117,25 @@ Initializes the UPnP DLNA content features variable.
 			                                                          )
 			                                                         )
 		#
-
-		self._init_dlna_res_protocol()
 	#
 
-	def _init_dlna_res_protocol(self):
+	def _refresh_dlna_information(self):
+	#
+		"""
+Refreshes all DLNA information of this UPnP item DLNA HTTP resource.
+
+:since: v0.2.00
+		"""
+
+		self._refresh_dlna_content_features()
+		self._refresh_dlna_res_protocol()
+	#
+
+	def _refresh_dlna_res_protocol(self):
 	#
 		"""
 Initializes the UPnP DLNA res protocol variable.
+
 :since: v0.2.00
 		"""
 
@@ -144,7 +155,7 @@ Sets the UPnP resource mime class.
 		"""
 
 		AbstractItemHttpResource.set_mimeclass(self, mimeclass)
-		self._init_dlna_content_features()
+		self._refresh_dlna_information()
 	#
 
 	def set_mimetype(self, mimetype):
@@ -156,7 +167,7 @@ Sets the UPnP resource mime type.
 		"""
 
 		AbstractItemHttpResource.set_mimetype(self, mimetype)
-		self._init_dlna_res_protocol()
+		self._refresh_dlna_res_protocol()
 	#
 #
 

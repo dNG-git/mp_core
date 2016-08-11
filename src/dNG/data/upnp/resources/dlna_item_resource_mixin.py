@@ -23,7 +23,7 @@ more details.
 
 You should have received a copy of the GNU General Public License along with
 this program; if not, write to the Free Software Foundation, Inc.,
-59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 ----------------------------------------------------------------------------
 https://www.direct-netware.de/redirect?licenses;gpl
 ----------------------------------------------------------------------------
@@ -132,7 +132,7 @@ Returns the UPnP DLNA content features known used for the 4th-field.
 		return self.dlna_content_features
 	#
 
-	def _init_dlna_content_features(self):
+	def _refresh_dlna_content_features(self):
 	#
 		"""
 Initializes the UPnP DLNA content features variable.
@@ -149,7 +149,7 @@ Initializes the UPnP DLNA content features variable.
 		                                                         )
 	#
 
-	def _init_dlna_res_protocol(self):
+	def _refresh_dlna_res_protocol(self):
 	#
 		"""
 Initializes the UPnP DLNA res protocol variable.
