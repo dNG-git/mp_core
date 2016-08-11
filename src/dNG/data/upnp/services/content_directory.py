@@ -23,7 +23,7 @@ more details.
 
 You should have received a copy of the GNU General Public License along with
 this program; if not, write to the Free Software Foundation, Inc.,
-59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 ----------------------------------------------------------------------------
 https://www.direct-netware.de/redirect?licenses;gpl
 ----------------------------------------------------------------------------
@@ -180,7 +180,7 @@ Returns the list of supported UPnP ContentDirectory features.
 		"""
 
 		if (self.log_handler is not None): self.log_handler.debug("#echo(__FILEPATH__)# -{0!r}.get_feature_list()- (#echo(__LINE__)#)", self, context = "mp_server")
-		return self._get_feature_list("dNG.pas.upnp.service.ContentDirectory")
+		return self._get_feature_list("dNG.pas.upnp.services.ContentDirectory")
 	#
 
 	def _get_metadata(self, object_id, _filter = "*"):
@@ -328,7 +328,7 @@ Initializes a host service.
 		if (service_id is None): service_id = "ContentDirectory"
 
 		Hook.register_weakref("dNG.pas.upnp.Resource.onUpdateIdChanged", self._on_updated_id)
-		Hook.register_weakref("mp.upnp.services.ContentDirectory.onSystemUpdateIdChanged", self._on_updated_id)
+		Hook.register_weakref("dNG.pas.upnp.services.ContentDirectory.onSystemUpdateIdChanged", self._on_updated_id)
 
 		return AbstractService.init_host(self, device, service_id, configid)
 	#
@@ -485,7 +485,7 @@ Initializes the dict of host service variables.
 	#
 		"""
 Called for "dNG.pas.upnp.Resource.onUpdateIdChanged"
-and "mp.upnp.services.ContentDirectory.onSystemUpdateIdChanged"
+and "dNG.pas.upnp.services.ContentDirectory.onSystemUpdateIdChanged"
 
 :param params: Parameter specified
 :param last_return: The return value from the last hook called.
@@ -545,10 +545,10 @@ and "mp.upnp.services.ContentDirectory.onSystemUpdateIdChanged"
 				#
 					memory_tasks = MemoryTasks.get_instance()
 
-					if (not memory_tasks.is_registered("mp.upnp.services.ContentDirectory.onSystemUpdateIdChanged")):
+					if (not memory_tasks.is_registered("dNG.pas.upnp.services.ContentDirectory.onSystemUpdateIdChanged")):
 					#
-						memory_tasks.add("mp.upnp.services.ContentDirectory.onSystemUpdateIdChanged",
-						                 "mp.upnp.services.ContentDirectory.onSystemUpdateIdChanged",
+						memory_tasks.add("dNG.pas.upnp.services.ContentDirectory.onSystemUpdateIdChanged",
+						                 "dNG.pas.upnp.services.ContentDirectory.onSystemUpdateIdChanged",
 						                 moderated_time_delta,
 						                 id = "upnp://ContentDirectory-0/system_update_id",
 						                 value = self.get_system_update_id()
