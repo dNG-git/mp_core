@@ -23,7 +23,7 @@ more details.
 
 You should have received a copy of the GNU General Public License along with
 this program; if not, write to the Free Software Foundation, Inc.,
-59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 ----------------------------------------------------------------------------
 https://www.direct-netware.de/redirect?licenses;gpl
 ----------------------------------------------------------------------------
@@ -320,26 +320,24 @@ Schedules metadata refreshes for a changed file or directory.
 
 		if (changed_value is not None):
 		#
+			changed_value = quote(changed_value)
+			child_id = url + "/" + changed_value
+
 			if (event_type == WatcherImplementation.EVENT_TYPE_CREATED):
 			#
-				child_id = url + "/" + quote(changed_value)
-				encapsulating_child = None
+				child = None
 				is_added = False
 
 				with TransactionContext():
 				#
-					encapsulating_entry = MpEntry.load_encapsulating_entry(url)
-					if (encapsulating_entry is not None): encapsulating_child = MpEntry.load_encapsulating_entry(child_id)
+					parent = MpEntry.load_encapsulating_entry(url)
+					if (parent is not None): child = MpEntry.load_encapsulating_entry(child_id)
 
-					encapsulated_resource = (None
-					                         if (encapsulating_child is None) else
-					                         encapsulating_entry.load_encapsulated_resource()
-					                        )
-
-					if (encapsulated_resource is not None and encapsulating_entry.add_content(encapsulating_child)):
+					if (child is not None and parent.add_content(child)):
 					#
-						encapsulating_child.set_data_attributes(time_sortable = encapsulated_resource.get_timestamp())
-						encapsulating_child.save()
+						child.set_data_attributes(refreshable = True)
+						child.save()
+
 						is_added = True
 					#
 					else: LogLine.warning("mp.ResourceScanner failed to add entry '{0}'", child_id, context = "mp_server")
@@ -356,15 +354,13 @@ Schedules metadata refreshes for a changed file or directory.
 			#
 			elif (event_type == WatcherImplementation.EVENT_TYPE_DELETED):
 			#
-				child_id = url + "/" + quote(changed_value)
-
 				with Connection.get_instance():
 				#
-					encapsulating_child = MpEntry.load_encapsulating_entry(child_id, deleted = True)
+					child = MpEntry.load_encapsulating_entry(child_id, deleted = True)
 
-					if (encapsulating_child is not None):
+					if (child is not None):
 					#
-						child_db_id = encapsulating_child.get_id()
+						child_db_id = child.get_id()
 						memory_tasks = MemoryTasks.get_instance()
 
 						memory_tasks.add("mp.tasks.ResourceIdDeleter.{0}".format(child_db_id),
@@ -379,7 +375,6 @@ Schedules metadata refreshes for a changed file or directory.
 			#
 			elif (event_type == WatcherImplementation.EVENT_TYPE_MODIFIED):
 			#
-				child_id = url + "/" + quote(changed_value)
 				MemoryTasks.get_instance().add("mp.tasks.ResourceMetadataRefresh.{0}".format(child_id), ResourceMetadataRefresh(child_id), 0)
 			#
 		#
@@ -387,11 +382,11 @@ Schedules metadata refreshes for a changed file or directory.
 		#
 			with Connection.get_instance():
 			#
-				encapsulating_child = MpEntry.load_encapsulating_entry(url, deleted = True)
+				child = MpEntry.load_encapsulating_entry(url, deleted = True)
 
-				if (encapsulating_child is not None):
+				if (child is not None):
 				#
-					child_db_id = encapsulating_child.get_id()
+					child_db_id = child.get_id()
 					memory_tasks = MemoryTasks.get_instance()
 
 					memory_tasks.add("mp.tasks.ResourceIdDeleter.{0}".format(child_db_id),
