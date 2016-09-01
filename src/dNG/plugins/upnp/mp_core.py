@@ -23,7 +23,7 @@ more details.
 
 You should have received a copy of the GNU General Public License along with
 this program; if not, write to the Free Software Foundation, Inc.,
-59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 ----------------------------------------------------------------------------
 https://www.direct-netware.de/redirect?licenses;gpl
 ----------------------------------------------------------------------------
@@ -40,6 +40,8 @@ from uuid import uuid3 as uuid_of_namespace
 from dNG.data.settings import Settings
 from dNG.data.tasks.memory import Memory as MemoryTasks
 from dNG.data.upnp.resources.file import File
+from dNG.data.upnp.resources.item_dlna_http_jpeg_thumbnail_resource import ItemDlnaHttpJpegThumbnailResource
+from dNG.data.upnp.resources.item_dlna_http_png_thumbnail_resource import ItemDlnaHttpPngThumbnailResource
 from dNG.data.upnp.resources.item_dlna_http_resource import ItemDlnaHttpResource
 from dNG.data.upnp.resources.mp_entry import MpEntry
 from dNG.data.upnp.search.common_mp_entry_segment import CommonMpEntrySegment
@@ -109,7 +111,27 @@ Called for "dNG.pas.upnp.Resource.getItemResourceContent"
 			#
 		#
 
-		if (resource is not None): params['item'].add_content(resource)
+		if (resource is not None):
+		#
+			params['item'].add_content(resource)
+
+			if (params['item'].is_supported("thumbnail_source_vfs_url")):
+			#
+				thumbnail_resource = ItemDlnaHttpJpegThumbnailResource()
+
+				if (thumbnail_resource.init_cds_id(params['item'].get_resource_id(),
+				                                   params['item'].get_client_user_agent()
+				                                  )
+				   ): params['item'].add_content(thumbnail_resource)
+
+				thumbnail_resource = ItemDlnaHttpPngThumbnailResource()
+
+				if (thumbnail_resource.init_cds_id(params['item'].get_resource_id(),
+				                                   params['item'].get_client_user_agent()
+				                                  )
+				   ): params['item'].add_content(thumbnail_resource)
+			#
+		#
 	#
 
 	return last_return
