@@ -23,7 +23,7 @@ more details.
 
 You should have received a copy of the GNU General Public License along with
 this program; if not, write to the Free Software Foundation, Inc.,
-59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 ----------------------------------------------------------------------------
 https://www.direct-netware.de/redirect?licenses;gpl
 ----------------------------------------------------------------------------
@@ -32,11 +32,10 @@ https://www.direct-netware.de/redirect?licenses;gpl
 """
 
 from dNG.data.binary import Binary
-from dNG.data.media.audio import Audio
+from dNG.data.media.audio_implementation import AudioImplementation
 from dNG.data.media.audio_metadata import AudioMetadata
 from dNG.data.upnp.variable import Variable
 from dNG.database.instances.mp_upnp_audio_resource import MpUpnpAudioResource as _DbMpUpnpAudioResource
-from dNG.runtime.not_implemented_class import NotImplementedClass
 
 from .mp_entry import MpEntry
 
@@ -186,7 +185,7 @@ Refresh metadata associated with this MpEntryAudio.
 		"""
 
 		MpEntry.refresh_metadata(self)
-		if (not issubclass(Audio, NotImplementedClass)): self._refresh_audio_metadata(self.get_vfs_url())
+		if (AudioImplementation.get_class() is not None): self._refresh_audio_metadata(self.get_vfs_url())
 	#
 
 	def _refresh_audio_metadata(self, vfs_url):
@@ -199,7 +198,7 @@ Refresh metadata associated with this MpEntryAudio.
 :since: v0.2.00
 		"""
 
-		audio = Audio()
+		audio = AudioImplementation.get_instance()
 		metadata = None
 
 		if (vfs_url != ""):
