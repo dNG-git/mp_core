@@ -52,7 +52,7 @@ class AbstractItemDlnaHttpThumbnailResource(ItemDlnaHttpResource, ItemHttpTransf
 
 	TRANSFORMATION_ACTION = "resource_thumbnail"
 	"""
-@TODO: Fixme
+Image transformation action used for "m=upnp;s=image".
 	"""
 
 	def __init__(self):

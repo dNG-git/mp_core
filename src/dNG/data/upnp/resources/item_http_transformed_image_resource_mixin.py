@@ -50,7 +50,7 @@ return a transformed UPnP image resource.
 
 	TRANSFORMATION_ACTION = "transformed_resource"
 	"""
-@TODO: Fixme
+Image transformation action used for "m=upnp;s=image".
 	"""
 
 	def __init__(self):
