@@ -23,7 +23,7 @@ more details.
 
 You should have received a copy of the GNU General Public License along with
 this program; if not, write to the Free Software Foundation, Inc.,
-59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 ----------------------------------------------------------------------------
 https://www.direct-netware.de/redirect?licenses;gpl
 ----------------------------------------------------------------------------
@@ -518,7 +518,7 @@ Initialize a UPnP resource by CDS ID.
 
 		_return = Abstract.init_cds_id(self, _id, client_user_agent, deleted)
 
-		if (self.resource_id is not None):
+		if (_return):
 		#
 			url_elements = urlsplit(self.resource_id)
 
@@ -531,11 +531,8 @@ Initialize a UPnP resource by CDS ID.
 						self.local.db_instance = Entry.get_db_class_query(self.__class__).get(url_elements.path[1:])
 					#
 
-					if (self.local.db_instance is not None):
-					#
-						self._load_data()
-						_return = True
-					#
+					if (self.local.db_instance is None): _return = False
+					else: self._load_data()
 				#
 				else:
 				#
@@ -552,9 +549,8 @@ Initialize a UPnP resource by CDS ID.
 
 					if (self.local.db_instance is None):
 					#
-						vfs_object = Implementation.load_vfs_url(vfs_url)
-
-						self._init_from_vfs_object(vfs_object)
+						vfs_object = Implementation.load_vfs_url(vfs_url, True)
+						if (vfs_object.is_valid()): self._init_from_vfs_object(vfs_object)
 					#
 					else: self._load_data()
 
@@ -691,24 +687,28 @@ Refresh metadata associated with the MpEntry.
 :since: v0.2.00
 		"""
 
-		vfs_object = self.get_vfs_object()
+		vfs_object = self.get_vfs_object(True)
 
-		entry_data = { "time_sortable": vfs_object.get_time_updated(),
-		               "size": vfs_object.get_size()
-		             }
-
-		if (self.get_type() & MpEntry.TYPE_CDS_ITEM == MpEntry.TYPE_CDS_ITEM):
+		try:
 		#
-			mimetype = vfs_object.get_mimetype()
-			mimetype_definition = MimeType.get_instance().get(mimetype = mimetype)
+			entry_data = { "time_sortable": vfs_object.get_time_updated(),
+			               "size": vfs_object.get_size()
+			             }
 
-			mimeclass = (mimetype.split("/", 1)[0] if (mimetype_definition is None) else mimetype_definition['class'])
+			if (self.get_type() & MpEntry.TYPE_CDS_ITEM == MpEntry.TYPE_CDS_ITEM):
+			#
+				mimetype = vfs_object.get_mimetype()
+				mimetype_definition = MimeType.get_instance().get(mimetype = mimetype)
 
-			entry_data['mimeclass'] = mimeclass
-			entry_data['mimetype'] = mimetype
+				mimeclass = (mimetype.split("/", 1)[0] if (mimetype_definition is None) else mimetype_definition['class'])
+
+				entry_data['mimeclass'] = mimeclass
+				entry_data['mimetype'] = mimetype
+			#
+
+			with self: self.set_data_attributes(**entry_data)
 		#
-
-		with self: self.set_data_attributes(**entry_data)
+		finally: vfs_object.close()
 	#
 
 	def remove_content(self, resource):
