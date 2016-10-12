@@ -60,6 +60,22 @@ Returns the list of supported UPnP ContentDirectory features.
 		return self._get_feature_list("dNG.pas.upnp.services.ConnectionManager")
 	#
 
+	def get_protocol_info(self):
+	#
+		"""
+Returns the list of supported UPnP protocols.
+
+@TODO: Rewrite to be extendible
+
+:return: (tuple) ProtocolInfo tuple with supported source and sink UPnP
+         protocols
+:since:  v0.2.00
+		"""
+
+		if (self.log_handler is not None): self.log_handler.debug("#echo(__FILEPATH__)# -{0!r}.get_protocol_info()- (#echo(__LINE__)#)", self, context = "mp_server")
+		return ( "http-get:*:*:*", "" )
+	#
+
 	def get_version(self):
 	#
 		"""
