@@ -23,7 +23,7 @@ more details.
 
 You should have received a copy of the GNU General Public License along with
 this program; if not, write to the Free Software Foundation, Inc.,
-59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 ----------------------------------------------------------------------------
 https://www.direct-netware.de/redirect?licenses;gpl
 ----------------------------------------------------------------------------
@@ -37,11 +37,10 @@ except ImportError: from urllib import quote
 from dNG.data.binary import Binary
 from dNG.data.cache.file import File as CacheFile
 from dNG.data.media.container_metadata import ContainerMetadata
-from dNG.data.media.video import Video
+from dNG.data.media.video_implementation import VideoImplementation
 from dNG.data.upnp.variable import Variable
 from dNG.database.nothing_matched_exception import NothingMatchedException
 from dNG.database.instances.mp_upnp_video_resource import MpUpnpVideoResource as _DbMpUpnpVideoResource
-from dNG.runtime.not_implemented_class import NotImplementedClass
 from dNG.runtime.exception_log_trap import ExceptionLogTrap
 
 from .mp_entry import MpEntry
@@ -79,8 +78,8 @@ Constructor __init__(MpEntryVideo)
 
 		MpEntry.__init__(self, db_instance, user_agent, didl_fields)
 
+		self.supported_features['thumbnail_source_vfs_url'] = True
 		self.supported_features['upnp_resource_metadata'] = True
-		self.supported_features['thumbnail_source_vfs_url'] = False
 	#
 
 	def _add_metadata_to_didl_xml_node(self, xml_resource, xml_node_path, parent_id = None):
@@ -157,10 +156,52 @@ client.
 		#
 	#
 
-	def get_thumbnail_source_vfs_url(self):
+	def _generate_thumbnail_source(self):
+	#
+		"""
+Generates a cached thumbnail source and returns its VFS URL.
+
+:return: (str) Thumbnail source VFS URL; None if no thumbnail file exist
+:since:  v0.2.00
+		"""
+
+		thumbnail_file = None
+
+		with ExceptionLogTrap("pas_upnp"):
+		#
+			vfs_url = self.get_vfs_url()
+			video = VideoImplementation.get_instance()
+
+			if (vfs_url != ""):
+			#
+				if (vfs_url[:2] == "x-"): vfs_url = MpEntryVideo._get_http_upnp_stream_url(self.get_resource_id())
+				# @TODO: Create hook to decide when to use the HTTP approach
+				thumbnail_buffer = (video.get_thumbnail() if (video.open_url(vfs_url)) else None)
+			#
+
+			if (thumbnail_buffer is not None):
+			#
+				thumbnail_vfs_url = self._get_thumbnail_vfs_url()
+
+				thumbnail_file = CacheFile()
+				thumbnail_file.set_data_attributes(resource = thumbnail_vfs_url)
+				thumbnail_file.write(thumbnail_buffer.read())
+				thumbnail_file.save()
+			#
+		#
+
+		return (None
+		        if (thumbnail_file is None) else
+		        thumbnail_file.get_vfs_url()
+		       )
+	#
+
+	def get_thumbnail_source_vfs_url(self, generate_thumbnail = True):
 	#
 		"""
 Returns the thumbnail source VFS URL if applicable.
+
+:param generate_thumbnail: True to generate a missing thumbnail on the fly
 
 :return: (str) Thumbnail source VFS URL; None if no thumbnail file exist
 :since:  v0.2.00
@@ -168,18 +209,29 @@ Returns the thumbnail source VFS URL if applicable.
 
 		_return = None
 
-		with ExceptionLogTrap("pas_upnp"):
+		with self:
 		#
-			try:
-			#
-				thumbnail_url = "x-upnp-thumbnail:///{0}".format(quote(self.get_resource_id()))
+			thumbnail_vfs_url = self._get_thumbnail_vfs_url()
 
-				_return = CacheFile.load_resource(thumbnail_url).get_vfs_url()
-			#
+			try: _return = CacheFile.load_resource(thumbnail_vfs_url).get_vfs_url()
 			except NothingMatchedException: pass
 		#
 
+		if (_return is None and generate_thumbnail): _return = self._generate_thumbnail_source()
+
 		return _return
+	#
+
+	def _get_thumbnail_vfs_url(self):
+	#
+		"""
+Returns the thumbnail VFS URL used to store the thumbnail source.
+
+:return: (str) Thumbnail VFS URL
+:since:  v0.2.00
+		"""
+
+		with self: return "x-upnp-thumbnail:///{0}".format(quote(self.get_resource_id(), "/"))
 	#
 
 	def get_upnp_resource_metadata(self):
@@ -218,7 +270,7 @@ Refresh metadata associated with this MpEntryVideo.
 		"""
 
 		MpEntry.refresh_metadata(self)
-		if (not issubclass(Video, NotImplementedClass)): self._refresh_video_metadata(self.get_vfs_url())
+		if (VideoImplementation.get_class() is not None): self._refresh_video_metadata(self.get_vfs_url())
 	#
 
 	def _refresh_video_metadata(self, vfs_url):
@@ -232,7 +284,7 @@ Refresh metadata associated with this MpEntryVideo.
 		"""
 
 		metadata = None
-		video = Video()
+		video = VideoImplementation.get_instance()
 
 		if (vfs_url != ""):
 		#
@@ -243,10 +295,7 @@ Refresh metadata associated with this MpEntryVideo.
 
 		if (isinstance(metadata, ContainerMetadata) and metadata.get_video_streams_count() == 1):
 		#
-			thumbnail_buffer = None
 			video_metadata = metadata.get_video_streams(0)
-
-			if (self.get_thumbnail_source_vfs_url() is None): thumbnail_buffer = video.get_thumbnail()
 
 			with self:
 			#
@@ -260,17 +309,9 @@ Refresh metadata associated with this MpEntryVideo.
 				                         bitrate = video_metadata.get_bitrate(),
 				                         bpp = video_metadata.get_bpp()
 				                        )
-
-				if (thumbnail_buffer is not None):
-				#
-					thumbnail_url = "x-upnp-thumbnail:///{0}".format(quote(self.get_resource_id()))
-
-					thumbnail_file = CacheFile()
-					thumbnail_file.set_data_attributes(resource = thumbnail_url)
-					thumbnail_file.write(thumbnail_buffer.read())
-					thumbnail_file.save()
-				#
 			#
+
+			if (self.get_thumbnail_source_vfs_url(False) is None): self._generate_thumbnail_source()
 		#
 	#
 
