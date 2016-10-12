@@ -23,7 +23,7 @@ more details.
 
 You should have received a copy of the GNU General Public License along with
 this program; if not, write to the Free Software Foundation, Inc.,
-59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 ----------------------------------------------------------------------------
 https://www.direct-netware.de/redirect?licenses;gpl
 ----------------------------------------------------------------------------
@@ -37,12 +37,11 @@ try: from urllib.parse import quote
 except ImportError: from urllib import quote
 
 from dNG.data.binary import Binary
-from dNG.data.media.image import Image
+from dNG.data.media.image_implementation import ImageImplementation
 from dNG.data.media.image_metadata import ImageMetadata
 from dNG.data.settings import Settings
 from dNG.database.instances.mp_upnp_image_resource import MpUpnpImageResource as _DbMpUpnpImageResource
 from dNG.module.named_loader import NamedLoader
-from dNG.runtime.not_implemented_class import NotImplementedClass
 
 from .mp_entry import MpEntry
 
@@ -79,6 +78,7 @@ Constructor __init__(MpEntryImage)
 
 		MpEntry.__init__(self, db_instance, user_agent, didl_fields)
 
+		self.supported_features['thumbnail_source_vfs_url'] = True
 		self.supported_features['upnp_resource_metadata'] = True
 	#
 
@@ -134,6 +134,20 @@ client.
 		#
 	#
 
+	def get_thumbnail_source_vfs_url(self, generate_thumbnail = True):
+	#
+		"""
+Returns the thumbnail source VFS URL if applicable.
+
+:param generate_thumbnail: True to generate a missing thumbnail on the fly
+
+:return: (str) Thumbnail source VFS URL; None if no thumbnail file exist
+:since:  v0.2.00
+		"""
+
+		return self.get_vfs_url()
+	#
+
 	def get_upnp_resource_metadata(self):
 	#
 		"""
@@ -159,62 +173,6 @@ Returns the metadata of the original source UPnP resource.
 		return _return
 	#
 
-	def _init_item_content(self):
-	#
-		"""
-Initializes the content of an UPnP CDS item entry.
-
-:return: (bool) True if successful
-:since:  v0.2.00
-		"""
-
-		_return = False
-
-		client_settings = self.get_client_settings()
-		#encapsulated_resource = self.load_encapsulated_resource()
-
-		if (False and Settings.get("mp_core_transform_images_on_server", True)
-		    and client_settings.get("upnp_stream_image_resized", False)
-		    and Image().is_supported("transformation")
-		   ):
-		#
-			entry_data = self.get_data_attributes("width", "height")
-
-			transformed_image_type = client_settings.get("upnp_stream_image_resized_type")
-			transformed_image_width = client_settings.get("upnp_stream_image_resized_width")
-			transformed_image_height = client_settings.get("upnp_stream_image_resized_height")
-
-			if (transformed_image_type is not None
-			    and transformed_image_width is not None
-			    and transformed_image_height is not None
-			    and ((entry_data['width'] is None or transformed_image_width < entry_data['width'])
-			         or (entry_data['height'] is None or transformed_image_height < entry_data['height'])
-			        )
-			   ):
-			#
-				camel_case_type = "".join([word.capitalize() for word in re.split("\\W", transformed_image_type.split("/")[0])])
-				transformed_image_class_name = "dNG.data.upnp.resources.TransformedImage{0}Stream".format(camel_case_type)
-
-				transformed_image_resource = NamedLoader.get_instance(transformed_image_class_name, False)
-
-				if (transformed_image_resource is not None):
-				#
-					transformed_image_resource.set_transformed_source_path(encapsulated_resource.get_path())
-					transformed_image_resource.set_transformed_image_width(transformed_image_width)
-					transformed_image_resource.set_transformed_image_height(transformed_image_height)
-					transformed_image_resource.init_cds_id("upnp-transformed-image:///{0}".format(quote(encapsulated_resource.get_resource_id())))
-
-					self.content = [ transformed_image_resource ]
-					_return = True
-				#
-			#
-		#
-
-		if (not _return): _return = MpEntry._init_item_content(self)
-
-		return _return
-	#
-
 	def refresh_metadata(self):
 	#
 		"""
@@ -224,7 +182,7 @@ Refresh metadata associated with this MpEntryImage.
 		"""
 
 		MpEntry.refresh_metadata(self)
-		if (not issubclass(Image, NotImplementedClass)): self._refresh_image_metadata(self.get_vfs_url())
+		if (ImageImplementation.get_class() is not None): self._refresh_image_metadata(self.get_vfs_url())
 	#
 
 	def _refresh_image_metadata(self, vfs_url):
@@ -237,7 +195,7 @@ Refresh metadata associated with this MpEntryAudio.
 :since: v0.2.00
 		"""
 
-		image = Image()
+		image = ImageImplementation.get_instance()
 		metadata = None
 
 		if (vfs_url != ""):
