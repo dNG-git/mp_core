@@ -23,7 +23,7 @@ more details.
 
 You should have received a copy of the GNU General Public License along with
 this program; if not, write to the Free Software Foundation, Inc.,
-59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 ----------------------------------------------------------------------------
 https://www.direct-netware.de/redirect?licenses;gpl
 ----------------------------------------------------------------------------
@@ -31,8 +31,11 @@ https://www.direct-netware.de/redirect?licenses;gpl
 #echo(__FILEPATH__)#
 """
 
+from dNG.data.json_resource import JsonResource
+from dNG.data.session.implementation import Implementation as Session
+from dNG.data.text.input_filter import InputFilter
+from dNG.data.text.link import Link
 from dNG.data.upnp.services.abstract_service import AbstractService
-from dNG.data.upnp.upnp_exception import UpnpException
 
 class ApiEndpointService(AbstractService):
 #
@@ -48,18 +51,37 @@ Implementation for "urn:schemas-mediaprovider-net:service:ApiEndpointService:1".
              GNU General Public License 2
 	"""
 
-	def get_app_configuration(self, hook, api_version):
+	def get_app_configuration(self, api_version, template_type, client_details):
 	#
 		"""
 Returns ApiEndpoint settings based on the given API version.
 
 :param api_version: API version requested
+:param template_type: Template type requested by the client
+:param client_details: JSON encoded client details
 
 :return: (dict) ApiEndpoint settings
 :since:  v0.2.00
 		"""
 
-		raise UpnpException("core_unsupported_command")
+		if (template_type == ""): template_type = "ten_foot_web"
+		template_type = "leanback_{0}".format(InputFilter.filter_control_chars(template_type).strip())
+
+		session = Session.load()
+
+		if (session.get("mp.leanback.user_agent") != self.client_user_agent):
+		#
+			session.set("mp.leanback.access_granted", True)
+			session.set("mp.leanback.user_agent", self.client_user_agent)
+			session.set("mp.leanback.template_type", template_type)
+
+			session.save()
+		#
+
+		url_parameters = { "m": "mp", "s": "leanback", "a": "dashboard", "uuid": session.get_uuid() }
+		url = Link.get_preferred("upnp").build_url(Link.TYPE_ABSOLUTE_URL, url_parameters)
+
+		return JsonResource().data_to_json({ "url": url })
 	#
 
 	def init_host(self, device, service_id = None, configid = None):
@@ -94,7 +116,10 @@ Initializes the dict of host service actions.
 :since: v0.2.00
 		"""
 
-		get_app_configuration = { "argument_variables": [ { "name": "ApiVersion", "variable": "A_ARG_TYPE_ApiVersion" } ],
+		get_app_configuration = { "argument_variables": [ { "name": "ApiVersion", "variable": "A_ARG_TYPE_ApiVersion" },
+		                                                  { "name": "TemplateType", "variable": "A_ARG_TYPE_TemplateType" },
+		                                                  { "name": "ClientDetails", "variable": "A_ARG_TYPE_Json" }
+		                                                ],
 		                          "return_variable": { "name": "EndpointData", "variable": "A_ARG_TYPE_Json" },
 		                          "result_variables": [ ]
 		                        }
@@ -114,8 +139,13 @@ Initializes the dict of host service variables.
 
 		self.variables = { "A_ARG_TYPE_ApiVersion": { "is_sending_events": False,
 		                                              "is_multicasting_events": False,
-		                                              "type": "ui8"
+		                                              "type": "ui4"
 		                                            },
+		                   "A_ARG_TYPE_TemplateType": { "is_sending_events": False,
+		                                                "is_multicasting_events": False,
+		                                                "type": "string",
+		                                                "value": ""
+		                                              },
 		                   "A_ARG_TYPE_Json": { "is_sending_events": False,
 		                                        "is_multicasting_events": False,
 		                                        "type": "string",
