@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-##j## BOF
 
 """
 MediaProvider
@@ -32,8 +31,7 @@ https://www.direct-netware.de/redirect?licenses;gpl
 """
 
 class DlnaItemResourceMixin(object):
-#
-	"""
+    """
 This mixin provides all constants required for DLNA 1.50 compliant item
 resources.
 
@@ -44,123 +42,117 @@ resources.
 :since:      v0.2.00
 :license:    https://www.direct-netware.de/redirect?licenses;gpl
              GNU General Public License 2
-	"""
+    """
 
-	DLNA_0150 = 1048576
-	"""
+    DLNA_0150 = 1 << 20
+    """
 Flag for DLNA 1.50 compatibility.
-	"""
-	DLNA_BACKGROUND_TRANSFER = 4194304
-	"""
+    """
+    DLNA_BACKGROUND_TRANSFER = 1 << 22
+    """
 Flag for background transfer mode.
-	"""
-	DLNA_INTERACTIVE_TRANSFER = 8388608
-	"""
+    """
+    DLNA_INTERACTIVE_TRANSFER = 1 << 23
+    """
 Flag for interactive transfer mode.
-	"""
-	DLNA_HTTP_STALLING = 2097152
-	"""
+    """
+    DLNA_HTTP_STALLING = 1 << 21
+    """
 Flag for the method of stalling the HTTP data flow on pause.
-	"""
-	DLNA_IS_CONTAINER = 268435456
-	"""
+    """
+    DLNA_IS_CONTAINER = 1 << 28
+    """
 Flag for container or playlist elements.
-	"""
-	DLNA_LOP_BYTES = 536870912
-	"""
+    """
+    DLNA_LOP_BYTES = 1 << 29
+    """
 Flag for limited seek ability by byte range.
-	"""
-	DLNA_LOP_TIME = 1073741824
-	"""
+    """
+    DLNA_LOP_TIME = 1 << 30
+    """
 Flag for limited seek ability by time.
-	"""
-	DLNA_RSTP_PAUSE_SUPPORT = 33554432
-	"""
+    """
+    DLNA_RSTP_PAUSE_SUPPORT = 1 << 25
+    """
 Flag for streams.
-	"""
-	DLNA_S0_INCREASING = 134217728
-	"""
+    """
+    DLNA_S0_INCREASING = 1 << 27
+    """
 Flag for stream with changing start time.
-	"""
-	DLNA_SEEK_BYTES = 1
-	"""
+    """
+    DLNA_SEEK_BYTES = 1
+    """
 Flag for seek ability by byte range.
-	"""
-	DLNA_SEEK_TIME = 2
-	"""
+    """
+    DLNA_SEEK_TIME = 1 << 1
+    """
 Flag for seek ability by time.
-	"""
-	DLNA_SERVERSIDE_FLOW_CONTROL = 2147483648
-	"""
+    """
+    DLNA_SERVERSIDE_FLOW_CONTROL = 1 << 31
+    """
 Flag for server-side data flow control corresponding to the current
 playback speed.
-	"""
-	DLNA_SN_INCREASING = 67108864
-	"""
+    """
+    DLNA_SN_INCREASING = 1 << 26
+    """
 Flag for stream with changing end time.
-	"""
-	DLNA_STREAMING_TRANSFER = 16777216
-	"""
+    """
+    DLNA_STREAMING_TRANSFER = 1 << 24
+    """
 Flag for streams.
-	"""
+    """
 
-	def __init__(self):
-	#
-		"""
+    def __init__(self):
+        """
 Constructor __init__(DlnaItemResourceMixin)
 
 :since: v0.2.00
-		"""
+        """
 
-		self.dlna_content_features = "*"
-		"""
+        self.dlna_content_features = "*"
+        """
 UPnP DLNA content features
-		"""
+        """
 
-		self.supported_features['dlna_content_features'] = True
-	#
+        self.supported_features['dlna_content_features'] = True
+    #
 
-	def get_dlna_content_features(self):
-	#
-		"""
+    def get_dlna_content_features(self):
+        """
 Returns the UPnP DLNA content features known used for the 4th-field.
 
 :return: (str) UPnP DLNA compliant content features
 :since:  v0.2.00
-		"""
+        """
 
-		return self.dlna_content_features
-	#
+        return self.dlna_content_features
+    #
 
-	def _refresh_dlna_content_features(self):
-	#
-		"""
+    def _refresh_dlna_content_features(self):
+        """
 Initializes the UPnP DLNA content features variable.
 
 :since: v0.2.00
-		"""
+        """
 
-		dlna_content_features = "DLNA.ORG_OP={0:0>2x};DLNA.ORG_CI=0;DLNA.ORG_FLAGS={1:0>8x}000000000000000000000000"
+        dlna_content_features = "DLNA.ORG_OP={0:0>2x};DLNA.ORG_CI=0;DLNA.ORG_FLAGS={1:0>8x}000000000000000000000000"
 
-		self.dlna_content_features = dlna_content_features.format(DlnaItemResourceMixin.DLNA_SEEK_BYTES,
-		                                                          (DlnaItemResourceMixin.DLNA_0150
-		                                                           | DlnaItemResourceMixin.DLNA_HTTP_STALLING
-		                                                          )
-		                                                         )
-	#
+        self.dlna_content_features = dlna_content_features.format(DlnaItemResourceMixin.DLNA_SEEK_BYTES,
+                                                                  (DlnaItemResourceMixin.DLNA_0150
+                                                                   | DlnaItemResourceMixin.DLNA_HTTP_STALLING
+                                                                  )
+                                                                 )
+    #
 
-	def _refresh_dlna_res_protocol(self):
-	#
-		"""
+    def _refresh_dlna_res_protocol(self):
+        """
 Initializes the UPnP DLNA res protocol variable.
 
 :since: v0.2.00
-		"""
+        """
 
-		self.didl_res_protocol = "http-get:*:{0}:{1}".format(self.get_mimetype(),
-		                                                     self.dlna_content_features
-		                                                    )
-	#
+        self.didl_res_protocol = "http-get:*:{0}:{1}".format(self.get_mimetype(),
+                                                             self.dlna_content_features
+                                                            )
+    #
 #
-
-##j## EOF

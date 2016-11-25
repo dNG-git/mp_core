@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-##j## BOF
 
 """
 MediaProvider
@@ -41,8 +40,7 @@ from dNG.net.upnp.control_point import ControlPoint
 from .abstract_service import AbstractService
 
 class XMSMediaReceiverRegistrar(AbstractService):
-#
-	"""
+    """
 Implementation for "urn:microsoft.com:service:X_MS_MediaReceiverRegistrar:1".
 
 :author:     direct Netware Group et al.
@@ -52,36 +50,34 @@ Implementation for "urn:microsoft.com:service:X_MS_MediaReceiverRegistrar:1".
 :since:      v0.2.00
 :license:    https://www.direct-netware.de/redirect?licenses;gpl
              GNU General Public License 2
-	"""
+    """
 
-	# pylint: disable=unused-argument
+    # pylint: disable=unused-argument
 
-	def _handle_gena_registration(self, sid):
-	#
-		"""
+    def _handle_gena_registration(self, sid):
+        """
 Handles the registration of an UPnP device at GENA with the given SID.
 
 :param sid: UPnP SID
 
 :since: v0.2.00
-		"""
+        """
 
-		event = GenaEvent(GenaEvent.TYPE_PROPCHANGE)
+        event = GenaEvent(GenaEvent.TYPE_PROPCHANGE)
 
-		event.set_variables(AuthorizationDeniedUpdateID = 1,
-		                    AuthorizationGrantedUpdateID = 1,
-		                    ValidationRevokedUpdateID = 1,
-		                    ValidationSucceededUpdateID = 1
-		                   )
+        event.set_variables(AuthorizationDeniedUpdateID = 1,
+                            AuthorizationGrantedUpdateID = 1,
+                            ValidationRevokedUpdateID = 1,
+                            ValidationSucceededUpdateID = 1
+                           )
 
-		event.set_sid(sid)
-		event.set_usn(self.get_usn())
-		event.schedule()
-	#
+        event.set_sid(sid)
+        event.set_usn(self.get_usn())
+        event.schedule()
+    #
 
-	def init_host(self, device, service_id = None, configid = None):
-	#
-		"""
+    def init_host(self, device, service_id = None, configid = None):
+        """
 Initializes a host service.
 
 :param device: Host device this UPnP service is added to
@@ -90,180 +86,167 @@ Initializes a host service.
 
 :return: (bool) Returns true if initialization was successful.
 :since:  v0.2.00
-		"""
+        """
 
-		self.type = "X_MS_MediaReceiverRegistrar"
-		self.upnp_domain = "microsoft.com"
-		self.version = "1"
+        self.type = "X_MS_MediaReceiverRegistrar"
+        self.upnp_domain = "microsoft.com"
+        self.version = "1"
 
-		if (service_id is None): service_id = "X_MS_MediaReceiverRegistrar"
-		return AbstractService.init_host(self, device, service_id, configid)
-	#
+        if (service_id is None): service_id = "X_MS_MediaReceiverRegistrar"
+        return AbstractService.init_host(self, device, service_id, configid)
+    #
 
-	def _init_host_actions(self, device):
-	#
-		"""
+    def _init_host_actions(self, device):
+        """
 Initializes the dict of host service actions.
 
 :param device: Host device this UPnP service is added to
 
 :since: v0.2.00
-		"""
+        """
 
-		is_authorized = { "argument_variables": [ { "name": "DeviceID", "variable": "A_ARG_TYPE_DeviceID" } ],
-		                  "return_variable": { "name": "Result", "variable": "A_ARG_TYPE_Result" },
-		                  "result_variables": [ ]
-		                }
+        is_authorized = { "argument_variables": [ { "name": "DeviceID", "variable": "A_ARG_TYPE_DeviceID" } ],
+                          "return_variable": { "name": "Result", "variable": "A_ARG_TYPE_Result" },
+                          "result_variables": [ ]
+                        }
 
-		is_validated = { "argument_variables": [ { "name": "DeviceID", "variable": "A_ARG_TYPE_DeviceID" } ],
-		                 "return_variable": { "name": "Result", "variable": "A_ARG_TYPE_Result" },
-		                 "result_variables": [ ]
-		               }
+        is_validated = { "argument_variables": [ { "name": "DeviceID", "variable": "A_ARG_TYPE_DeviceID" } ],
+                         "return_variable": { "name": "Result", "variable": "A_ARG_TYPE_Result" },
+                         "result_variables": [ ]
+                       }
 
-		register_device = { "argument_variables": [ { "name": "RegisterInput", "variable": "A_ARG_TYPE_GenericData" } ],
-		                    "return_variable": { "name": "RegisterResponse", "variable": "A_ARG_TYPE_GenericData" },
-		                    "result_variables": [ ]
-		                  }
+        register_device = { "argument_variables": [ { "name": "RegisterInput", "variable": "A_ARG_TYPE_GenericData" } ],
+                            "return_variable": { "name": "RegisterResponse", "variable": "A_ARG_TYPE_GenericData" },
+                            "result_variables": [ ]
+                          }
 
-		self.actions = { "IsAuthorized": is_authorized,
-		                 "RegisterDevice": register_device,
-		                 "IsValidated": is_validated
-		               }
-	#
+        self.actions = { "IsAuthorized": is_authorized,
+                         "RegisterDevice": register_device,
+                         "IsValidated": is_validated
+                       }
+    #
 
-	def _init_host_variables(self, device):
-	#
-		"""
+    def _init_host_variables(self, device):
+        """
 Initializes the dict of host service variables.
 
 :param device: Host device this UPnP service is added to
 
 :since: v0.2.00
-		"""
+        """
 
-		self.variables = { "A_ARG_TYPE_DeviceID": { "is_sending_events": True,
-		                                            "is_multicasting_events": False,
-		                                            "type": "string"
-		                                          },
-		                   "A_ARG_TYPE_Result": { "is_sending_events": False,
-		                                          "is_multicasting_events": False,
-		                                          "type": "boolean"
-		                                        },
-		                   "AuthorizationGrantedUpdateID": { "is_sending_events": True,
-		                                                     "is_multicasting_events": False,
-		                                                     "type": "ui4"
-		                                                   },
-		                   "AuthorizationDeniedUpdateID": { "is_sending_events": True,
-		                                                    "is_multicasting_events": False,
-		                                                    "type": "ui4"
-		                                                  },
-		                   "A_ARG_TYPE_UpdateID": { "is_sending_events": False, # Unused but required
-		                                            "is_multicasting_events": False,
-		                                            "type": "ui4"
-		                                          },
-		                   "A_ARG_TYPE_GenericData": { "is_sending_events": False,
-		                                               "is_multicasting_events": False,
-		                                               "type": "bin.base64"
-		                                             },
-		                   "ValidationRevokedUpdateID": { "is_sending_events": False,
-		                                                  "is_multicasting_events": False,
-		                                                  "type": "ui4"
-		                                                },
-		                   "ValidationSucceededUpdateID": { "is_sending_events": False,
-		                                                    "is_multicasting_events": False,
-		                                                    "type": "ui4"
-		                                                  }
-		                 }
-	#
+        self.variables = { "A_ARG_TYPE_DeviceID": { "is_sending_events": True,
+                                                    "is_multicasting_events": False,
+                                                    "type": "string"
+                                                  },
+                           "A_ARG_TYPE_Result": { "is_sending_events": False,
+                                                  "is_multicasting_events": False,
+                                                  "type": "boolean"
+                                                },
+                           "AuthorizationGrantedUpdateID": { "is_sending_events": True,
+                                                             "is_multicasting_events": False,
+                                                             "type": "ui4"
+                                                           },
+                           "AuthorizationDeniedUpdateID": { "is_sending_events": True,
+                                                            "is_multicasting_events": False,
+                                                            "type": "ui4"
+                                                          },
+                           "A_ARG_TYPE_UpdateID": { "is_sending_events": False, # Unused but required
+                                                    "is_multicasting_events": False,
+                                                    "type": "ui4"
+                                                  },
+                           "A_ARG_TYPE_GenericData": { "is_sending_events": False,
+                                                       "is_multicasting_events": False,
+                                                       "type": "bin.base64"
+                                                     },
+                           "ValidationRevokedUpdateID": { "is_sending_events": False,
+                                                          "is_multicasting_events": False,
+                                                          "type": "ui4"
+                                                        },
+                           "ValidationSucceededUpdateID": { "is_sending_events": False,
+                                                            "is_multicasting_events": False,
+                                                            "type": "ui4"
+                                                          }
+                         }
+    #
 
-	def is_authorized(self, device_id = ""):
-	#
-		"""
+    def is_authorized(self, device_id = ""):
+        """
 Returns true for all allowed devices or if the given device ID is matched.
 
 :return: (mixed) True if the device is known; UpnpException if the source
          can not be identified
 :since:  v0.2.00
-		"""
+        """
 
-		if (self.log_handler is not None): self.log_handler.debug("#echo(__FILEPATH__)# -{0!r}.is_authorized({1})- (#echo(__LINE__)#)", self, device_id, context = "mp_server")
-		_return = UpnpException("pas_http_core_403", 801)
+        if (self.log_handler is not None): self.log_handler.debug("#echo(__FILEPATH__)# -{0!r}.is_authorized({1})- (#echo(__LINE__)#)", self, device_id, context = "mp_server")
+        _return = UpnpException("pas_http_core_403", 801)
 
-		upnp_control_point = ControlPoint.get_instance()
+        upnp_control_point = ControlPoint.get_instance()
 
-		if (device_id == ""):
-		#
-			request = AbstractRequest.get_instance()
-			client_host = (None if (request is None) else request.get_client_host())
+        if (device_id == ""):
+            request = AbstractRequest.get_instance()
+            client_host = (None if (request is None) else request.get_client_host())
 
-			if (client_host is not None):
-			#
-				_return = False
-				ip_address_list = socket.getaddrinfo(client_host, None, socket.AF_UNSPEC, 0, socket.IPPROTO_TCP)
+            if (client_host is not None):
+                _return = False
+                ip_address_list = socket.getaddrinfo(client_host, None, socket.AF_UNSPEC, 0, socket.IPPROTO_TCP)
 
-				for ip_address_data in ip_address_list:
-				#
-					ip = ip_address_data[4][0]
+                for ip_address_data in ip_address_list:
+                    ip = ip_address_data[4][0]
 
-					if (upnp_control_point.is_ip_allowed(ip)):
-					#
-						_return = True
-						break
-					#
-				#
-			#
-		#
-		else: _return = (upnp_control_point.get_rootdevice(XMSMediaReceiverRegistrar.get_identifier(device_id)) is not None)
+                    if (upnp_control_point.is_ip_allowed(ip)):
+                        _return = True
+                        break
+                    #
+                #
+            #
+        else: _return = (upnp_control_point.get_rootdevice(XMSMediaReceiverRegistrar.get_identifier(device_id)) is not None)
 
-		return _return
-	#
+        return _return
+    #
 
-	def is_validated(self, device_id = ""):
-	#
-		"""
+    def is_validated(self, device_id = ""):
+        """
 Returns true for all devices previously processed.
 
 :return: (int) True if the device is known
 :since:  v0.2.00
-		"""
+        """
 
-		if (self.log_handler is not None): self.log_handler.debug("#echo(__FILEPATH__)# -{0!r}.is_validated({1})- (#echo(__LINE__)#)", self, device_id, context = "mp_server")
-		return (True if (self.is_authorized(device_id)) else UpnpException("pas_http_core_403", 801))
-	#
+        if (self.log_handler is not None): self.log_handler.debug("#echo(__FILEPATH__)# -{0!r}.is_validated({1})- (#echo(__LINE__)#)", self, device_id, context = "mp_server")
+        return (True if (self.is_authorized(device_id)) else UpnpException("pas_http_core_403", 801))
+    #
 
-	def register_device(self, register_input):
-	#
-		"""
+    def register_device(self, register_input):
+        """
 Returns true for all devices previously processed.
 
 :return: (int) True if the device is known
 :since:  v0.2.00
-		"""
+        """
 
-		if (self.log_handler is not None): self.log_handler.debug("#echo(__FILEPATH__)# -{0!r}.register_device()- (#echo(__LINE__)#)", self, context = "mp_server")
-		return UpnpException("pas_http_core_500", 501)
-	#
+        if (self.log_handler is not None): self.log_handler.debug("#echo(__FILEPATH__)# -{0!r}.register_device()- (#echo(__LINE__)#)", self, context = "mp_server")
+        return UpnpException("pas_http_core_500", 501)
+    #
 
-	def query_state_variable(self, var_name):
-	#
-		"""
+    def query_state_variable(self, var_name):
+        """
 UPnP call for "QueryStateVariable".
 
 :param var_name: Variable to be returned
 
 :return: (mixed) Variable value
 :since:  v0.2.00
-		"""
+        """
 
-		if (var_name not in ( "AuthorizationGrantedUpdateID",
-		                      "AuthorizationDeniedUpdateID",
-		                      "ValidationRevokedUpdateID",
-		                      "ValidationSucceededUpdateID"
-		                    )
-		   ): raise UpnpException("pas_http_core_404", 404)
+        if (var_name not in ( "AuthorizationGrantedUpdateID",
+                              "AuthorizationDeniedUpdateID",
+                              "ValidationRevokedUpdateID",
+                              "ValidationSucceededUpdateID"
+                            )
+           ): raise UpnpException("pas_http_core_404", 404)
 
-		return "1"
-	#
+        return "1"
+    #
 #
-
-##j## EOF

@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-##j## BOF
 
 """
 MediaProvider
@@ -42,8 +41,7 @@ from dNG.module.controller.upnp.access_check_mixin import AccessCheckMixin
 from .module import Module
 
 class AppEndpoint(Module, AccessCheckMixin, ClientSettingsMixin):
-#
-	"""
+    """
 Service for "m=mp;s=app_endpoint"
 
 :author:     direct Netware Group et al.
@@ -53,62 +51,57 @@ Service for "m=mp;s=app_endpoint"
 :since:      v0.2.00
 :license:    https://www.direct-netware.de/redirect?licenses;gpl
              GNU General Public License 2
-	"""
+    """
 
-	def __init__(self):
-	#
-		"""
+    def __init__(self):
+        """
 Constructor __init__(AppEndpoint)
 
 :since: v0.2.00
-		"""
+        """
 
-		Module.__init__(self)
-		AccessCheckMixin.__init__(self)
-		ClientSettingsMixin.__init__(self)
-	#
+        Module.__init__(self)
+        AccessCheckMixin.__init__(self)
+        ClientSettingsMixin.__init__(self)
+    #
 
-	def execute_api_get_configuration(self):
-	#
-		"""
+    def execute_api_get_configuration(self):
+        """
 Action for "api_get_configuration"
 
 :since: v0.2.00
-		"""
+        """
 
-		user_agent = self.request.get_header("User-Agent")
+        user_agent = self.request.get_header("User-Agent")
 
-		template_type = (self.request.get_parameter_chained("attype", "ten_foot_web")
-		                 if (self.request.is_supported("parameters_chained")) else
-		                 self.request.get_parameter("attype", "ten_foot_web")
-		                )
+        template_type = (self.request.get_parameter_chained("attype", "ten_foot_web")
+                         if (self.request.is_supported("parameters_chained")) else
+                         self.request.get_parameter("attype", "ten_foot_web")
+                        )
 
-		template_type = "leanback_{0}".format(InputFilter.filter_control_chars(template_type).strip())
+        template_type = "leanback_{0}".format(InputFilter.filter_control_chars(template_type).strip())
 
-		self.response.init(True)
-		self.response.set_header("Access-Control-Allow-Origin", "*")
+        self.response.init(True)
+        self.response.set_header("Access-Control-Allow-Origin", "*")
 
-		if (not self.response.is_supported("dict_result_renderer")): raise TranslatableError("core_access_denied", 403)
+        if (not self.response.is_supported("dict_result_renderer")): raise TranslatableError("core_access_denied", 403)
 
-		self._ensure_access_granted()
+        self._ensure_access_granted()
 
-		session = Session.load()
+        session = Session.load()
 
-		if (session.get("mp.leanback.user_agent") != user_agent):
-		#
-			session.set("mp.leanback.access_granted", True)
-			session.set("mp.leanback.user_agent", user_agent)
-			session.set("mp.leanback.template_type", template_type)
-			session.set_cookie(Settings.get("pas_http_site_cookies_supported", True))
+        if (session.get("mp.leanback.user_agent") != user_agent):
+            session.set("mp.leanback.access_granted", True)
+            session.set("mp.leanback.user_agent", user_agent)
+            session.set("mp.leanback.template_type", template_type)
+            session.set_cookie(Settings.get("pas_http_site_cookies_supported", True))
 
-			session.save()
+            session.save()
 
-			self.request.set_session(session)
-		#
+            self.request.set_session(session)
+        #
 
-		url_parameters = { "m": "mp", "s": "leanback", "a": "dashboard", "uuid": session.get_uuid() }
-		self.response.set_result({ "url": Link.get_preferred("upnp").build_url(Link.TYPE_ABSOLUTE_URL, url_parameters) })
-	#
+        url_parameters = { "m": "mp", "s": "leanback", "a": "dashboard", "uuid": session.get_uuid() }
+        self.response.set_result({ "url": Link.get_preferred("upnp").build_url(Link.TYPE_ABSOLUTE_URL, url_parameters) })
+    #
 #
-
-##j## EOF

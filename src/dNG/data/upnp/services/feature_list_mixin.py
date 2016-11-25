@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-##j## BOF
 
 """
 MediaProvider
@@ -35,8 +34,7 @@ from dNG.data.xml_resource import XmlResource
 from dNG.plugins.hook import Hook
 
 class FeatureListMixin(object):
-#
-	"""
+    """
 "getFeatureList" mixin to minimize duplicated code for this common UPnP
 method.
 
@@ -47,33 +45,30 @@ method.
 :since:      v0.2.00
 :license:    https://www.direct-netware.de/redirect?licenses;gpl
              GNU General Public License 2
-	"""
+    """
 
-	def _get_feature_list(self, hook_class):
-	#
-		"""
+    def _get_feature_list(self, hook_class):
+        """
 Returns the list of supported UPnP ContentDirectory features.
 
 :return: (str) FeatureList XML document
 :since:  v0.2.00
-		"""
+        """
 
-		xml_resource = XmlResource()
-		xml_resource.set_cdata_encoding(False)
+        xml_resource = XmlResource()
+        xml_resource.set_cdata_encoding(False)
 
-		xml_resource.add_node("Features",
-		                      attributes = { "xmlns": "urn:schemas-upnp-org:av:avs",
-		                                     "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
-		                                     "xsi:schemaLocation": "urn:schemas-upnp-org:av:avs http://www.upnp.org/schemas/av/avs.xsd"
-		                                   }
-		                     )
+        xml_resource.add_node("Features",
+                              attributes = { "xmlns": "urn:schemas-upnp-org:av:avs",
+                                             "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
+                                             "xsi:schemaLocation": "urn:schemas-upnp-org:av:avs http://www.upnp.org/schemas/av/avs.xsd"
+                                           }
+                             )
 
-		xml_resource.set_cached_node("Features")
+        xml_resource.set_cached_node("Features")
 
-		Hook.call("{0}.getFeatures".format(hook_class), xml_resource = xml_resource)
+        Hook.call("{0}.getFeatures".format(hook_class), xml_resource = xml_resource)
 
-		return "<?xml version='1.0' encoding='UTF-8' ?>{0}".format(xml_resource.export_cache(True))
-	#
+        return "<?xml version='1.0' encoding='UTF-8' ?>{0}".format(xml_resource.export_cache(True))
+    #
 #
-
-##j## EOF

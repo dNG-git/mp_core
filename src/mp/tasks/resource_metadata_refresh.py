@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-##j## BOF
 
 """
 MediaProvider
@@ -36,8 +35,7 @@ from dNG.database.transaction_context import TransactionContext
 from dNG.tasks.abstract_lrt_hook import AbstractLrtHook
 
 class ResourceMetadataRefresh(AbstractLrtHook):
-#
-	"""
+    """
 "ResourceMetadataRefresh" is responsible of refreshing the resource's
 metadata.
 
@@ -48,54 +46,48 @@ metadata.
 :since:      v0.2.00
 :license:    https://www.direct-netware.de/redirect?licenses;gpl
              GNU General Public License 2
-	"""
+    """
 
-	def __init__(self, _id):
-	#
-		"""
+    def __init__(self, _id):
+        """
 Constructor __init__(ResourceMetadataRefresh)
 
 :since: v0.2.00
-		"""
+        """
 
-		AbstractLrtHook.__init__(self)
+        AbstractLrtHook.__init__(self)
 
-		self.id = _id
-		"""
+        self.id = _id
+        """
 UPnP resource ID
-		"""
+        """
 
-		self.context_id = "mp.tasks.ResourceMetadataRefresh"
-	#
+        self.context_id = "mp.tasks.ResourceMetadataRefresh"
+    #
 
-	def _run_hook(self):
-	#
-		"""
+    def _run_hook(self):
+        """
 Hook execution
 
 :since: v0.2.00
-		"""
+        """
 
-		resource = MpEntry.load_encapsulating_entry(self.id)
-		"""
+        resource = MpEntry.load_encapsulating_entry(self.id)
+        """
 We need to free the synchronized database lock (SQLite) here or otherwise
 "refresh_metadata()" will fail for certain UPnP resource types.
-		"""
+        """
 
-		if (resource is not None):
-		#
-			resource.refresh_metadata()
+        if (resource is not None):
+            resource.refresh_metadata()
 
-			with TransactionContext():
-			#
-				resource.set_data_attributes(refreshable = False)
-				resource.save()
-			#
+            with TransactionContext():
+                resource.set_data_attributes(refreshable = False)
+                resource.save()
+            #
 
-			resource.close()
-			if (self.log_handler is not None): self.log_handler.info("mp.ResourceMetadataRefresh refreshed entry '{0}'", self.id, context = "mp_server")
-		#
-	#
+            resource.close()
+            if (self.log_handler is not None): self.log_handler.info("mp.ResourceMetadataRefresh refreshed entry '{0}'", self.id, context = "mp_server")
+        #
+    #
 #
-
-##j## EOF

@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-##j## BOF
 
 """
 MediaProvider
@@ -40,8 +39,7 @@ from dNG.data.upnp.resources.mp_entry import MpEntry
 from .module import Module
 
 class Index(Module):
-#
-	"""
+    """
 Service for "m=mp;s=index"
 
 :author:     direct Netware Group et al.
@@ -51,57 +49,53 @@ Service for "m=mp;s=index"
 :since:      v0.2.00
 :license:    https://www.direct-netware.de/redirect?licenses;gpl
              GNU General Public License 2
-	"""
+    """
 
-	def execute_index(self):
-	#
-		"""
+    def execute_index(self):
+        """
 Action for "index"
 
 :since: v0.2.00
-		"""
+        """
 
-		self.execute_list_root_containers()
-	#
+        self.execute_list_root_containers()
+    #
 
-	def execute_list_root_containers(self):
-	#
-		"""
+    def execute_list_root_containers(self):
+        """
 Action for "list_root_containers"
 
 :since: v0.2.00
-		"""
+        """
 
-		page = InputFilter.filter_int(self.request.get_dsd("mpage", 1))
+        page = InputFilter.filter_int(self.request.get_dsd("mpage", 1))
 
-		L10n.init("mp_core")
+        L10n.init("mp_core")
 
-		session = (self.request.get_session() if (self.request.is_supported("session")) else None)
-		user_profile = (None if (session is None) else session.get_user_profile())
+        session = (self.request.get_session() if (self.request.is_supported("session")) else None)
+        user_profile = (None if (session is None) else session.get_user_profile())
 
-		if (user_profile is None
-		    or (not user_profile.is_type("ad"))
-		   ): raise TranslatableError("core_access_denied", 403)
+        if (user_profile is None
+            or (not user_profile.is_type("ad"))
+           ): raise TranslatableError("core_access_denied", 403)
 
-		if (self.response.is_supported("html_css_files")): self.response.add_theme_css_file("mini_default_sprite.min.css")
+        if (self.response.is_supported("html_css_files")): self.response.add_theme_css_file("mini_default_sprite.min.css")
 
-		Link.set_store("servicemenu",
-		               (Link.TYPE_RELATIVE_URL | Link.TYPE_JS_REQUIRED),
-		               L10n.get("mp_core_root_container_new"),
-		               { "m": "mp", "s": "root_container", "a": "new" },
-		               icon = "mini-default-option",
-		               priority = 3
-		              )
+        Link.set_store("servicemenu",
+                       (Link.TYPE_RELATIVE_URL | Link.TYPE_JS_REQUIRED),
+                       L10n.get("mp_core_root_container_new"),
+                       { "m": "mp", "s": "root_container", "a": "new" },
+                       icon = "mini-default-option",
+                       priority = 3
+                      )
 
-		content = { "title": L10n.get("mp_core_root_container_list"),
-		            "entries": MpEntry.get_root_containers_count(),
-		            "page": page
-		          }
+        content = { "title": L10n.get("mp_core_root_container_list"),
+                    "entries": MpEntry.get_root_containers_count(),
+                    "page": page
+                  }
 
-		self.response.init()
-		self.response.set_title(content['title'])
-		self.response.add_oset_content("mp.container", content)
-	#
+        self.response.init()
+        self.response.set_title(content['title'])
+        self.response.add_oset_content("mp.container", content)
+    #
 #
-
-##j## EOF

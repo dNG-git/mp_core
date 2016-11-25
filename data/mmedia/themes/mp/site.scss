@@ -114,11 +114,11 @@ small { font-size: 0.75em }
 .pagecontent_overlay_box { z-index: 228; padding: 9px; background-color: $white; border: 1px solid $dark_grey }
 .pagecontent_overlayed_box { opacity: 0.4 }
 
-.pagecontent_page_navigation {
-	clear: both; padding: 6px; background-color: rgba(#{$lighter_grey_rgba}, 0.5); border: 1px solid $dark_grey;
+.pagecontent_pages_navigation_box {
+	clear: both; padding: 6px; background-color: rgba(#{$lighter_grey_rgba}, 0.5); border: 1px solid $dark_grey
+}
 
-	section & { font-size: 0.75em }
-
+.pagecontent_pages_navigation_list {
 	li {
 		display: inline-block;
 		vertical-align: middle; white-space: nowrap

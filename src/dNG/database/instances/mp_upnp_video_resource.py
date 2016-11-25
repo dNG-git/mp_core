@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-##j## BOF
 
 """
 MediaProvider
@@ -38,8 +37,7 @@ from sqlalchemy.types import FLOAT, INT, TEXT, VARCHAR
 from .mp_upnp_resource import MpUpnpResource
 
 class MpUpnpVideoResource(MpUpnpResource):
-#
-	"""
+    """
 "MpResource" represents an database video resource.
 
 :author:     direct Netware Group et al.
@@ -49,114 +47,111 @@ class MpUpnpVideoResource(MpUpnpResource):
 :since:      v0.2.00
 :license:    https://www.direct-netware.de/redirect?licenses;gpl
              GNU General Public License 2
-	"""
+    """
 
-	__tablename__ = "{0}_mp_upnp_video_resource".format(MpUpnpResource.get_table_prefix())
-	"""
+    __tablename__ = "{0}_mp_upnp_video_resource".format(MpUpnpResource.get_table_prefix())
+    """
 SQLAlchemy table name
-	"""
-	db_instance_class = "dNG.data.upnp.resources.MpEntryVideo"
-	"""
+    """
+    db_instance_class = "dNG.data.upnp.resources.MpEntryVideo"
+    """
 Encapsulating SQLAlchemy database instance class name
-	"""
-	db_schema_version = 1
-	"""
+    """
+    db_schema_version = 1
+    """
 Database schema version
-	"""
+    """
 
-	id = Column(VARCHAR(32), ForeignKey(MpUpnpResource.id), primary_key = True)
-	"""
+    id = Column(VARCHAR(32), ForeignKey(MpUpnpResource.id), primary_key = True)
+    """
 mp_upnp_video_resource.id
-	"""
-	duration = Column(FLOAT, index = True)
-	"""
+    """
+    duration = Column(FLOAT, index = True)
+    """
 mp_upnp_video_resource.duration
-	"""
-	description = Column(TEXT, index = True)
-	"""
+    """
+    description = Column(TEXT, index = True)
+    """
 mp_upnp_video_resource.description
-	"""
-	genre = Column(VARCHAR(255), index = True)
-	"""
+    """
+    genre = Column(VARCHAR(255), index = True)
+    """
 mp_upnp_video_resource.genre
-	"""
-	series = Column(VARCHAR(255), index = True)
-	"""
+    """
+    series = Column(VARCHAR(255), index = True)
+    """
 mp_upnp_video_resource.series
-	"""
-	episode = Column(VARCHAR(255), index = True)
-	"""
+    """
+    episode = Column(VARCHAR(255), index = True)
+    """
 mp_upnp_video_resource.episode
-	"""
-	actor = Column(TEXT, index = True)
-	"""
+    """
+    actor = Column(TEXT, index = True)
+    """
 mp_upnp_video_resource.actor
-	"""
-	author = Column(TEXT, index = True)
-	"""
+    """
+    author = Column(TEXT, index = True)
+    """
 mp_upnp_video_resource.author
-	"""
-	director = Column(TEXT, index = True)
-	"""
+    """
+    director = Column(TEXT, index = True)
+    """
 mp_upnp_video_resource.director
-	"""
-	producer = Column(TEXT, index = True)
-	"""
+    """
+    producer = Column(TEXT, index = True)
+    """
 mp_upnp_video_resource.producer
-	"""
-	publisher = Column(TEXT, index = True)
-	"""
+    """
+    publisher = Column(TEXT, index = True)
+    """
 mp_upnp_video_resource.publisher
-	"""
-	width = Column(INT, index = True)
-	"""
+    """
+    width = Column(INT, index = True)
+    """
 mp_upnp_video_resource.width
-	"""
-	height = Column(INT, index = True)
-	"""
+    """
+    height = Column(INT, index = True)
+    """
 mp_upnp_video_resource.height
-	"""
-	codec = Column(VARCHAR(255), index = True)
-	"""
+    """
+    codec = Column(VARCHAR(255), index = True)
+    """
 mp_upnp_video_resource.codec
-	"""
-	bitrate = Column(INT)
-	"""
+    """
+    bitrate = Column(INT)
+    """
 mp_upnp_video_resource.bitrate
-	"""
-	bpp = Column(INT)
-	"""
+    """
+    bpp = Column(INT)
+    """
 mp_upnp_video_resource.bpp
-	"""
-	encoder = Column(VARCHAR(255), index = True)
-	"""
+    """
+    encoder = Column(VARCHAR(255), index = True)
+    """
 mp_upnp_video_resource.encoder
-	"""
+    """
 
-	__mapper_args__ = { "polymorphic_identity": "MpUpnpVideoResource" }
-	"""
+    __mapper_args__ = { "polymorphic_identity": "MpUpnpVideoResource" }
+    """
 sqlalchemy.org: Other options are passed to mapper() using the
 __mapper_args__ class variable.
-	"""
+    """
 
-	@classmethod
-	def before_apply_schema(cls):
-	#
-		"""
+    @classmethod
+    def before_apply_schema(cls):
+        """
 Called before applying the SQLAlchemy generated schema to register the
 custom DDL for PostgreSQL.
 
 :since: v0.2.00
-	"""
+    """
 
-		create_postgresql_tsvector_index = "CREATE INDEX idx_{0}_mp_upnp_video_resource_description ON {0}_mp_upnp_video_resource USING gin(to_tsvector('simple', description));"
-		create_postgresql_tsvector_index = create_postgresql_tsvector_index.format(cls.get_table_prefix())
+        create_postgresql_tsvector_index = "CREATE INDEX idx_{0}_mp_upnp_video_resource_description ON {0}_mp_upnp_video_resource USING gin(to_tsvector('simple', description));"
+        create_postgresql_tsvector_index = create_postgresql_tsvector_index.format(cls.get_table_prefix())
 
-		listen(cls.__table__,
-		       "after_create",
-		       DDL(create_postgresql_tsvector_index).execute_if(dialect = "postgresql")
-		      )
-	#
+        listen(cls.__table__,
+               "after_create",
+               DDL(create_postgresql_tsvector_index).execute_if(dialect = "postgresql")
+              )
+    #
 #
-
-##j## EOF

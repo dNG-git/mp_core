@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-##j## BOF
 
 """
 MediaProvider
@@ -35,8 +34,7 @@ from .abstract_service import AbstractService
 from .feature_list_mixin import FeatureListMixin
 
 class ConnectionManager(AbstractService, FeatureListMixin):
-#
-	"""
+    """
 Implementation for "urn:schemas-upnp-org:service:ConnectionManager:1".
 
 :author:     direct Netware Group et al.
@@ -46,24 +44,22 @@ Implementation for "urn:schemas-upnp-org:service:ConnectionManager:1".
 :since:      v0.2.00
 :license:    https://www.direct-netware.de/redirect?licenses;gpl
              GNU General Public License 2
-	"""
+    """
 
-	def get_feature_list(self):
-	#
-		"""
+    def get_feature_list(self):
+        """
 Returns the list of supported UPnP ContentDirectory features.
 
 :return: (str) FeatureList XML document
 :since:  v0.2.00
-		"""
+        """
 
-		if (self.log_handler is not None): self.log_handler.debug("#echo(__FILEPATH__)# -{0!r}.get_feature_list()- (#echo(__LINE__)#)", self, context = "mp_server")
-		return self._get_feature_list("dNG.pas.upnp.services.ConnectionManager")
-	#
+        if (self.log_handler is not None): self.log_handler.debug("#echo(__FILEPATH__)# -{0!r}.get_feature_list()- (#echo(__LINE__)#)", self, context = "mp_server")
+        return self._get_feature_list("dNG.pas.upnp.services.ConnectionManager")
+    #
 
-	def get_protocol_info(self):
-	#
-		"""
+    def get_protocol_info(self):
+        """
 Returns the list of supported UPnP protocols.
 
 @TODO: Rewrite to be extendible
@@ -71,30 +67,28 @@ Returns the list of supported UPnP protocols.
 :return: (tuple) ProtocolInfo tuple with supported source and sink UPnP
          protocols
 :since:  v0.2.00
-		"""
+        """
 
-		if (self.log_handler is not None): self.log_handler.debug("#echo(__FILEPATH__)# -{0!r}.get_protocol_info()- (#echo(__LINE__)#)", self, context = "mp_server")
-		return { "source": "http-get:*:*:*", "sink": "" }
-	#
+        if (self.log_handler is not None): self.log_handler.debug("#echo(__FILEPATH__)# -{0!r}.get_protocol_info()- (#echo(__LINE__)#)", self, context = "mp_server")
+        return { "source": "http-get:*:*:*", "sink": "" }
+    #
 
-	def get_version(self):
-	#
-		"""
+    def get_version(self):
+        """
 Returns the UPnP service type version.
 
 :return: (str) Service type version
 :since:  v0.2.00
-		"""
+        """
 
-		client_settings = self.get_client_settings()
-		is_versioning_supported = client_settings.get("upnp_spec_versioning_supported", True)
+        client_settings = self.get_client_settings()
+        is_versioning_supported = client_settings.get("upnp_spec_versioning_supported", True)
 
-		return (AbstractService.get_version(self) if (is_versioning_supported) else 1)
-	#
+        return (AbstractService.get_version(self) if (is_versioning_supported) else 1)
+    #
 
-	def init_host(self, device, service_id = None, configid = None):
-	#
-		"""
+    def init_host(self, device, service_id = None, configid = None):
+        """
 Initializes a host service.
 
 :param device: Host device this UPnP service is added to
@@ -103,122 +97,118 @@ Initializes a host service.
 
 :return: (bool) Returns true if initialization was successful.
 :since:  v0.2.00
-		"""
+        """
 
-		self.type = "ConnectionManager"
-		self.upnp_domain = "schemas-upnp-org"
-		self.version = "3"
+        self.type = "ConnectionManager"
+        self.upnp_domain = "schemas-upnp-org"
+        self.version = "3"
 
-		if (service_id is None): service_id = "ConnectionManager"
-		return AbstractService.init_host(self, device, service_id, configid)
-	#
+        if (service_id is None): service_id = "ConnectionManager"
+        return AbstractService.init_host(self, device, service_id, configid)
+    #
 
-	def _init_host_actions(self, device):
-	#
-		"""
+    def _init_host_actions(self, device):
+        """
 Initializes the dict of host service actions.
 
 :param device: Host device this UPnP service is added to
 
 :since: v0.2.00
-		"""
+        """
 
-		get_protocol_info = { "argument_variables": [ ],
-		                      "return_variable": { "name": "Source", "variable": "SourceProtocolInfo" },
-		                      "result_variables": [ { "name": "Sink", "variable": "SinkProtocolInfo" } ]
-		                    }
+        get_protocol_info = { "argument_variables": [ ],
+                              "return_variable": { "name": "Source", "variable": "SourceProtocolInfo" },
+                              "result_variables": [ { "name": "Sink", "variable": "SinkProtocolInfo" } ]
+                            }
 
-		get_current_connection_ids = { "argument_variables": [ ],
-		                               "return_variable": { "name": "ConnectionIDs", "variable": "CurrentConnectionIDs" },
-		                               "result_variables": [ ]
-		                             }
+        get_current_connection_ids = { "argument_variables": [ ],
+                                       "return_variable": { "name": "ConnectionIDs", "variable": "CurrentConnectionIDs" },
+                                       "result_variables": [ ]
+                                     }
 
-		get_current_connection_info = { "argument_variables": [ { "name": "ConnectionID", "variable": "A_ARG_TYPE_ConnectionID" } ],
-		                                "return_variable": { "name": "RcsID", "variable": "A_ARG_TYPE_RcsID" },
-		                                "result_variables": [ { "name": "AVTransportID", "variable": "A_ARG_TYPE_AVTransportID" },
-		                                                      { "name": "ProtocolInfo", "variable": "A_ARG_TYPE_ProtocolInfo" },
-		                                                      { "name": "PeerConnectionManager", "variable": "A_ARG_TYPE_ConnectionManager" },
-		                                                      { "name": "PeerConnectionID", "variable": "A_ARG_TYPE_ConnectionID" },
-		                                                      { "name": "Direction", "variable": "A_ARG_TYPE_Direction" },
-		                                                      { "name": "Status", "variable": "A_ARG_TYPE_ConnectionStatus" }
-		                                                    ]
-		                              }
+        get_current_connection_info = { "argument_variables": [ { "name": "ConnectionID", "variable": "A_ARG_TYPE_ConnectionID" } ],
+                                        "return_variable": { "name": "RcsID", "variable": "A_ARG_TYPE_RcsID" },
+                                        "result_variables": [ { "name": "AVTransportID", "variable": "A_ARG_TYPE_AVTransportID" },
+                                                              { "name": "ProtocolInfo", "variable": "A_ARG_TYPE_ProtocolInfo" },
+                                                              { "name": "PeerConnectionManager", "variable": "A_ARG_TYPE_ConnectionManager" },
+                                                              { "name": "PeerConnectionID", "variable": "A_ARG_TYPE_ConnectionID" },
+                                                              { "name": "Direction", "variable": "A_ARG_TYPE_Direction" },
+                                                              { "name": "Status", "variable": "A_ARG_TYPE_ConnectionStatus" }
+                                                            ]
+                                      }
 
-		get_feature_list = { "argument_variables": [ ],
-		                     "return_variable": { "name": "FeatureList", "variable": "FeatureList" },
-		                     "result_variables": [ ]
-		                   }
+        get_feature_list = { "argument_variables": [ ],
+                             "return_variable": { "name": "FeatureList", "variable": "FeatureList" },
+                             "result_variables": [ ]
+                           }
 
-		self.actions = { "GetProtocolInfo": get_protocol_info,
-		                 "GetCurrentConnectionIDs": get_current_connection_ids,
-		                 "GetCurrentConnectionInfo": get_current_connection_info,
-		                 "GetFeatureList": get_feature_list
-		               }
-	#
+        self.actions = { "GetProtocolInfo": get_protocol_info,
+                         "GetCurrentConnectionIDs": get_current_connection_ids,
+                         "GetCurrentConnectionInfo": get_current_connection_info,
+                         "GetFeatureList": get_feature_list
+                       }
+    #
 
-	def _init_host_variables(self, device):
-	#
-		"""
+    def _init_host_variables(self, device):
+        """
 Initializes the dict of host service variables.
 
 :param device: Host device this UPnP service is added to
 
 :since: v0.2.00
-		"""
+        """
 
-		self.variables = { "SourceProtocolInfo": { "is_sending_events": True,
-		                                           "is_multicasting_events": False,
-		                                           "type": "string"
-		                                         },
-		                   "SinkProtocolInfo": { "is_sending_events": True,
-		                                         "is_multicasting_events": False,
-		                                         "type": "string"
-		                                       },
-		                   "CurrentConnectionIDs": { "is_sending_events": True,
-		                                             "is_multicasting_events": False,
-		                                             "type": "string"
-		                                           },
-		                   "FeatureList": { "is_sending_events": False,
-		                                    "is_multicasting_events": False,
-		                                    "type": "string"
-		                                  },
-		                   "A_ARG_TYPE_ConnectionStatus": { "is_sending_events": False,
-		                                                    "is_multicasting_events": False,
-		                                                    "type": "string",
-		                                                    "values_allowed": [ "OK",
-		                                                                        "ContentFormatMismatch",
-		                                                                        "InsufficientBandwidth",
-		                                                                        "UnreliableChannel",
-		                                                                        "Unknown"
-		                                                                      ]
-		                                                  },
-		                   "A_ARG_TYPE_ConnectionManager": { "is_sending_events": False,
-		                                                     "is_multicasting_events": False,
-		                                                     "type": "string"
-		                                                   },
-		                   "A_ARG_TYPE_Direction": { "is_sending_events": False,
-		                                             "is_multicasting_events": False,
-		                                             "type": "string",
-		                                             "values_allowed": [ "Output", "Input" ]
-		                                           },
-		                   "A_ARG_TYPE_ProtocolInfo": { "is_sending_events": False,
-		                                                "is_multicasting_events": False,
-		                                                "type": "string"
-		                                              },
-		                   "A_ARG_TYPE_ConnectionID": { "is_sending_events": False,
-		                                                "is_multicasting_events": False,
-		                                                "type": "i4"
-		                                              },
-		                   "A_ARG_TYPE_AVTransportID": { "is_sending_events": False,
-		                                                 "is_multicasting_events": False,
-		                                                 "type": "i4"
-		                                               },
-		                   "A_ARG_TYPE_RcsID": { "is_sending_events": False,
-		                                         "is_multicasting_events": False,
-		                                         "type": "i4"
-		                                       }
-		                 }
-	#
+        self.variables = { "SourceProtocolInfo": { "is_sending_events": True,
+                                                   "is_multicasting_events": False,
+                                                   "type": "string"
+                                                 },
+                           "SinkProtocolInfo": { "is_sending_events": True,
+                                                 "is_multicasting_events": False,
+                                                 "type": "string"
+                                               },
+                           "CurrentConnectionIDs": { "is_sending_events": True,
+                                                     "is_multicasting_events": False,
+                                                     "type": "string"
+                                                   },
+                           "FeatureList": { "is_sending_events": False,
+                                            "is_multicasting_events": False,
+                                            "type": "string"
+                                          },
+                           "A_ARG_TYPE_ConnectionStatus": { "is_sending_events": False,
+                                                            "is_multicasting_events": False,
+                                                            "type": "string",
+                                                            "values_allowed": [ "OK",
+                                                                                "ContentFormatMismatch",
+                                                                                "InsufficientBandwidth",
+                                                                                "UnreliableChannel",
+                                                                                "Unknown"
+                                                                              ]
+                                                          },
+                           "A_ARG_TYPE_ConnectionManager": { "is_sending_events": False,
+                                                             "is_multicasting_events": False,
+                                                             "type": "string"
+                                                           },
+                           "A_ARG_TYPE_Direction": { "is_sending_events": False,
+                                                     "is_multicasting_events": False,
+                                                     "type": "string",
+                                                     "values_allowed": [ "Output", "Input" ]
+                                                   },
+                           "A_ARG_TYPE_ProtocolInfo": { "is_sending_events": False,
+                                                        "is_multicasting_events": False,
+                                                        "type": "string"
+                                                      },
+                           "A_ARG_TYPE_ConnectionID": { "is_sending_events": False,
+                                                        "is_multicasting_events": False,
+                                                        "type": "i4"
+                                                      },
+                           "A_ARG_TYPE_AVTransportID": { "is_sending_events": False,
+                                                         "is_multicasting_events": False,
+                                                         "type": "i4"
+                                                       },
+                           "A_ARG_TYPE_RcsID": { "is_sending_events": False,
+                                                 "is_multicasting_events": False,
+                                                 "type": "i4"
+                                               }
+                         }
+    #
 #
-
-##j## EOF

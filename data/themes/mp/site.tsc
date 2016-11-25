@@ -5,8 +5,7 @@
 <title>[rewrite:settings]pas_http_site_title[/rewrite] • [rewrite:content]page_title[/rewrite]</title>
 [if:content:head_canonical_url != ]<link rel="canonical" href="[rewrite:content]head_canonical_url[/rewrite]" />[/if]
 [if:content:head_canonical_url != ]<meta name="description" content="[rewrite:content]head_page_description[/rewrite]" />[/if]
-[if:content:head_p3purl != ]<link rel="P3Pv1" href="[rewrite:content]head_p3purl[/rewrite]" />[/if]
-<meta name="author" content="direct Netware Group" />
+<meta name="author" content="direct Netware Group et al." />
 <meta name="creator" content="direct PAS" />
 <meta name="viewport" content="initial-scale=1" />
 <style type="text/css"><![CDATA[
@@ -129,19 +128,19 @@ td:last-child, th:last-child { border-right: none }
 </head>
 
 <body>
-<div class='designpage'>
+<div class="designpage">
 <header>
 <img src="[rewrite:settings]x_pas_http_path_mmedia_versioned[/rewrite]/spacer.png" alt="[rewrite:settings]pas_http_site_title[/rewrite]" class="designheaderlogo" />
-<div class='designheadertitle'>[rewrite:settings]pas_http_site_title_xhtml[/rewrite]</div>
+<div class="designheadertitle">[rewrite:settings]pas_http_site_title_xhtml[/rewrite]</div>
 <aside>[rewrite:l10n]theme_mp_donation_1[/rewrite][rewrite:l10n]theme_mp_donation_2[/rewrite][rewrite:l10n]theme_mp_donation_3[/rewrite]</aside>
 </header>
-<div id='design_mainmenu'>[block:settings:pas_http_site_menu_main]output.menu.File.render[/block]</div>
+<div id="design_mainmenu">[block:settings:pas_http_site_menu_main]output.menu.File.render[/block]</div>
 <script type="text/javascript"><![CDATA[
 require([ "djt/FixableBlock.min" ], function(FixableBlock) {
 	new FixableBlock({ id: "design_mainmenu", FixableBlock_fixed_class: "pagemainmenu_box_fixed" });
 });
 ]]></script>
-<div class='designcontent'>
+<div class="designcontent">
 [block]output.menu.Service.render_primary[/block]
 [block]output.NotificationBox.render[/block]
 <main>

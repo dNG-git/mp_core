@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-##j## BOF
 
 """
 MediaProvider
@@ -40,77 +39,69 @@ from mp.tasks.resource_scanner import ResourceScanner
 from mp.tasks.root_container_deleter import RootContainerDeleter
 
 def on_root_container_added(params, last_return = None):
-#
-	"""
+    """
 Called for "dNG.pas.upnp.Resource.onRootContainerAdded"
 
 :param params: Parameter specified
 :param last_return: The return value from the last hook called.
 
 :since: v0.2.00
-	"""
+    """
 
-	if (last_return is None): _return = True
-	else: _return = last_return
+    if (last_return is None): _return = True
+    else: _return = last_return
 
-	if (_return and "container_id" in params):
-	#
-		MemoryTasks.get_instance().add("mp.tasks.ResourceScanner.{0}".format(params['container_id']),
-		                               ResourceScanner(params['container_id']),
-		                               0
-		                              )
-	#
+    if (_return and "container_id" in params):
+        MemoryTasks.get_instance().add("mp.tasks.ResourceScanner.{0}".format(params['container_id']),
+                                       ResourceScanner(params['container_id']),
+                                       0
+                                      )
+    #
 
-	return _return
+    return _return
 #
 
 def on_root_container_deleted(params, last_return = None):
-#
-	"""
+    """
 Called for "dNG.pas.upnp.Resource.onRootContainerDeleted"
 
 :param params: Parameter specified
 :param last_return: The return value from the last hook called.
 
 :since: v0.2.00
-	"""
+    """
 
-	if (last_return is None): _return = True
-	else: _return = last_return
+    if (last_return is None): _return = True
+    else: _return = last_return
 
-	if (_return and "container_id" in params):
-	#
-		MemoryTasks.get_instance().add("mp.tasks.RootContainerDeleter.{0}".format(params['container_id']),
-		                               RootContainerDeleter(params['container_id']),
-		                               0
-		                              )
-	#
+    if (_return and "container_id" in params):
+        MemoryTasks.get_instance().add("mp.tasks.RootContainerDeleter.{0}".format(params['container_id']),
+                                       RootContainerDeleter(params['container_id']),
+                                       0
+                                      )
+    #
 
-	return _return
+    return _return
 #
 
 def register_plugin():
-#
-	"""
+    """
 Register plugin hooks.
 
 :since: v0.2.00
-	"""
+    """
 
-	Hook.register("dNG.pas.upnp.Resource.onRootContainerAdded", on_root_container_added)
-	Hook.register("dNG.pas.upnp.Resource.onRootContainerDeleted", on_root_container_deleted)
+    Hook.register("dNG.pas.upnp.Resource.onRootContainerAdded", on_root_container_added)
+    Hook.register("dNG.pas.upnp.Resource.onRootContainerDeleted", on_root_container_deleted)
 #
 
 def unregister_plugin():
-#
-	"""
+    """
 Unregister plugin hooks.
 
 :since: v0.2.00
-	"""
+    """
 
-	Hook.unregister("dNG.pas.upnp.Resource.onRootContainerAdded", on_root_container_added)
-	Hook.unregister("dNG.pas.upnp.Resource.onRootContainerDeleted", on_root_container_deleted)
+    Hook.unregister("dNG.pas.upnp.Resource.onRootContainerAdded", on_root_container_added)
+    Hook.unregister("dNG.pas.upnp.Resource.onRootContainerDeleted", on_root_container_deleted)
 #
-
-##j## EOF

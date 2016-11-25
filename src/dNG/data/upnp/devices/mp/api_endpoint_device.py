@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-##j## BOF
 
 """
 MediaProvider
@@ -36,8 +35,7 @@ from dNG.data.upnp.services.callable_service import CallableService
 from dNG.data.upnp.services.mp.api_endpoint_service import ApiEndpointService
 
 class ApiEndpointDevice(AbstractDevice):
-#
-	"""
+    """
 Implementation for "urn:schemas-mediaprovider-net:device:ApiEndpointDevice:1".
 
 :author:     direct Netware Group et al.
@@ -47,49 +45,45 @@ Implementation for "urn:schemas-mediaprovider-net:device:ApiEndpointDevice:1".
 :since:      v0.2.00
 :license:    https://www.direct-netware.de/redirect?licenses;gpl
              GNU General Public License 2
-	"""
+    """
 
-	def __init__(self):
-	#
-		"""
+    def __init__(self):
+        """
 Constructor __init__(ApiEndpointDevice)
 
 :since: v0.2.00
-		"""
+        """
 
-		AbstractDevice.__init__(self)
+        AbstractDevice.__init__(self)
 
-		self.type = "ApiEndpointDevice"
-		self.upnp_domain = "schemas-mediaprovider-net"
-		self.version = "1"
-	#
+        self.type = "ApiEndpointDevice"
+        self.upnp_domain = "schemas-mediaprovider-net"
+        self.version = "1"
+    #
 
-	def init_device(self, control_point, udn = None, configid = None):
-	#
-		"""
+    def init_device(self, control_point, udn = None, configid = None):
+        """
 Initialize a host device.
 
 :return: (bool) Returns true if initialization was successful.
 :since:  v0.2.00
-		"""
+        """
 
-		AbstractDevice.init_device(self, control_point, udn, configid)
+        AbstractDevice.init_device(self, control_point, udn, configid)
 
-		self.device_model = "UPnP Python server"
-		self.device_model_desc = "Python based UPnP server software"
-		self.device_model_url = "https://www.direct-netware.de/redirect?mp;core"
-		self.device_model_version = "#echo(mpCoreVersion)#"
-		self.manufacturer = "direct Netware Group"
-		self.manufacturer_url = "http://www.direct-netware.de"
+        self.device_model = "UPnP Python server"
+        self.device_model_desc = "Python based UPnP server software"
+        self.device_model_url = "https://www.direct-netware.de/redirect?mp;core"
+        self.device_model_version = "#echo(mpCoreVersion)#"
+        self.manufacturer = "direct Netware Group"
+        self.manufacturer_url = "http://www.direct-netware.de"
 
-		service = CallableService()
-		if (service.init_host(self, configid = self.configid)): self.add_service(service)
+        service = CallableService()
+        if (service.init_host(self, configid = self.configid)): self.add_service(service)
 
-		service = ApiEndpointService()
-		if (service.init_host(self, configid = self.configid)): self.add_service(service)
+        service = ApiEndpointService()
+        if (service.init_host(self, configid = self.configid)): self.add_service(service)
 
-		return True
-	#
+        return True
+    #
 #
-
-##j## EOF

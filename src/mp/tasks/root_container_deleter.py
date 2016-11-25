@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-##j## BOF
 
 """
 MediaProvider
@@ -39,8 +38,7 @@ from dNG.runtime.value_exception import ValueException
 from .resource_deleter import ResourceDeleter
 
 class RootContainerDeleter(ResourceDeleter):
-#
-	"""
+    """
 "RootContainerDeleter" deletes all database entries for the given
 UPnP root container ID.
 
@@ -51,43 +49,39 @@ UPnP root container ID.
 :since:      v0.2.00
 :license:    https://www.direct-netware.de/redirect?licenses;gpl
              GNU General Public License 2
-	"""
+    """
 
-	def __init__(self, root_container_id = None):
-	#
-		"""
+    def __init__(self, root_container_id = None):
+        """
 Constructor __init__(ResourceDeleter)
 
 :param root_container_id: UPnP root container ID
 
 :since: v0.2.00
-		"""
+        """
 
-		ResourceDeleter.__init__(self)
+        ResourceDeleter.__init__(self)
 
-		self.root_container_id = root_container_id
-		"""
+        self.root_container_id = root_container_id
+        """
 UPnP root resource IDgiven
-		"""
-	#
+        """
+    #
 
-	def _get_condition_definition(self):
-	#
-		"""
+    def _get_condition_definition(self):
+        """
 Returns the condition definition instance used for identifying the root
 UPnP resource to be deleted.
 
 :return: (object) ConditionDefinition instance
 :since:  v0.2.00
-		"""
+        """
 
-		if (self.root_container_id is None): raise ValueException("UPnP root container ID is invalid")
+        if (self.root_container_id is None): raise ValueException("UPnP root container ID is invalid")
 
-		_return = ConditionDefinition()
-		_return.add_exact_match_condition("id_main", self.root_container_id)
+        _return = ConditionDefinition()
+        _return.add_exact_match_condition("id_main", self.root_container_id)
 
-		return _return
-	#
+        return _return
+    #
 #
-
-##j## EOF

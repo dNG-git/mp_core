@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-##j## BOF
 
 """
 MediaProvider
@@ -38,36 +37,33 @@ from dNG.data.text.l10n import L10n
 from dNG.plugins.hook import Hook
 
 def init_control_l10n(params, last_return = None):
-#
-	"""
+    """
 Called for "dNG.pas.http.l10n.upnp.Control.init"
 
 :param params: Parameter specified
 :param last_return: The return value from the last hook called.
 
 :since: v0.2.00
-	"""
+    """
 
-	L10n.init("mp_core")
-	return last_return
+    L10n.init("mp_core")
+    return last_return
 #
 
 def register_plugin():
-#
-	"""
+    """
 Register plugin hooks.
 
 :since: v0.2.00
-	"""
+    """
 
-	Hook.register("dNG.pas.http.l10n.upnp.Control.init", init_control_l10n)
-	Hook.register("dNG.pas.http.Server.onStartup", on_startup)
-	Hook.register("dNG.pas.http.Wsgi.onStartup", on_startup)
+    Hook.register("dNG.pas.http.l10n.upnp.Control.init", init_control_l10n)
+    Hook.register("dNG.pas.http.Server.onStartup", on_startup)
+    Hook.register("dNG.pas.http.Wsgi.onStartup", on_startup)
 #
 
 def on_startup(params, last_return = None):
-#
-	"""
+    """
 Called for "dNG.pas.http.Server.onStartup" and "dNG.pas.http.Wsgi.onStartup"
 
 :param params: Parameter specified
@@ -75,24 +71,21 @@ Called for "dNG.pas.http.Server.onStartup" and "dNG.pas.http.Wsgi.onStartup"
 
 :return: (mixed) Return value
 :since:  v0.2.00
-	"""
+    """
 
-	VirtualConfig.set_virtual_path("/apis/mp/endpoint_configuration/", { "ohandler": "http_json", "m": "mp", "s": "app_endpoint", "a": "api_get_configuration", "path": "version" })
+    VirtualConfig.set_virtual_path("/apis/mp/endpoint_configuration/", { "ohandler": "http_json", "m": "mp", "s": "app_endpoint", "a": "api_get_configuration", "path": "version" })
 
-	return last_return
+    return last_return
 #
 
 def unregister_plugin():
-#
-	"""
+    """
 Unregister plugin hooks.
 
 :since: v0.2.00
-	"""
+    """
 
-	Hook.unregister("dNG.pas.http.l10n.upnp.Control.init", init_control_l10n)
-	Hook.unregister("dNG.pas.http.Server.onStartup", on_startup)
-	Hook.unregister("dNG.pas.http.Wsgi.onStartup", on_startup)
+    Hook.unregister("dNG.pas.http.l10n.upnp.Control.init", init_control_l10n)
+    Hook.unregister("dNG.pas.http.Server.onStartup", on_startup)
+    Hook.unregister("dNG.pas.http.Wsgi.onStartup", on_startup)
 #
-
-##j## EOF

@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-##j## BOF
 
 """
 MediaProvider
@@ -37,8 +36,7 @@ from .item_dlna_http_resource import ItemDlnaHttpResource
 from .item_http_transformed_image_resource_mixin import ItemHttpTransformedImageResourceMixin
 
 class AbstractItemDlnaHttpThumbnailResource(ItemDlnaHttpResource, ItemHttpTransformedImageResourceMixin):
-#
-	"""
+    """
 "ItemDlnaHttpResource" represents an UPnP object with the mime class "video".
 
 :author:     direct Netware Group et al.
@@ -48,102 +46,95 @@ class AbstractItemDlnaHttpThumbnailResource(ItemDlnaHttpResource, ItemHttpTransf
 :since:      v0.2.00
 :license:    https://www.direct-netware.de/redirect?licenses;gpl
              GNU General Public License 2
-	"""
+    """
 
-	TRANSFORMATION_ACTION = "resource_thumbnail"
-	"""
+    TRANSFORMATION_ACTION = "resource_thumbnail"
+    """
 Image transformation action used for "m=upnp;s=image".
-	"""
+    """
 
-	def __init__(self):
-	#
-		"""
+    def __init__(self):
+        """
 Constructor __init__(AbstractItemDlnaHttpThumbnailResource)
 
 :since: v0.2.00
-		"""
+        """
 
-		ItemDlnaHttpResource.__init__(self)
-		ItemHttpTransformedImageResourceMixin.__init__(self)
+        ItemDlnaHttpResource.__init__(self)
+        ItemHttpTransformedImageResourceMixin.__init__(self)
 
-		self.dlna_org_pn = None
-		"""
+        self.dlna_org_pn = None
+        """
 DLNA "ORG_PN" value
-		"""
+        """
 
-		self.use_parent_resource_data = False
+        self.use_parent_resource_data = False
 
-		self.supported_features['thumbnail_source_vfs_url'] = True
-	#
+        self.supported_features['thumbnail_source_vfs_url'] = True
+    #
 
-	def get_metadata(self, **kwargs):
-	#
-		"""
+    def get_metadata(self, **kwargs):
+        """
 Sets additional metadata used for "_add_metadata_to_didl_xml_node()" of this
 UPnP resource.
 
 :since: v0.2.00
-		"""
+        """
 
-		_return = ItemDlnaHttpResource.get_metadata(self)
-		_return.update(self._get_transformed_image_metadata())
+        _return = ItemDlnaHttpResource.get_metadata(self)
+        _return.update(self._get_transformed_image_metadata())
 
-		return _return
-	#
+        return _return
+    #
 
-	get_mimetype = ItemHttpTransformedImageResourceMixin.get_mimetype
-	"""
+    get_mimetype = ItemHttpTransformedImageResourceMixin.get_mimetype
+    """
 Returns the UPnP resource mime class.
 
 :return: (str) UPnP resource mime class
 :since:  v0.2.00
-	"""
+    """
 
-	def get_thumbnail_source_vfs_url(self, generate_thumbnail = True):
-	#
-		"""
+    def get_thumbnail_source_vfs_url(self, generate_thumbnail = True):
+        """
 Returns the thumbnail source VFS URL if applicable.
 
 :param generate_thumbnail: True to generate a missing thumbnail on the fly
 
 :return: (str) Thumbnail source VFS URL; None if no thumbnail file exist
 :since:  v0.2.00
-		"""
+        """
 
-		self._init_parent_resource()
+        self._init_parent_resource()
 
-		if (self.parent_resource is None
-		    or (not self.parent_resource.is_supported("thumbnail_source_vfs_url"))
-		   ): raise IOException("Requested the thumbnail source VFS for an unsupported UPnP resource")
+        if (self.parent_resource is None
+            or (not self.parent_resource.is_supported("thumbnail_source_vfs_url"))
+           ): raise IOException("Requested the thumbnail source VFS for an unsupported UPnP resource")
 
-		return self.parent_resource.get_thumbnail_source_vfs_url(generate_thumbnail)
-	#
+        return self.parent_resource.get_thumbnail_source_vfs_url(generate_thumbnail)
+    #
 
-	_init_content = ItemHttpTransformedImageResourceMixin._init_content
-	"""
+    _init_content = ItemHttpTransformedImageResourceMixin._init_content
+    """
 Initializes the content of a container.
 
 :return: (bool) True if successful
 :since:  v0.2.00
-	"""
+    """
 
-	def _refresh_dlna_content_features(self):
-	#
-		"""
+    def _refresh_dlna_content_features(self):
+        """
 Initializes the UPnP DLNA content features variable.
 
 :since: v0.2.00
-		"""
+        """
 
-		ItemDlnaHttpResource._refresh_dlna_content_features(self)
+        ItemDlnaHttpResource._refresh_dlna_content_features(self)
 
-		if (self.dlna_org_pn is not None):
-		#
-			self.dlna_content_features = "DLNA.ORG_PN={0};{1}".format(self.dlna_org_pn,
-			                                                          self.dlna_content_features
-			                                                         )
-		#
-	#
+        if (self.dlna_org_pn is not None):
+            self.dlna_content_features = "DLNA.ORG_PN={0};{1}".format(self.dlna_org_pn,
+                                                                      self.dlna_content_features
+                                                                     )
+        #
+    #
 #
-
-##j## EOF

@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-##j## BOF
 
 """
 MediaProvider
@@ -34,8 +33,7 @@ https://www.direct-netware.de/redirect?licenses;gpl
 from .abstract_item_dlna_http_thumbnail_resource import AbstractItemDlnaHttpThumbnailResource
 
 class ItemDlnaHttpPngThumbnailResource(AbstractItemDlnaHttpThumbnailResource):
-#
-	"""
+    """
 "ItemDlnaHttpPngThumbnailResource" represents an UPnP "PNG_TN" thumbnail
 resource.
 
@@ -46,26 +44,23 @@ resource.
 :since:      v0.2.00
 :license:    https://www.direct-netware.de/redirect?licenses;gpl
              GNU General Public License 2
-	"""
+    """
 
-	def __init__(self):
-	#
-		"""
+    def __init__(self):
+        """
 Constructor __init__(ItemDlnaHttpPngThumbnailResource)
 
 :since: v0.2.00
-		"""
+        """
 
-		AbstractItemDlnaHttpThumbnailResource.__init__(self)
+        AbstractItemDlnaHttpThumbnailResource.__init__(self)
 
-		self.dlna_org_pn = "PNG_TN"
-		self.mimetype = "image/png"
+        self.dlna_org_pn = "PNG_TN"
+        self.mimetype = "image/png"
 
-		self.transformation_mimetype = "image/png"
-		self.transformation_width = 160
-		self.transformation_height = 160
-		self.transformation_depth = 32
-	#
+        self.transformation_mimetype = "image/png"
+        self.transformation_width = 160
+        self.transformation_height = 160
+        self.transformation_depth = 32
+    #
 #
-
-##j## EOF

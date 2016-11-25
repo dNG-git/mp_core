@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-##j## BOF
 
 """
 MediaProvider
@@ -38,8 +37,7 @@ from sqlalchemy.types import INT, SMALLINT, TEXT, VARCHAR
 from .mp_upnp_resource import MpUpnpResource
 
 class MpUpnpImageResource(MpUpnpResource):
-#
-	"""
+    """
 "MpUpnpImageResource" represents an database UPnP image resource entry.
 
 :author:     direct Netware Group et al.
@@ -49,74 +47,71 @@ class MpUpnpImageResource(MpUpnpResource):
 :since:      v0.2.00
 :license:    https://www.direct-netware.de/redirect?licenses;gpl
              GNU General Public License 2
-	"""
+    """
 
-	__tablename__ = "{0}_mp_upnp_image_resource".format(MpUpnpResource.get_table_prefix())
-	"""
+    __tablename__ = "{0}_mp_upnp_image_resource".format(MpUpnpResource.get_table_prefix())
+    """
 SQLAlchemy table name
-	"""
-	db_instance_class = "dNG.data.upnp.resources.MpEntryImage"
-	"""
+    """
+    db_instance_class = "dNG.data.upnp.resources.MpEntryImage"
+    """
 Encapsulating SQLAlchemy database instance class name
-	"""
-	db_schema_version = 1
-	"""
+    """
+    db_schema_version = 1
+    """
 Database schema version
-	"""
+    """
 
-	id = Column(VARCHAR(32), ForeignKey(MpUpnpResource.id), primary_key = True)
-	"""
+    id = Column(VARCHAR(32), ForeignKey(MpUpnpResource.id), primary_key = True)
+    """
 mp_upnp_image_resource.id
-	"""
-	artist = Column(VARCHAR(255), index = True)
-	"""
+    """
+    artist = Column(VARCHAR(255), index = True)
+    """
 mp_upnp_image_resource.artist
-	"""
-	description = Column(TEXT, index = True)
-	"""
+    """
+    description = Column(TEXT, index = True)
+    """
 mp_upnp_image_resource.description
-	"""
-	width = Column(INT, index = True)
-	"""
+    """
+    width = Column(INT, index = True)
+    """
 mp_upnp_image_resource.width
-	"""
-	height = Column(INT, index = True)
-	"""
+    """
+    height = Column(INT, index = True)
+    """
 mp_upnp_image_resource.height
-	"""
-	bpp = Column(SMALLINT)
-	"""
+    """
+    bpp = Column(SMALLINT)
+    """
 mp_upnp_image_resource.bpp
-	"""
-	creator = Column(VARCHAR(255), index = True)
-	"""
+    """
+    creator = Column(VARCHAR(255), index = True)
+    """
 mp_upnp_image_resource.creator
-	"""
+    """
 
-	__mapper_args__ = { "polymorphic_identity": "MpUpnpImageResource" }
-	"""
+    __mapper_args__ = { "polymorphic_identity": "MpUpnpImageResource" }
+    """
 sqlalchemy.org: Other options are passed to mapper() using the
 __mapper_args__ class variable.
-	"""
+    """
 
-	@classmethod
-	def before_apply_schema(cls):
-	#
-		"""
+    @classmethod
+    def before_apply_schema(cls):
+        """
 Called before applying the SQLAlchemy generated schema to register the
 custom DDL for PostgreSQL.
 
 :since: v0.2.00
-	"""
+    """
 
-		create_postgresql_tsvector_index = "CREATE INDEX idx_{0}_mp_upnp_image_resource_description ON {0}_mp_upnp_image_resource USING gin(to_tsvector('simple', description));"
-		create_postgresql_tsvector_index = create_postgresql_tsvector_index.format(cls.get_table_prefix())
+        create_postgresql_tsvector_index = "CREATE INDEX idx_{0}_mp_upnp_image_resource_description ON {0}_mp_upnp_image_resource USING gin(to_tsvector('simple', description));"
+        create_postgresql_tsvector_index = create_postgresql_tsvector_index.format(cls.get_table_prefix())
 
-		listen(cls.__table__,
-		       "after_create",
-		       DDL(create_postgresql_tsvector_index).execute_if(dialect = "postgresql")
-		      )
-	#
+        listen(cls.__table__,
+               "after_create",
+               DDL(create_postgresql_tsvector_index).execute_if(dialect = "postgresql")
+              )
+    #
 #
-
-##j## EOF

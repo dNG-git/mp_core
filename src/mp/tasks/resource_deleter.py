@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-##j## BOF
 
 """
 MediaProvider
@@ -44,8 +43,7 @@ from dNG.runtime.value_exception import ValueException
 from dNG.tasks.abstract_lrt_hook import AbstractLrtHook
 
 class ResourceDeleter(AbstractLrtHook):
-#
-	"""
+    """
 "ResourceDeleter" deletes all database entries recursively for the given
 resource.
 
@@ -56,81 +54,73 @@ resource.
 :since:      v0.2.00
 :license:    https://www.direct-netware.de/redirect?licenses;gpl
              GNU General Public License 2
-	"""
+    """
 
-	def __init__(self, resource = None):
-	#
-		"""
+    def __init__(self, resource = None):
+        """
 Constructor __init__(ResourceDeleter)
 
 :param resource: UPnP resource
 
 :since: v0.2.00
-		"""
+        """
 
-		AbstractLrtHook.__init__(self)
+        AbstractLrtHook.__init__(self)
 
-		self.resource = resource
-		"""
+        self.resource = resource
+        """
 UPnP resource ID
-		"""
+        """
 
-		self.context_id = "mp.tasks.ResourceDeleter"
-	#
+        self.context_id = "mp.tasks.ResourceDeleter"
+    #
 
-	def _get_condition_definition(self):
-	#
-		"""
+    def _get_condition_definition(self):
+        """
 Returns the condition definition instance used for identifying the root UPnP
 resource to be deleted.
 
 :return: (object) ConditionDefinition instance
 :since:  v0.2.00
-		"""
+        """
 
-		if (self.resource is None): raise ValueException("UPnP resource is invalid")
+        if (self.resource is None): raise ValueException("UPnP resource is invalid")
 
-		_return = ConditionDefinition()
-		_return.add_exact_match_condition("vfs_url", self.resource)
+        _return = ConditionDefinition()
+        _return.add_exact_match_condition("vfs_url", self.resource)
 
-		return _return
-	#
+        return _return
+    #
 
-	def _run_hook(self, **kwargs):
-	#
-		"""
+    def _run_hook(self, **kwargs):
+        """
 Hook execution
 
 :return: (mixed) Task result
 :since:  v0.2.00
-		"""
+        """
 
-		condition_definition = self._get_condition_definition()
-		_return = MpEntry.get_entries_count_with_condition(condition_definition)
+        condition_definition = self._get_condition_definition()
+        _return = MpEntry.get_entries_count_with_condition(condition_definition)
 
-		limit = Settings.get("pas_database_delete_iterator_limit", 50)
-		entry_iterator_count = ceil(_return / limit)
+        limit = Settings.get("pas_database_delete_iterator_limit", 50)
+        entry_iterator_count = ceil(_return / limit)
 
-		LogLine.info("{0!r} removes {1:d} matches", self, _return, context = "mp_server")
+        LogLine.info("{0!r} removes {1:d} matches", self, _return, context = "mp_server")
 
-		for _ in range(0, entry_iterator_count):
-		#
-			with TransactionContext():
-			#
-				entries = MpEntry.load_entries_list_with_condition(condition_definition, limit = limit)
+        for _ in range(0, entry_iterator_count):
+            with TransactionContext():
+                entries = MpEntry.load_entries_list_with_condition(condition_definition, limit = limit)
 
-				for entry in entries:
-				#
-					parent_entry = entry.load_parent()
+                for entry in entries:
+                    parent_entry = entry.load_parent()
 
-					if (isinstance(parent_entry, MpEntry)): parent_entry.remove_content(entry)
-					entry.delete()
-				#
-			#
-		#
+                    if (isinstance(parent_entry, MpEntry)): parent_entry.remove_content(entry)
+                    entry.delete()
+                #
+            #
+        #
 
-		return _return
-	#
+        return _return
+    #
 #
-
-##j## EOF

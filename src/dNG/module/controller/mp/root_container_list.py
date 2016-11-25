@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-##j## BOF
 
 """
 MediaProvider
@@ -43,8 +42,7 @@ from dNG.data.xhtml.page_links_renderer import PageLinksRenderer
 from .module import Module
 
 class RootContainerList(Module):
-#
-	"""
+    """
 "RootContainerList" creates a list of UPnP root containers.
 
 :author:     direct Netware Group et al.
@@ -54,83 +52,79 @@ class RootContainerList(Module):
 :since:      v0.2.00
 :license:    https://www.direct-netware.de/redirect?licenses;gpl
              GNU General Public License 2
-	"""
+    """
 
-	def execute_render(self):
-	#
-		"""
+    def execute_render(self):
+        """
 Action for "render"
 
 :since: v0.2.00
-		"""
+        """
 
-		if (self._is_primary_action()): raise TranslatableError("core_access_denied", 403)
+        if (self._is_primary_action()): raise TranslatableError("core_access_denied", 403)
 
-		root_containers_count = MpEntry.get_root_containers_count()
+        root_containers_count = MpEntry.get_root_containers_count()
 
-		limit = 20
+        limit = 20
 
-		page = self.context.get("page", 1)
-		pages = (1 if (root_containers_count == 0) else ceil(float(root_containers_count) / limit))
+        page = self.context.get("page", 1)
+        pages = (1 if (root_containers_count == 0) else ceil(float(root_containers_count) / limit))
 
-		offset = (0 if (page < 1 or page > pages) else (page - 1) * limit)
+        offset = (0 if (page < 1 or page > pages) else (page - 1) * limit)
 
-		page_link_renderer = PageLinksRenderer({ "__request__": True }, page, pages)
-		page_link_renderer.set_dsd_page_key("mpage")
-		rendered_links = page_link_renderer.render()
+        page_link_renderer = PageLinksRenderer({ "__request__": True }, page, pages)
+        page_link_renderer.set_dsd_page_key("mpage")
+        rendered_links = page_link_renderer.render()
 
-		rendered_content = rendered_links
-		for root_container in MpEntry.load_root_containers(offset = offset, limit = limit): rendered_content += self._render_root_container(root_container)
-		rendered_content += "\n" + rendered_links
+        rendered_content = rendered_links
+        for root_container in MpEntry.load_root_containers(offset = offset, limit = limit): rendered_content += self._render_root_container(root_container)
+        rendered_content += "\n" + rendered_links
 
-		self.set_action_result(rendered_content)
-	#
+        self.set_action_result(rendered_content)
+    #
 
-	def _render_root_container(self, root_container):
-	#
-		"""
+    def _render_root_container(self, root_container):
+        """
 Renders the UPnP root container.
 
 :return: (str) Post XHTML
 :since:  v0.2.00
-		"""
+        """
 
-		root_container_data = root_container.get_data_attributes("id",
-		                                                         "title",
-		                                                         "resource"
-		                                                        )
+        root_container_data = root_container.get_data_attributes("id",
+                                                                 "title",
+                                                                 "resource"
+                                                                )
 
-		content = { "id": root_container_data['id'],
-		            "title": root_container_data['title'],
-		            "resource": root_container_data['resource']
-		          }
+        content = { "id": root_container_data['id'],
+                    "title": root_container_data['title'],
+                    "resource": root_container_data['resource']
+                  }
 
-		options = [ { "title": L10n.get("mp_core_root_container_edit"),
-		              "type": (Link.TYPE_RELATIVE_URL | Link.TYPE_JS_REQUIRED),
-		              "parameters": { "m": "mp",
-		                              "s": "root_container",
-		                              "a": "edit",
-		                              "dsd": { "mcid": root_container_data['id'] }
-		                            }
-		            },
-		            { "title": L10n.get("mp_core_root_container_delete"),
-		              "type": Link.TYPE_RELATIVE_URL,
-		              "parameters": { "m": "mp",
-		                              "s": "root_container",
-		                              "a": "delete",
-		                              "dsd": { "mcid": root_container_data['id'] }
-		                            }
-		            }
-		          ]
+        options = [ { "title": L10n.get("mp_core_root_container_edit"),
+                      "type": (Link.TYPE_RELATIVE_URL | Link.TYPE_JS_REQUIRED),
+                      "parameters": { "m": "mp",
+                                      "s": "root_container",
+                                      "a": "edit",
+                                      "dsd": { "mcid": root_container_data['id'] }
+                                    }
+                    },
+                    { "title": L10n.get("mp_core_root_container_delete"),
+                      "type": Link.TYPE_RELATIVE_URL,
+                      "parameters": { "m": "mp",
+                                      "s": "root_container",
+                                      "a": "delete",
+                                      "dsd": { "mcid": root_container_data['id'] }
+                                    }
+                    }
+                  ]
 
-		content['options'] = { "entries": options }
+        content['options'] = { "entries": options }
 
-		parser = FileParser()
-		parser.set_oset(self.response.get_oset())
-		_return = parser.render("mp.list_container", content)
+        parser = FileParser()
+        parser.set_oset(self.response.get_oset())
+        _return = parser.render("mp.list_container", content)
 
-		return _return
-	#
+        return _return
+    #
 #
-
-##j## EOF

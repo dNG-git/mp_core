@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-##j## BOF
 
 """
 MediaProvider
@@ -36,8 +35,7 @@ from dNG.database.connection import Connection
 from dNG.module.controller.abstract_http import AbstractHttp as AbstractHttpController
 
 class Module(AbstractHttpController):
-#
-	"""
+    """
 Module for "mp"
 
 :author:     direct Netware Group et al.
@@ -47,27 +45,23 @@ Module for "mp"
 :since:      v0.2.00
 :license:    https://www.direct-netware.de/redirect?licenses;gpl
              GNU General Public License 2
-	"""
+    """
 
-	def execute(self):
-	#
-		"""
+    def execute(self):
+        """
 Execute the requested action.
 
 :since: v0.2.00
-		"""
+        """
 
-		# pylint: disable=broad-except
+        # pylint: disable=broad-except
 
-		try: database = Connection.get_instance()
-		except Exception as handled_exception:
-		#
-			if (self.log_handler is not None): self.log_handler.error(handled_exception, context = "pas_http_site")
-			raise TranslatableException("core_database_error", _exception = handled_exception)
-		#
+        try: database = Connection.get_instance()
+        except Exception as handled_exception:
+            if (self.log_handler is not None): self.log_handler.error(handled_exception, context = "pas_http_site")
+            raise TranslatableException("core_database_error", _exception = handled_exception)
+        #
 
-		with database: return AbstractHttpController.execute(self)
-	#
+        with database: return AbstractHttpController.execute(self)
+    #
 #
-
-##j## EOF

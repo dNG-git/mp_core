@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-##j## BOF
 
 """
 MediaProvider
@@ -39,8 +38,7 @@ from .file_center_entry import FileCenterEntry
 from .key_store import KeyStore
 
 class MpUpnpResource(FileCenterEntry):
-#
-	"""
+    """
 "MpUPnPResource" represents an database UPnP resource.
 
 :author:     direct Netware Group et al.
@@ -50,48 +48,46 @@ class MpUpnpResource(FileCenterEntry):
 :since:      v0.2.00
 :license:    https://www.direct-netware.de/redirect?licenses;gpl
              GNU General Public License 2
-	"""
+    """
 
-	__tablename__ = "{0}_mp_upnp_resource".format(FileCenterEntry.get_table_prefix())
-	"""
+    __tablename__ = "{0}_mp_upnp_resource".format(FileCenterEntry.get_table_prefix())
+    """
 SQLAlchemy table name
-	"""
-	db_instance_class = "dNG.data.upnp.resources.MpEntry"
-	"""
+    """
+    db_instance_class = "dNG.data.upnp.resources.MpEntry"
+    """
 Encapsulating SQLAlchemy database instance class name
-	"""
-	db_schema_version = 3
-	"""
+    """
+    db_schema_version = 3
+    """
 Database schema version
-	"""
+    """
 
-	id = Column(VARCHAR(32), ForeignKey(FileCenterEntry.id), primary_key = True)
-	"""
+    id = Column(VARCHAR(32), ForeignKey(FileCenterEntry.id), primary_key = True)
+    """
 mp_upnp_resource.id
-	"""
-	resource_title = Column(VARCHAR(255), index = True, server_default = "", nullable = False)
-	"""
+    """
+    resource_title = Column(VARCHAR(255), index = True, server_default = "", nullable = False)
+    """
 mp_upnp_resource.resource_title
-	"""
-	refreshable = Column(BOOLEAN, server_default = "0", nullable = False)
-	"""
+    """
+    refreshable = Column(BOOLEAN, server_default = "0", nullable = False)
+    """
 mp_upnp_resource.refreshable
-	"""
+    """
 
-	__mapper_args__ = { "polymorphic_identity": "MpUpnpResource" }
-	"""
+    __mapper_args__ = { "polymorphic_identity": "MpUpnpResource" }
+    """
 sqlalchemy.org: Other options are passed to mapper() using the
 __mapper_args__ class variable.
-	"""
+    """
 
-	rel_mp_upnp_resource_children = relationship("MpUpnpResource", lazy = "dynamic", primaryjoin = (foreign(FileCenterEntry.id) == remote(FileCenterEntry.id_parent)), uselist = True, viewonly = True)
-	"""
+    rel_mp_upnp_resource_children = relationship("MpUpnpResource", lazy = "dynamic", primaryjoin = (foreign(FileCenterEntry.id) == remote(FileCenterEntry.id_parent)), uselist = True, viewonly = True)
+    """
 Relation to MpUpnpResource children
-	"""
-	rel_resource_metadata = relationship(KeyStore, lazy = "joined", primaryjoin = (foreign(FileCenterEntry.id) == remote(KeyStore.key)), uselist = False)
-	"""
+    """
+    rel_resource_metadata = relationship(KeyStore, lazy = "joined", primaryjoin = (foreign(FileCenterEntry.id) == remote(KeyStore.key)), uselist = False)
+    """
 Relation to MpUpnpResource metadata
-	"""
+    """
 #
-
-##j## EOF
