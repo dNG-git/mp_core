@@ -31,17 +31,10 @@ https://www.direct-netware.de/redirect?licenses;gpl
 #echo(__FILEPATH__)#
 """
 
-import re
-
-try: from urllib.parse import quote
-except ImportError: from urllib import quote
-
 from dNG.data.binary import Binary
 from dNG.data.media.image_implementation import ImageImplementation
 from dNG.data.media.image_metadata import ImageMetadata
-from dNG.data.settings import Settings
 from dNG.database.instances.mp_upnp_image_resource import MpUpnpImageResource as _DbMpUpnpImageResource
-from dNG.module.named_loader import NamedLoader
 
 from .mp_entry import MpEntry
 
@@ -62,6 +55,10 @@ class MpEntryImage(MpEntry):
 	_DB_INSTANCE_CLASS = _DbMpUpnpImageResource
 	"""
 SQLAlchemy database instance class to initialize for new instances.
+	"""
+	METADATA_MIN_SIZE = 20480
+	"""
+Minimum underlying VFS object size before trying to read image metadata
 	"""
 
 	def __init__(self, db_instance = None, user_agent = None, didl_fields = None):
@@ -182,7 +179,11 @@ Refresh metadata associated with this MpEntryImage.
 		"""
 
 		MpEntry.refresh_metadata(self)
-		if (ImageImplementation.get_class() is not None): self._refresh_image_metadata(self.get_vfs_url())
+
+		if (ImageImplementation.get_class() is not None):
+		#
+			if (self.get_size() > MpEntryImage.METADATA_MIN_SIZE): self._refresh_image_metadata(self.get_vfs_url())
+		#
 	#
 
 	def _refresh_image_metadata(self, vfs_url):
@@ -206,7 +207,12 @@ Refresh metadata associated with this MpEntryAudio.
 
 		if (isinstance(metadata, ImageMetadata)):
 		#
-			self.set_data_attributes(metadata = metadata.get_json(),
+			self.mimeclass = metadata.get_mimeclass()
+			self.mimetype = metadata.get_mimetype()
+
+			self.set_data_attributes(mimeclass = self.mimeclass,
+			                         mimetype = self.mimetype,
+			                         metadata = metadata.get_json(),
 			                         artist = metadata.get_artist(),
 			                         description = metadata.get_description(),
 			                         width = metadata.get_width(),

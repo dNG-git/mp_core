@@ -691,19 +691,25 @@ Refresh metadata associated with the MpEntry.
 
 		try:
 		#
-			entry_data = { "time_sortable": vfs_object.get_time_updated(),
-			               "size": vfs_object.get_size()
+			self.timestamp = vfs_object.get_time_updated()
+			self.size = vfs_object.get_size()
+
+			entry_data = { "time_sortable": self.timestamp,
+			               "size": self.size
 			             }
 
 			if (self.get_type() & MpEntry.TYPE_CDS_ITEM == MpEntry.TYPE_CDS_ITEM):
 			#
-				mimetype = vfs_object.get_mimetype()
-				mimetype_definition = MimeType.get_instance().get(mimetype = mimetype)
+				self.mimetype = vfs_object.get_mimetype()
+				mimetype_definition = MimeType.get_instance().get(mimetype = self.mimetype)
 
-				mimeclass = (mimetype.split("/", 1)[0] if (mimetype_definition is None) else mimetype_definition['class'])
+				self.mimeclass = (self.mimetype.split("/", 1)[0]
+				                  if (mimetype_definition is None) else
+				                  mimetype_definition['class']
+				                 )
 
-				entry_data['mimeclass'] = mimeclass
-				entry_data['mimetype'] = mimetype
+				entry_data['mimeclass'] = self.mimeclass
+				entry_data['mimetype'] = self.mimetype
 			#
 
 			with self: self.set_data_attributes(**entry_data)

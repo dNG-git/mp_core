@@ -63,6 +63,10 @@ class MpEntryVideo(MpEntry):
 	"""
 SQLAlchemy database instance class to initialize for new instances.
 	"""
+	METADATA_MIN_SIZE = 131072
+	"""
+Minimum underlying VFS object size before trying to read video metadata
+	"""
 
 	def __init__(self, db_instance = None, user_agent = None, didl_fields = None):
 	#
@@ -270,7 +274,11 @@ Refresh metadata associated with this MpEntryVideo.
 		"""
 
 		MpEntry.refresh_metadata(self)
-		if (VideoImplementation.get_class() is not None): self._refresh_video_metadata(self.get_vfs_url())
+
+		if (VideoImplementation.get_class() is not None):
+		#
+			if (self.get_size() > MpEntryVideo.METADATA_MIN_SIZE): self._refresh_video_metadata(self.get_vfs_url())
+		#
 	#
 
 	def _refresh_video_metadata(self, vfs_url):
@@ -295,12 +303,15 @@ Refresh metadata associated with this MpEntryVideo.
 
 		if (isinstance(metadata, ContainerMetadata) and metadata.get_video_streams_count() == 1):
 		#
+			self.mimeclass = metadata.get_mimeclass()
+			self.mimetype = metadata.get_mimetype()
+
 			video_metadata = metadata.get_video_streams(0)
 
 			with self:
 			#
-				self.set_data_attributes(mimeclass = metadata.get_mimeclass(),
-				                         mimetype = metadata.get_mimetype(),
+				self.set_data_attributes(mimeclass = self.mimeclass,
+				                         mimetype = self.mimetype,
 				                         metadata = metadata.get_json(),
 				                         duration = metadata.get_length(),
 				                         width = video_metadata.get_width(),

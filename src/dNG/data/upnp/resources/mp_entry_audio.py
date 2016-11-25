@@ -57,6 +57,10 @@ class MpEntryAudio(MpEntry):
 	"""
 SQLAlchemy database instance class to initialize for new instances.
 	"""
+	METADATA_MIN_SIZE = 65536
+	"""
+Minimum underlying VFS object size before trying to read audio metadata
+	"""
 
 	def __init__(self, db_instance = None, user_agent = None, didl_fields = None):
 	#
@@ -185,7 +189,11 @@ Refresh metadata associated with this MpEntryAudio.
 		"""
 
 		MpEntry.refresh_metadata(self)
-		if (AudioImplementation.get_class() is not None): self._refresh_audio_metadata(self.get_vfs_url())
+
+		if (AudioImplementation.get_class() is not None):
+		#
+			if (self.get_size() > MpEntryAudio.METADATA_MIN_SIZE): self._refresh_audio_metadata(self.get_vfs_url())
+		#
 	#
 
 	def _refresh_audio_metadata(self, vfs_url):
@@ -209,8 +217,12 @@ Refresh metadata associated with this MpEntryAudio.
 
 		if (isinstance(metadata, AudioMetadata)):
 		#
+			self.mimeclass = metadata.get_mimeclass()
+			self.mimetype = metadata.get_mimetype()
+
 			self.set_data_attributes(title = metadata.get_title(),
-			                         mimetype = metadata.get_mimetype(),
+			                         mimeclass = self.mimeclass,
+			                         mimetype = self.mimetype,
 			                         metadata = metadata.get_json(),
 			                         duration = metadata.get_length(),
 			                         artist = metadata.get_artist(),
