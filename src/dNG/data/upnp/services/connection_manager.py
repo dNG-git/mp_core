@@ -32,8 +32,9 @@ https://www.direct-netware.de/redirect?licenses;gpl
 """
 
 from .abstract_service import AbstractService
+from .feature_list_mixin import FeatureListMixin
 
-class ConnectionManager(AbstractService):
+class ConnectionManager(AbstractService, FeatureListMixin):
 #
 	"""
 Implementation for "urn:schemas-upnp-org:service:ConnectionManager:1".
@@ -73,7 +74,7 @@ Returns the list of supported UPnP protocols.
 		"""
 
 		if (self.log_handler is not None): self.log_handler.debug("#echo(__FILEPATH__)# -{0!r}.get_protocol_info()- (#echo(__LINE__)#)", self, context = "mp_server")
-		return ( "http-get:*:*:*", "" )
+		return { "source": "http-get:*:*:*", "sink": "" }
 	#
 
 	def get_version(self):
